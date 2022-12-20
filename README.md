@@ -55,3 +55,9 @@ going to commit again.
 
 so far so good but have the pnpm no-frozen-lockfile still in place
 
+took all the src folder and replaced it with the dominocounter src file
+rebuild the svelte.config.js and vite.config.ts files and installed the
+mkcert-vite-plugin.
+tested the build for both dev and prod an so far so good.
+commiting to git fingers crossed.
+

@@ -1,62 +1,46 @@
 <script>
-	import Counter from './Counter.svelte';
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+import mxt from '../images/mxt.svg';
+import { get } from 'svelte/store';
+
+import { playerNameTable, colors, playersScore } from './TableStore'
+import Table from './Table.svelte';	
+
+let redStyle = "redTable";
+let blueStyle = "blueTable";
+// @ts-ignore
+
+
+import {onMount} from "svelte"
+onMount(async () =>{
+
+    // example of updating the playerNameTable
+    playerNameTable.update(v =>{
+        v[0].playerName1 = "Honey"
+        v[0].playerName2 = "Louis"
+        v[0].playerName3 = "Bud"
+        v[0].playerName4 = "Tommy"
+        v[0].playerName5 = "Seth"
+        v[0].playerName6 = "Nancy"
+        v[0].playerName7 = "Carl"
+        v[0].playerName8 = "Charlie"
+
+        return v;
+    });
+});
+
+ 
+ 
 </script>
-
-<svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
-</svelte:head>
-
-<section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
-			</picture>
-		</span>
-
-		to your new<br />SvelteKit app
-	</h1>
-	<h1 class="text-1xl font-bold ">
-		Peanut Buter and Jelly!
-	  </h1>
-
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
-
-	<Counter />
-</section>
-
-<style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
-	}
-
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
-</style>
+<body>
+   <picture>
+      <!--	<source srcset={mxt} type="image/svg_element"/> -->
+          <img  class="w-48" src={mxt} alt="Newbie"
+      
+          />
+      </picture>
+  
+  <h1 class="text-3xl text-blue-400 underline">Mexican Train Domino Counter and Score Keeper</h1>
+  <Table playerNameTable={$playerNameTable} style={redStyle}/>
+  
+  
+</body>  

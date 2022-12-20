@@ -1,0 +1,245 @@
+<script Lang=ts>
+    // @ts-nocheck
+import cv from "@techstark/opencv-js"
+//import utils from "@opencv.js/utils"
+import simpleBlobDetector from "@markdelafleur/simpleblobdetector"
+
+
+let buildInfo = "loading..."
+//let imageCapture;
+
+
+
+const FPS = 15;
+let clr = {};
+    /**
+	 * @type {HTMLVideoElement}
+	 */
+
+let videO;
+let time0 = setTimeout((loadOpencv), 1000);
+let imageCapture;
+
+async function loadOpencv(){
+    try {
+        clearTimeout(time0);
+        (window ).cv = cv;
+        buildInfo = cv.getBuildInformation();
+        if (buildInfo.length > 0) {
+            buildInfo = 'OPENCV Loaded..';
+            clr = { Red  :  new cv.Scalar(255.0,0.0,0.0,255.0),
+                    Blue :  new cv.Scalar(0.0,0.0,255.0,255.0),
+                    Blue2:  new cv.Scalar(155.0,0.0,0.0,255.0),
+                    Green:  new cv.Scalar(0.0,255.0,0.0,255.0),
+                    Black:  new cv.Scalar(50.0,50.0,0.0,255.0),
+                    Yellow: new cv.Scalar(255.0,160.0,0.0,255.0),
+                    White:  new  cv.Scalar(0.0,0.0,0.0,255.0)};
+            Initvideo();
+            document.getElementById('stopButton')
+                .addEventListener('click',function (){
+                         grabIt();
+                });
+        }  //build info length
+    }
+    catch (err) {
+        clearTimeout(time0);
+        time0 = setTimeout(loadOpencv,1000);  // try opencv again.
+    }
+}
+async function Initvideo (){
+    videO = document.getElementById('videO');
+    const stream = await navigator.mediaDevices.getUserMedia(
+            {video: { width: {ideal: 640},
+                      height: {ideal: 480}, 
+                      facingMode: {ideal: "environment"},} 
+            }).then((stream) => {
+                document.querySelector('videO').srcObject = stream;
+                const track = stream.getVideoTracks()[0];
+                imageCapture = new ImageCapture(track);
+                console.log('track label '+ track.label)
+                console.log('width '+ track.getSettings().width)
+                console.log('height '+ track.getSettings().height)
+                document.querySelector('video').width = track.getSettings().width;
+                document.querySelector('video').height = track.getSettings().height;
+                document.querySelector('canvas').width = track.getSettings().width;
+                document.querySelector('canvas').height = track.getSettings().height;
+                
+                console.log(document.getElementById('videO').width);
+    
+                if(document.querySelector('videO').paused) {
+                    document.querySelector('videO').play();}
+           }
+            ).catch((err) => {
+                console.log("Video streaming error -- something went wrong "+ err);
+            });
+}
+function grabIt(){
+    imageCapture.grabFrame()
+    .then( imageBitmap =>{
+        let canvas = document.getElementById('showVid1');  
+        canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height)   
+        canvas.getContext('2d').drawImage(imageBitmap,0,0);
+        let srcIn = cv.imread(canvas);
+        canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
+        cv.imshow('showVid1',findRects(srcIn));
+    })
+    .catch(error => console.log('grabit error '+ error));
+}
+
+
+function findRects(wrkMat){
+    let srcGray = new cv.Mat(wrkMat.cols,wrkMat.rows,cv.CV_8UC1);
+    cv.cvtColor(wrkMat,srcGray,cv.COLOR_BGRA2GRAY);
+    cv.threshold(srcGray,srcGray,150,250,cv.THRESH_BINARY);
+    cv.imshow('showGray',srcGray);
+    let contours = new cv.MatVector();
+    let params = {faster: true, filterByInertia: false, filterByCircularity: true};
+    let heirs = new cv.Mat();
+    let kptTblVal;
+    let kptTbl = [];
+    let keyPts = simpleBlobDetector(wrkMat,params);
+    cv.findContours(srcGray,contours,heirs,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE);
+    
+    for (let j = 0; j < contours.size();j++){
+
+        //  go through the contours and build a table of keypoints
+        let kptList = [];
+        keyPts.forEach((kPt) => {
+            if (cv.pointPolygonTest(contours.get(j),kPt.pt,true) > 0  ){
+                    kptList.push(kPt);
+            }    
+        });
+        if (kptList.length > 0){                     //total keypoints in a given rectangle
+            let rect = cv.boundingRect(contours.get(j));
+            kptTblVal = {rect: rect,kPtArray: kptList};
+            kptTbl.push(kptTblVal);
+        }
+        
+    }
+    
+    // keypoints without any contours, no dominos....
+    contours = null;  heirs=null; srcGray.delete;
+    if(kptTbl.length == 0 ){
+        buildInfo = "There were no Dominos detected";   
+        kptTbl.delete;
+        return wrkMat;
+    } 
+    console.log(kptTbl.length + " is kptTbl length") 
+    let dominoStr = "";
+    let totalofAllDominos = 0;
+    // still need to work out the javascript sort of the kpyTbl (rect.x rect.y)
+    // we have all the x.y points and I;ve done this before
+   // kptTbl.sort((rect) => rect.x - rect.x)
+
+
+    kptTbl.forEach((cc,num) =>{
+        let consoleTemp1 = "";
+        let consoleTemp2 = " area(dot num) ";
+        // put in the dots on the domino
+        cc.kPtArray.forEach((thing, xNum) =>{
+           let r  = Math.round(thing.size*0.30);
+           cv.circle(wrkMat,thing.pt,r,clr.Yellow,-1);
+           consoleTemp2 += thing.size + "(" + (xNum+1) + ") ";
+        });
+        //put the green box around the domino
+        cv.rectangle(wrkMat,
+           new cv.Point(cc.rect.x,cc.rect.y),
+           new cv.Point (cc.rect.x+cc.rect.width,cc.rect.y+cc.rect.height),
+           clr.Green,2,0);
+
+        // put the domino number near the middle
+        let domX = cc.rect.x + cc.rect.width/2;
+        let domY = cc.rect.y + cc.rect.height/2;
+        cv.putText(wrkMat, (num + 1).toString(), 
+           new cv.Point(domX,domY),
+           cv.FONT_HERSHEY_SIMPLEX,1,clr.Black,3,true);
+
+           // write on the ui the domino point totals for each one    
+        dominoStr += "#(" + (num+1) + ")__" + cc.kPtArray.length +", "; 
+        totalofAllDominos += cc.kPtArray.length
+        
+        //write to console the area of the rectangle the 
+        // x,y location of the rectangle and the area of the points
+        consoleTemp1 = 'domino ' + (num+1) + ' '+ cc.rect.x + "(x) "+ cc.rect.y + "(y) " +
+                cc.rect.width + "(w) "+ cc.rect.height + "(h) "+
+                cc.rect.width*cc.rect.height + "(w*h) " + consoleTemp2;
+        console.log(consoleTemp1);
+    });
+
+    buildInfo = dominoStr + " \n total of All Dominos ==> "+ totalofAllDominos;   
+    kptTbl.delete;
+    return wrkMat;
+
+}
+
+</script>
+<style>
+
+
+
+      @media (min-width:600px){
+    
+    .parent{
+        display: flex;
+    }   
+    }
+    video{ 
+        display: inline-block;
+
+        border: solid gray 1px;
+     
+    }
+   
+    
+    canvas{
+        display: inline-block;
+        border: solid blueviolet 2px;
+    }
+ 
+    .build-info {
+    border: 2px;
+      width: 900px;
+      height: 100px;
+      font-size: 1em;
+    }
+    
+  
+</style>
+
+
+<h1 title="camera capture">  </h1>
+<div >  
+    <p class="build-info mx-20 "> {@html buildInfo.replace(/\n/g, '<br />')}   </p> 
+    <div class="flex space-x-22 justify-center">
+        <button type="button" id="stopButton"
+        class="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
+        Count Dominos</button>
+      </div>   
+</div> 
+
+
+
+    <section class="parent"  >
+        <section class="child">
+            <video id="videO" class="w-640 h-480"> howdy
+                <track kind="captions"/>
+            </video>
+      
+        </section>
+        <section class="child"> 
+            <canvas id="showVid1" 
+            title="Big Daddy" class="w-640 h-480">
+            </canvas>
+    
+        </section>
+    </section>
+ 
+    <div >
+        
+        <canvas id="showGray" title="Gray Boy" class="w-300 h-150">
+
+        </canvas>
+
+          
+    </div>
+    
