@@ -43,3 +43,6 @@ Cloned the git repo
 ran npm install
 ran npm run build
 
+next I used the tailwind reference for adding tailwind to svelte 
+and ran the npm run dev and it worked.
+and did a commit to git and checked vercel for a build...
