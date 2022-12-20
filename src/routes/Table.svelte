@@ -1,18 +1,18 @@
 <script>
 
-import doubleTwelve from '../images/DoubleTwelve.svg'
-import doubleEleven from '../images/doubleEleven.svg';
-import doubleTen    from '../images/doubleTen.svg';
-import doubleNine   from '../images/doubleNine.svg';
-import doubleEight  from '../images/doubleEight.svg';
-import doubleSeven  from '../images/doubleSeven.svg';
-import doubleSix    from '../images/doubleSix.svg';
-import doubleFive   from '../images/doubleFive.svg';
-import doubleFour   from '../images/doubleFour.svg';
-import doubleThree  from '../images/doubleThree.svg';
-import doubleTwo    from '../images/doubleTwo.svg';
-import doubleOne    from '../images/doubleOne.svg';
-import doubleBlank  from '../images/doubleBlank.svg';
+import doubleTwelve from './svgFiles/DoubleTwelve.svg';
+import doubleEleven from './svgFiles/doubleEleven.svg';
+import doubleTen    from './svgFiles/doubleTen.svg';
+import doubleNine   from './svgFiles/doubleNine.svg';
+import doubleEight  from './svgFiles/doubleEight.svg';
+import doubleSeven  from './svgFiles/doubleSeven.svg';
+import doubleSix    from './svgFiles/doubleSix.svg';
+import doubleFive   from './svgFiles/doubleFive.svg';
+import doubleFour   from './svgFiles/doubleFour.svg';
+import doubleThree  from './svgFiles/doubleThree.svg';
+import doubleTwo    from './svgFiles/doubleTwo.svg';
+import doubleOne    from './svgFiles/doubleOne.svg';
+import doubleBlank  from './svgFiles/doubleBlank.svg';
 
 export let playerNameTable = [{blankColumn: "Round",
 		playerName1: " ",

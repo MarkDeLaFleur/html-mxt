@@ -1,12 +1,10 @@
 <script>
-import mxt from '../images/mxt.svg';
-import { get } from 'svelte/store';
+import mxt from './svgFiles/mxt.svg';
 
-import { playerNameTable, colors, playersScore } from './TableStore'
+import { playerNameTable } from './TableStore'
 import Table from './Table.svelte';	
 
 let redStyle = "redTable";
-let blueStyle = "blueTable";
 // @ts-ignore
 
 

@@ -1,6 +1,6 @@
 <script>
  import "../app.css";
- import mxt from '../images/mxt.svg';
+ import mxt from './svgFiles/mxt.svg';
  import { page } from '$app/stores';
 	
  </script>
