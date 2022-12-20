@@ -52,3 +52,6 @@ then it worked ( shit, it always something.)
 next I'll add my simple blob detector to modules and see what that fucks up.
 @techstark/opencv-js and simpleblobdetector loaded  just peachy and npm run dev was fine.
 going to commit again.
+
+so far so good but have the pnpm no-frozen-lockfile still in place
+
