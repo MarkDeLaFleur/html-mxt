@@ -33,5 +33,9 @@
 		"vite": "^4.0.0",
 		"vitest": "^0.25.3"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"@markdelafleur/simpleblobdetector": "github:MarkDeLaFleur/simpleblobdetector",
+		"@techstark/opencv-js": "^4.6.0-release.1"
+	}
 }

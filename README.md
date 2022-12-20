@@ -46,3 +46,9 @@ ran npm run build
 next I used the tailwind reference for adding tailwind to svelte 
 and ran the npm run dev and it worked.
 and did a commit to git and checked vercel for a build...
+if failed due to a locked  pnpm-lock.yaml file so I changed
+deployment settings over riding initial pnpm install command with pnpm install --no-frozen-lockfile
+then it worked ( shit, it always something.)
+next I'll add my simple blob detector to modules and see what that fucks up.
+@techstark/opencv-js and simpleblobdetector loaded  just peachy and npm run dev was fine.
+going to commit again.
