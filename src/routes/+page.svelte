@@ -1,6 +1,5 @@
 <script>
-import mxt from './svgFiles/mxt.svg';
-
+import Svgmxt from '$lib/svelteIcons/mxt.svelte'
 import { playerNameTable } from './TableStore'
 import Table from './Table.svelte';	
 
@@ -32,9 +31,7 @@ onMount(async () =>{
 <body>
    <picture>
       <!--	<source srcset={mxt} type="image/svg_element"/> -->
-          <img  class="w-48" src={mxt} alt="Newbie"
-      
-          />
+          <Svgmxt  class="w-48" />
       </picture>
   
   <h1 class="text-3xl text-blue-400 underline">Mexican Train Domino Counter and Score Keeper</h1>
