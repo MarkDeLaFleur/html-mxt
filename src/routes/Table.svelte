@@ -1,22 +1,28 @@
 <script>
-import SVGdoubleTwelve from '$lib/svelteIcons/DoubleTwelve.svelte';
-import SVGdoubleEleven from '$lib/svelteIcons/DoubleEleven.svelte';
-import SVGdoubleTen    from '$lib/svelteIcons/DoubleTen.svelte';
-import SVGdoubleNine   from '$lib/svelteIcons/DoubleNine.svelte';
-import SVGdoubleEight  from '$lib/svelteIcons/DoubleEight.svelte';
-import SVGdoubleSeven  from '$lib/svelteIcons/DoubleSeven.svelte';
-import SVGdoubleSix    from '$lib/svelteIcons/DoubleSix.svelte';
-import SVGdoubleFive   from '$lib/svelteIcons/DoubleFive.svelte';
-import SVGdoubleFour   from '$lib/svelteIcons/DoubleFour.svelte';
-import SVGdoubleThree  from '$lib/svelteIcons/DoubleThree.svelte';
-import SVGdoubleTwo    from '$lib/svelteIcons/DoubleTwo.svelte';
-import SVGdoubleOne    from '$lib/svelteIcons/DoubleOne.svelte';
-import SVGdoubleBlank  from '$lib/svelteIcons/DoubleBlank.svelte';
+	import DoubleTwelve from '$lib/svelteIcons/DoubleTwelve.svelte';
+	import DoubleEleven from '$lib/svelteIcons/DoubleEleven.svelte';
+	import DoubleNine from '$lib/svelteIcons/DoubleNine.svelte';
+	import DoubleEight from '$lib/svelteIcons/DoubleEight.svelte';
+	import DoubleTen from '$lib/svelteIcons/DoubleTen.svelte';
+	import DoubleSeven from '$lib/svelteIcons/DoubleSeven.svelte';
+	import DoubleSix from '$lib/svelteIcons/DoubleSix.svelte';
+	import DoubleFive from '$lib/svelteIcons/DoubleFive.svelte';
+	import DoubleThree from '$lib/svelteIcons/DoubleThree.svelte';
+	import DoubleFour from '$lib/svelteIcons/DoubleFour.svelte';
+	import DoubleTwo from '$lib/svelteIcons/DoubleTwo.svelte';
+	import DoubleOneX from '$lib/svelteIcons/DoubleOneX.svelte'
+	import DoubleBlankX from '$lib/svelteIcons/DoubleBlankX.svelte';
 
-export let playerNameTable = [{blankColumn: "Round",
-		playerName1: " ",
-		playerName2: " ", playerName3: " ", playerName4: " ",
-		playerName5: " ", playerName6: " ", playerName7: " ", playerName8: " "}];
+export let playerNameTable = [{
+	blankColumn: "Round",
+	playerName1: " ",
+	playerName2: " ", 
+	playerName3: " ", 
+	playerName4: " ",
+	playerName5: " ",
+	playerName6: " ", 
+	playerName7: " ",
+	playerName8: " "}];
 
 export let roundTableData = [
 		{rScore12: "D12", scoreC1: "12", scoreC2: "",scoreC3: "", scoreC4: "",
@@ -55,8 +61,8 @@ export let roundTableData = [
 <table class={style}>
 	<thead>
 		<tr>
-			{#each Object.values(playerNameTable[0]) as columnHeading}
-				<th>{columnHeading}</th>
+			{#each Object.values(playerNameTable[0]) as player}
+				<th>{player}</th>
 			{/each}
 		<tr/>
 	</thead>
@@ -66,76 +72,64 @@ export let roundTableData = [
 			{#each Object.values(row) as cell}
 			{#if  cell == "D12"}
 				<td class="w-6" >
-					<SVGdoubleTwelve class = "h-10 w-5"/>
+					<DoubleTwelve class = " w-15"/>
 				</td>
-			{/if}	
-			{#if cell == "D11"}
+				
+			{:else if cell == "D11"}
 				<td class="w-6" >
-				<SVGdoubleEleven class = "h-10 w-5"/>
-				</td>
-			{/if}		
-			{#if cell == "D10"}
-					<td class="w-6" >
-					<SVGdoubleTen class = "h-10 w-5"/>
-					</td>
-			{/if}	
-			{#if cell == "D09"}
-				<td class="w-6" >
-				<SVGdoubleNine class = "h-10 w-5"/>
-				</td>
-			{/if}				
-			{#if cell == "D08"}
-				<td class="w-6" >
-				<SVGdoubleEight class = "h-10 w-5"/>
-				</td>
-			{/if}	
-			{#if cell == "D07"}
-				<td class="w-6" >
-				<SVGdoubleSeven class = "h-10 w-5"/>
-			
-			</td>
-			{/if}
-				{#if cell == "D06"}
-				<td class="w-6" >
-				<SVGdoubleSix class = "h-10 w-5"/>
-				</td>
-							
-			{/if}
-			{#if cell == "D05"}
-				<td class="w-6" >
-				<SVGdoubleFive class = "h-10 w-5"/>
-				</td>
-						
-			{/if}
-			{#if cell == "D04"}
-				<td class="w-6" >
-				<SVGdoubleFour class = "h-10 w-5"/>
-				</td>
-			{/if}
-			{#if cell == "D03"}
-				<td class="w-6" >
-				<SVGdoubleThree class = "h-10 w-5"/>
-				</td>
-			{/if}
-			{#if cell == "D02"}
-				<td class="w-6" >
-				<SVGdoubleTwo class = "h-10 w-5"/>
+				<DoubleEleven class = "h-10 w-5"/>
 				</td>
 					
-			{/if}	
-			{#if cell == "D01"}
+			{:else if cell == "D10"}
+					<td class="w-6" >
+					<DoubleTen class = "h-10 w-5"/>
+					</td>
+				
+			{:else if cell == "D09"}
 				<td class="w-6" >
-				<SVGdoubleOne class = "h-10 w-5"/>
+				<DoubleNine class= "h-10 w-5"/>
 				</td>
 						
-			{/if}	
-			{#if cell == "D00"}
+			{:else if cell == "D08"}
 				<td class="w-6" >
-				<SVGdoubleBlank class = "h-10 w-5"/>
+				<DoubleEight class = "h-10 w-5"/>
+				</td>
+			
+			{:else if cell == "D07"}
+				<td class="w-6" >
+				<DoubleSeven class = "h-10 w-5"/>
+				</td>
+			{:else if cell == "D06"}
+				<td class="w-6" >
+				<DoubleSix  class = "h-10 w-5"/>
+				</td>
+			{:else if cell == "D05"}
+				<td class="w-6" >
+				<DoubleFive class = "h-10 w-5"/>
+				</td>
+			{:else if cell == "D04"}
+				<td class="w-6" >
+				<DoubleFour class = "h-10 w-5"/>
+				</td>
+			{:else if cell == "D03"}
+				<td class="w-6" >
+				<DoubleThree class = "h-10 w-5"/>
+				</td>
+			{:else if cell == "D02"}
+				<td class="w-6" >
+				<DoubleTwo class = "h-10 w-5"/>
+				</td>
+			{:else if cell == "D01"}
+				<td class="w-6" >
+				<DoubleOneX class = "w-15"/>
+				</td>
+			{:else if cell == "D00"}
+				<td class="w-6" >
+				<DoubleBlankX class = "w-15"/>
 				</td>
 			{:else}
-			
-				<td class="w-8">{cell} </td>
+				<td class="w-6">{cell}
+				</td>
 			{/if}	
 			
 			 {/each}

@@ -38,26 +38,37 @@ You can preview the production build with `npm run preview`.
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
 
 
-Build using vercels svelte template. 
-Cloned the git repo
+## Built using vercel's svelte template from vercel's website. 
+from VS I ctrl-shift P then Cloned the git repo
 ran npm install
 ran npm run build
 
-next I used the tailwind reference for adding tailwind to svelte 
-and ran the npm run dev and it worked.
-and did a commit to git and checked vercel for a build...
-if failed due to a locked  pnpm-lock.yaml file so I changed
-deployment settings over riding initial pnpm install command with pnpm install --no-frozen-lockfile
-then it worked ( shit, it always something.)
-next I'll add my simple blob detector to modules and see what that fucks up.
-@techstark/opencv-js and simpleblobdetector loaded  just peachy and npm run dev was fine.
-going to commit again.
+## Added Tailwind from the tailwind website.
+Ran the npm run dev and it worked.
+Comitted changes to GIT and checked checked vercel for a build...
+Failed due to a locked  pnpm-lock.yaml file so I changed
+deployment settings (from Vecel website) over riding initial pnpm install command with pnpm install --no-frozen-lockfile
+then it worked .
+## Started adding my modules using npm
+
+@techstark/opencv-js and 
+https://github.com/MarkDeLaFleur/simpleblobdetector loaded  just peachy and npm run dev was fine.
 
 so far so good but have the pnpm no-frozen-lockfile still in place
 
-took all the src folder and replaced it with the dominocounter src file
-rebuild the svelte.config.js and vite.config.ts files and installed the
-mkcert-vite-plugin.
-tested the build for both dev and prod an so far so good.
-commiting to git fingers crossed.
+## replaced the src folder from dominocounter src file
+
+rebuilt the svelte.config.js and vite.config.ts files and installed the
+mkcert-vite-plugin in the root.
+
+tested the build for both dev and prod and so far so good.
+
+or so I thought.... Vercel was failing again on errors with reference to path0 and resolving
+the .svg icon files. Did some digging and found that you can't use the src= with .svg 
+I had to modify the .svg files as .svelte files based on this info
+https://stackoverflow.com/questions/66069647/best-way-to-import-svg-icons-into-a-svelte-app
+The /source/roots/Table.svelte file now uses '$lib/sveteIcons/svg files
+did the npm run dev and run build and it worked fine so I pushed to git
+after the push vercel built the deployment without errors!
+
 
