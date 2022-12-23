@@ -19,7 +19,7 @@ let clr = {};
 let videO;
 let time0 = setTimeout((loadOpencv), 1000);
 let imageCapture;
-
+let boxSetting = "flex flex-col basis-auto border-4 border-lime-400"
 async function loadOpencv(){
     try {
         clearTimeout(time0);
@@ -53,18 +53,20 @@ async function Initvideo (){
                       height: {ideal: 480}, 
                       facingMode: {ideal: "environment"},} 
             }).then((stream) => {
-                document.querySelector('videO').srcObject = stream;
+                document.getElementById('videO').srcObject = stream;
                 const track = stream.getVideoTracks()[0];
                 imageCapture = new ImageCapture(track);
                 console.log('track label '+ track.label)
                 console.log('width '+ track.getSettings().width)
                 console.log('height '+ track.getSettings().height)
-                document.querySelector('video').width = track.getSettings().width;
-                document.querySelector('video').height = track.getSettings().height;
-                document.querySelector('canvas').width = track.getSettings().width;
-                document.querySelector('canvas').height = track.getSettings().height;
+                document.getElementById('videO').width = track.getSettings().width;
+                document.getElementById('videO').height = track.getSettings().height;
+                document.getElementById('showVid1').width = track.getSettings().width;
+                document.getElementById('showVid1').height = track.getSettings().height;
+                document.getElementById('showGray').width = track.getSettings().width;
+                document.getElementById('showGray').height = track.getSettings().height;
                 
-                console.log(document.getElementById('videO').width);
+                console.log("videO width " + document.getElementById('videO').width);
     
                 if(document.querySelector('videO').paused) {
                     document.querySelector('videO').play();}
@@ -76,7 +78,11 @@ async function Initvideo (){
 function grabIt(){
     imageCapture.grabFrame()
     .then( imageBitmap =>{
-        let canvas = document.getElementById('showVid1');  
+        
+        let canvas = document.getElementById('showVid1');
+        
+        console.log('grab it canvas width ' + canvas.width +
+        'imagebitmap width ' + imageBitmap.width)  
         canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height)   
         canvas.getContext('2d').drawImage(imageBitmap,0,0);
         let srcIn = cv.imread(canvas);
@@ -174,20 +180,6 @@ function findRects(wrkMat){
 
 </script>
 <style>
-    video{ 
-        
-        display: inline-block;
-
-        border: solid gray 1px;
-     
-    }
-   
-    
-    canvas{
-        display: inline-block;
-        border: solid blueviolet 2px;
-    }
- 
     .build-info {
     border: 2px;
       width: 900px;
@@ -199,30 +191,32 @@ function findRects(wrkMat){
 </style>
 
 
-<h1 title="camera capture">  </h1>
-<div >  
+<h1 title="camera capture"> </h1>
+  
     <p class="build-info mx-20 "> {@html buildInfo.replace(/\n/g, '<br />')}   </p> 
-    <div class="flex space-x-22 justify-center">
+    <div  >
         <button type="button" id="stopButton"
-        class="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
-        Count Dominos</button>
-      </div>   
-</div> 
-<section class="parent flex justify-center items-center h-screen"  >
-        
-    <section class="child">
-        <video id="videO" > howdy  <track kind="captions"/>
-        </video>
-    </section>
-    <section class="child"> 
-        <canvas id="showVid1"  title="Big Daddy" >
-        </canvas>
-    </section>
-    
-    <section class="child">
-        <canvas id="showGray" title="Gray Boy" >
-        </canvas>
-    </section>
-          
+        class="px-6 py-2.5 bg-blue-600 text-white font-medium text-md leading-tight
+         uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
+         focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
+         active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
+        Count Dominos
+        </button>
+    </div> 
+    <div class="flex flex-wrap-reverse  gap-2">
+        <div class="p-4 text-white bg-white-500">
+             <canvas id="showVid1"  title="Big Daddy" >
+             </canvas>
+        </div>
+        <div class="p-4 text-white bg-white-500">
+            <canvas id="showGray" title="Gray Boy"  >
+            </canvas>
+        </div>
+        <div class="p-4 text-white bg-white-500">
+            <video id="videO" > howdy  <track kind="captions"/>
+            </video>
+        </div>
+       
+    </div>   
 
     
