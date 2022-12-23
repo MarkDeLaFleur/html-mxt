@@ -218,8 +218,13 @@ function findRects(wrkMat){
 
 
     <section class="parent"  >
+        <div class="flex justify-center items-center h-screen">
+            Centered div using Tailwind flex classes
+          
+          
         <section class="child">
-            <video id="videO" class="embed-responsive embed-responsive-4by3 relative w-full overflow-hidden"
+            
+            <video id="videO" 
             > howdy  <track kind="captions"/>
             </video>
       
@@ -230,6 +235,7 @@ function findRects(wrkMat){
             </canvas>
     
         </section>
+        </div>
     </section>
  
     <div >
