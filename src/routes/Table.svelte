@@ -11,7 +11,7 @@
 	import DoubleFour from '$lib/svelteIcons/DoubleFour.svelte';
 	import DoubleTwo from '$lib/svelteIcons/DoubleTwo.svelte';
 	import DoubleOneX from '$lib/svelteIcons/DoubleOneX.svelte'
-	import DoubleBlankX from '$lib/svelteIcons/DoubleBlankX.svelte';
+	import DoubleBlank from '$lib/svelteIcons/DoubleBlank.svelte';
 
 export let playerNameTable = [{
 	blankColumn: "Round",
@@ -125,7 +125,7 @@ export let roundTableData = [
 				</td>
 			{:else if cell == "D00"}
 				<td class="w-6" >
-				<DoubleBlankX class = "w-15"/>
+				<DoubleBlank class = "w-15"/>
 				</td>
 			{:else}
 				<td class="w-6">{cell}

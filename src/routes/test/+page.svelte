@@ -174,9 +174,6 @@ function findRects(wrkMat){
 
 </script>
 <style>
-
-
-
       @media (min-width:600px){
     
     .parent{
@@ -184,6 +181,7 @@ function findRects(wrkMat){
     }   
     }
     video{ 
+        
         display: inline-block;
 
         border: solid gray 1px;
@@ -221,8 +219,8 @@ function findRects(wrkMat){
 
     <section class="parent"  >
         <section class="child">
-            <video id="videO" class="w-640 h-480"> howdy
-                <track kind="captions"/>
+            <video id="videO" class="embed-responsive embed-responsive-4by3 relative w-full overflow-hidden"
+            > howdy  <track kind="captions"/>
             </video>
       
         </section>
