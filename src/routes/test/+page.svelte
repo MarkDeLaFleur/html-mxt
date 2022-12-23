@@ -174,12 +174,6 @@ function findRects(wrkMat){
 
 </script>
 <style>
-      @media (min-width:600px){
-    
-    .parent{
-        display: flex;
-    }   
-    }
     video{ 
         
         display: inline-block;
@@ -214,36 +208,22 @@ function findRects(wrkMat){
         Count Dominos</button>
       </div>   
 </div> 
-
-
-
-    <section class="parent"  >
-        <div class="flex justify-center items-center h-screen">
-            Centered div using Tailwind flex classes
-          
-          
-        <section class="child">
-            
-            <video id="videO" 
-            > howdy  <track kind="captions"/>
-            </video>
-      
-        </section>
-        <section class="child"> 
-            <canvas id="showVid1" 
-            title="Big Daddy" class="w-640 h-480">
-            </canvas>
-    
-        </section>
-        </div>
-    </section>
- 
-    <div >
+<section class="parent flex justify-center items-center h-screen"  >
         
-        <canvas id="showGray" title="Gray Boy" class="w-300 h-150">
-
+    <section class="child">
+        <video id="videO" > howdy  <track kind="captions"/>
+        </video>
+    </section>
+    <section class="child"> 
+        <canvas id="showVid1"  title="Big Daddy" >
         </canvas>
-
+    </section>
+    
+    <section class="child">
+       
+        <canvas id="showGray" title="Gray Boy" >
+        </canvas>
+    </section>
           
-    </div>
+
     
