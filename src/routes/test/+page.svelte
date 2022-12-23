@@ -220,7 +220,6 @@ function findRects(wrkMat){
     </section>
     
     <section class="child">
-       
         <canvas id="showGray" title="Gray Boy" >
         </canvas>
     </section>
