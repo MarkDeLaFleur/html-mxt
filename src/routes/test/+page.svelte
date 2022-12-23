@@ -203,18 +203,19 @@ function findRects(wrkMat){
         Count Dominos
         </button>
     </div> 
-    <div class="flex flex-wrap-reverse  gap-2">
-        <div class="p-4 text-white bg-white-500">
-             <canvas id="showVid1"  title="Big Daddy" >
-             </canvas>
-        </div>
-        <div class="p-4 text-white bg-white-500">
-            <canvas id="showGray" title="Gray Boy"  >
-            </canvas>
-        </div>
-        <div class="p-4 text-white bg-white-500">
+    <div class="flex flex-wrap  gap-2  bg-blue-500 bg-clip-content">
+        <div class="p-4 " >
             <video id="videO" > howdy  <track kind="captions"/>
             </video>
+        </div>
+        <div class="p-4  "  >
+             <canvas  id="showVid1"  title="Big Daddy" >
+             </canvas>
+        </div>
+        
+        <div class="p-4 " >
+            <canvas id="showGray" title="Gray Boy" hidden >
+            </canvas>
         </div>
        
     </div>   
