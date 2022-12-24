@@ -4,8 +4,8 @@
 </script>
 <header>
     <!-- This is an example component -->
-<div class="max-w-2xl mx-auto">
 
+<div class="max-w-2xl mx-auto">
     <nav class="border-gray-200 px-2 mb-10">
       <div class="container mx-auto flex flex-wrap items-center justify-between">
       <a href="#test" class="flex">

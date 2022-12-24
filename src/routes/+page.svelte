@@ -29,12 +29,10 @@ onMount(async () =>{
  
 </script>
 <body>
-   <picture>
-      <!--	<source srcset={mxt} type="image/svg_element"/> -->
-          <Svgmxt  class="w-48" />
-      </picture>
-  
   <h1 class="text-3xl text-blue-400 underline">Mexican Train Domino Counter and Score Keeper</h1>
+<p> <br>  </p>
+
+  
   <Table playerNameTable={$playerNameTable} style={redStyle}/>
   
   

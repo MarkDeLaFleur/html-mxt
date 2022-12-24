@@ -158,10 +158,10 @@ function findRects(wrkMat){
            new cv.Point (cc.rect.x+cc.rect.width,cc.rect.y+cc.rect.height),
            clr.Green,2,0);
 
-        // put the domino number near the middle
-        let domX = cc.rect.x + cc.rect.width/2;
-        let domY = cc.rect.y + cc.rect.height/2;
-        cv.putText(wrkMat, (num + 1).toString(), 
+        // put the domino number near the right bottom
+        let domX = cc.rect.x + cc.rect.width;
+        let domY = cc.rect.y + cc.rect.height - 5;
+        cv.putText(wrkMat, "(" + (num + 1).toString() + ")", 
            new cv.Point(domX,domY),
            cv.FONT_HERSHEY_SIMPLEX,1,clr.Black,3,true);
 
