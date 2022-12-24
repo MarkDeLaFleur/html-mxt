@@ -86,8 +86,12 @@ function grabIt(){
         canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height)   
         canvas.getContext('2d').drawImage(imageBitmap,0,0);
         let srcIn = cv.imread(canvas);
+        let srcResize = new cv.Mat();
+        cv.resize(srcIn,srcResize,new cv.Size(700,900),0,0,cv.INTER_AREA);
         canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
-        cv.imshow('showVid1',findRects(srcIn));
+        cv.imshow('showVid1',findRects(srcResize));
+        srcIn.delete;
+        srcResize.delete;
     })
     .catch(error => console.log('grabit error '+ error));
 }
@@ -96,10 +100,11 @@ function grabIt(){
 function findRects(wrkMat){
     let srcGray = new cv.Mat(wrkMat.cols,wrkMat.rows,cv.CV_8UC1);
     cv.cvtColor(wrkMat,srcGray,cv.COLOR_BGRA2GRAY);
-    cv.threshold(srcGray,srcGray,150,250,cv.THRESH_BINARY);
+    cv.threshold(srcGray,srcGray,100,200,cv.THRESH_BINARY);
     cv.imshow('showGray',srcGray);
     let contours = new cv.MatVector();
-    let params = {faster: true, filterByInertia: false, filterByCircularity: true};
+    let params = {faster: true, filterByInertia: false, filterByCircularity: true,
+        minThreshold: 100,  maxThreshold: 200, filterByColor: false };
     let heirs = new cv.Mat();
     let kptTblVal;
     let kptTbl = [];
@@ -214,7 +219,7 @@ function findRects(wrkMat){
         </div>
         
         <div class="p-4 " >
-            <canvas id="showGray" title="Gray Boy" hidden >
+            <canvas id="showGray" title="Gray Boy" >
             </canvas>
         </div>
        
