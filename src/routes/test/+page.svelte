@@ -100,11 +100,11 @@ function grabIt(){
 function findRects(wrkMat){
     let srcGray = new cv.Mat(wrkMat.cols,wrkMat.rows,cv.CV_8UC1);
     cv.cvtColor(wrkMat,srcGray,cv.COLOR_BGRA2GRAY);
-    cv.threshold(srcGray,srcGray,150,175,cv.THRESH_BINARY);
+    cv.threshold(srcGray,srcGray,100,200,cv.THRESH_BINARY);
     cv.imshow('showGray',srcGray);
     let contours = new cv.MatVector();
-    let params = {faster: true, filterByInertia: false, filterByCircularity: true,
-        minThreshold: 150,  maxThreshold:200, filterByColor: true };
+    let params = {faster: false, filterByInertia: true, filterByCircularity: true,
+        minThreshold: 100,  maxThreshold:200, filterByColor: false };
     let heirs = new cv.Mat();
     let kptTblVal;
     let kptTbl = [];
