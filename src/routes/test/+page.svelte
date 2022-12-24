@@ -104,7 +104,7 @@ function findRects(wrkMat){
     cv.imshow('showGray',srcGray);
     let contours = new cv.MatVector();
     let params = {faster: true, filterByInertia: false, filterByCircularity: true,
-        minThreshold: 100,  maxThreshold: 200, filterByColor: false };
+        minThreshold: 150,  maxThreshold:200, filterByColor: true };
     let heirs = new cv.Mat();
     let kptTblVal;
     let kptTbl = [];
