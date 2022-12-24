@@ -87,7 +87,7 @@ function grabIt(){
         canvas.getContext('2d').drawImage(imageBitmap,0,0);
         let srcIn = cv.imread(canvas);
         let srcResize = new cv.Mat();
-        cv.resize(srcIn,srcResize,new cv.Size(700,900),0,0,cv.INTER_AREA);
+        cv.resize(srcIn,srcResize,new cv.Size(640,480),0,0,cv.INTER_AREA);
         canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
         cv.imshow('showVid1',findRects(srcResize));
         srcIn.delete;
