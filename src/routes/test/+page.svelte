@@ -102,13 +102,13 @@ function findRects(wrkMat){
     let srcGray = new cv.Mat(wrkMat.cols,wrkMat.rows,cv.CV_8UC1);
     let contours = new cv.MatVector();
     let params = {faster: false, filterByInertia: true, filterByCircularity: true,
-        minThreshold: 100,  maxThreshold:200, filterByColor: false };
+        minThreshold: 165,  maxThreshold:250, filterByColor: false };
     let heirs = new cv.Mat();
     let kptTblVal;
     let kptTbl = [];
     let keyPts = simpleBlobDetector(wrkMat,params);
     cv.cvtColor(wrkMat,srcGray,cv.COLOR_RGBA2GRAY,0);
-    cv.threshold(srcGray,srcGray,100,250,cv.THRESH_BINARY);
+    cv.threshold(srcGray,srcGray,165,250,cv.THRESH_BINARY);
     //cv.Canny(srcGray,srcGray,100,250,5,false);
     cv.imshow('showGray',srcGray);
     cv.findContours(srcGray,contours,heirs,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE);
