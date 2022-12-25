@@ -101,13 +101,13 @@ function grabIt(){
 function findRects(wrkMat){
     let srcGray = new cv.Mat(wrkMat.cols,wrkMat.rows,cv.CV_8UC1);
     let contours = new cv.MatVector();
-    let params = {faster: false, filterByInertia: true, filterByCircularity: true,
+    let params = {faster: true, filterByInertia: false, filterByCircularity: true,
         minThreshold: 165,  maxThreshold:250, filterByColor: false };
     let heirs = new cv.Mat();
     let kptTblVal;
     let kptTbl = [];
     let keyPts = simpleBlobDetector(wrkMat,params);
-    cv.cvtColor(wrkMat,srcGray,cv.COLOR_RGBA2GRAY,0);
+    cv.cvtColor(wrkMat,srcGray,cv.COLOR_RGB2GRAY,0);
     cv.threshold(srcGray,srcGray,165,250,cv.THRESH_BINARY);
     //cv.Canny(srcGray,srcGray,100,250,5,false);
     cv.imshow('showGray',srcGray);
@@ -165,7 +165,7 @@ function findRects(wrkMat){
         let domY = cc.rect.y + cc.rect.height;
         cv.putText(wrkMat, "(" + (num + 1).toString() + ")", 
            new cv.Point(domX,domY),
-           cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Blue,2,,true);
+           cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Blue,2,cv.LINE_AA,false);
 
            // write on the ui the domino point totals for each one    
         dominoStr += "#(" + (num+1) + ")__" + cc.kPtArray.length +", "; 
