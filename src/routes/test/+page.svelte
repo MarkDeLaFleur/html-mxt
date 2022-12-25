@@ -88,7 +88,7 @@ function grabIt(){
         let srcIn = cv.imread(canvas);
         let srcResize = new cv.Mat();
         cv.resize(srcIn,srcResize,new cv.Size(640,480),0,0,cv.INTER_AREA);
-        cv.cvtColor(srcIn,srcResize,cv.COLOR_BGRA2RGBA,0);
+        cv.cvtColor(srcIn,srcResize,cv.COLOR_BGRA2RGB,0);
         canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
         cv.imshow('showVid1',findRects(srcResize));
         srcIn.delete;srcResize.delete;
@@ -162,10 +162,10 @@ function findRects(wrkMat){
 
         // put the domino number near the right bottom
         let domX = cc.rect.x + cc.rect.width;
-        let domY = cc.rect.y + cc.rect.height - 25;
+        let domY = cc.rect.y + cc.rect.height;
         cv.putText(wrkMat, "(" + (num + 1).toString() + ")", 
            new cv.Point(domX,domY),
-           cv.FONT_HERSHEY_SIMPLEX,1,clr.Red,1,true);
+           cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Blue,2,,true);
 
            // write on the ui the domino point totals for each one    
         dominoStr += "#(" + (num+1) + ")__" + cc.kPtArray.length +", "; 
