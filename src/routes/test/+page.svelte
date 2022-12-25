@@ -86,12 +86,13 @@ function grabIt(){
         canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height)   
         canvas.getContext('2d').drawImage(imageBitmap,0,0);
         let srcIn = cv.imread(canvas);
-        //let srcResize = new cv.Mat();
-        //cv.resize(srcIn,srcResize,new cv.Size(640,480),0,0,cv.INTER_AREA);
+        let srcResize = new cv.Mat();
+        cv.resize(srcIn,srcResize,new cv.Size(640,480),0,0,cv.INTER_AREA);
+        cv.cvtColor(srcIn,srcResize,cv.COLOR_BGRA2RGBA,0);
         canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
-        cv.imshow('showVid1',findRects(srcIn));
-        srcIn.delete;
-        //srcResize.delete;
+        cv.imshow('showVid1',findRects(srcResize));
+        srcIn.delete;srcResize.delete;
+    
     })
     .catch(error => console.log('grabit error '+ error));
 }
@@ -99,10 +100,6 @@ function grabIt(){
 
 function findRects(wrkMat){
     let srcGray = new cv.Mat(wrkMat.cols,wrkMat.rows,cv.CV_8UC1);
-    cv.cvtColor(wrkMat,srcGray,cv.COLOR_RGB2GRAY,0);
-    cv.threshold(srcGray,srcGray,100,200,cv.THRESH_BINARY);
-    cv.Canny(srcGray,srcGray,100,200,5,false);
-    cv.imshow('showGray',srcGray);
     let contours = new cv.MatVector();
     let params = {faster: false, filterByInertia: true, filterByCircularity: true,
         minThreshold: 100,  maxThreshold:200, filterByColor: false };
@@ -110,6 +107,10 @@ function findRects(wrkMat){
     let kptTblVal;
     let kptTbl = [];
     let keyPts = simpleBlobDetector(wrkMat,params);
+    cv.cvtColor(wrkMat,srcGray,cv.COLOR_RGBA2GRAY,0);
+    cv.threshold(srcGray,srcGray,100,250,cv.THRESH_BINARY);
+    //cv.Canny(srcGray,srcGray,100,250,5,false);
+    cv.imshow('showGray',srcGray);
     cv.findContours(srcGray,contours,heirs,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE);
     
     for (let j = 0; j < contours.size();j++){
