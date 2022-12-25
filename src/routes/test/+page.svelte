@@ -99,8 +99,9 @@ function grabIt(){
 
 function findRects(wrkMat){
     let srcGray = new cv.Mat(wrkMat.cols,wrkMat.rows,cv.CV_8UC1);
-    cv.cvtColor(wrkMat,srcGray,cv.COLOR_RGBA2GRAY);
+    cv.cvtColor(wrkMat,srcGray,cv.COLOR_RGB2GRAY,0);
     cv.threshold(srcGray,srcGray,100,200,cv.THRESH_BINARY);
+    cv.Canny(srcGray,srcGray,100,200,5,false);
     cv.imshow('showGray',srcGray);
     let contours = new cv.MatVector();
     let params = {faster: false, filterByInertia: true, filterByCircularity: true,
@@ -160,10 +161,10 @@ function findRects(wrkMat){
 
         // put the domino number near the right bottom
         let domX = cc.rect.x + cc.rect.width;
-        let domY = cc.rect.y + cc.rect.height - 5;
+        let domY = cc.rect.y + cc.rect.height - 25;
         cv.putText(wrkMat, "(" + (num + 1).toString() + ")", 
            new cv.Point(domX,domY),
-           cv.FONT_HERSHEY_SIMPLEX,1,clr.Black,1,true);
+           cv.FONT_HERSHEY_SIMPLEX,1,clr.Red,1,true);
 
            // write on the ui the domino point totals for each one    
         dominoStr += "#(" + (num+1) + ")__" + cc.kPtArray.length +", "; 
