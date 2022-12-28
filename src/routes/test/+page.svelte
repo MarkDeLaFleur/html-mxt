@@ -16,9 +16,12 @@ let clr = {};
 	 * @type {HTMLVideoElement}
 	 */
 
-let videO;
+
 let time0 = setTimeout((loadOpencv), 1000);
 let imageCapture;
+let mediaConstraint =  {video: { width: {ideal: 640}, 
+                                facingMode: {ideal: "environment"},}  };
+//let mediaConstraintX = {video: { facingMode: {ideal: "environment"},}  };
 let boxSetting = "flex flex-col basis-auto border-4 border-lime-400"
 async function loadOpencv(){
     try {
@@ -47,29 +50,24 @@ async function loadOpencv(){
     }
 }
 async function Initvideo (){
-    videO = document.getElementById('videO');
     const stream = await navigator.mediaDevices.getUserMedia(
-            {video: { width: {ideal: 640},
-                      height: {ideal: 480}, 
-                      facingMode: {ideal: "environment"},} 
-            }).then((stream) => {
-                document.getElementById('videO').srcObject = stream;
-                const track = stream.getVideoTracks()[0];
-                imageCapture = new ImageCapture(track);
-                console.log('track label '+ track.label)
-                console.log('width '+ track.getSettings().width)
-                console.log('height '+ track.getSettings().height)
-                document.getElementById('videO').width = track.getSettings().width;
-                document.getElementById('videO').height = track.getSettings().height;
-                document.getElementById('showVid1').width = track.getSettings().width;
-                document.getElementById('showVid1').height = track.getSettings().height;
-                document.getElementById('showGray').width = track.getSettings().width;
-                document.getElementById('showGray').height = track.getSettings().height;
+            mediaConstraint).then((stream) => {
+             const track = stream.getVideoTracks()[0];
+             let videO = document.getElementById('videO');
+             videO.srcObject = stream;
+             videO.width = track.getSettings().width;
+             
+            imageCapture = new ImageCapture(track);
                 
-                console.log("videO width " + document.getElementById('videO').width);
+                buildInfo = 'track label '+ track.label + 
+                            '\n track width/height ' + track.getSettings().width +
+                            ' / '+ track.getSettings().height +
+                            '\n videO width/height ' + videO.width +
+                            ' / ' + videO.height +
+                            ' videO videowidth/Height'+ videO.videoWidth +
+                            ' / ' + videO.videoHeight;
     
-                if(document.querySelector('videO').paused) {
-                    document.querySelector('videO').play();}
+                if(videO.paused) { videO.play();}
            }
             ).catch((err) => {
                 console.log("Video streaming error -- something went wrong "+ err);
@@ -80,15 +78,18 @@ function grabIt(){
     .then( imageBitmap =>{
         
         let canvas = document.getElementById('showVid1');
-        
-        console.log('grab it canvas width ' + canvas.width +
-        'imagebitmap width ' + imageBitmap.width)  
-        canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height)   
+        canvas.width = imageBitmap.width;
+        canvas.height = imageBitmap.height;
+        console.log('grab it canvas width/height ' + canvas.width +
+                     ' / ' + canvas.height + 
+                    ' imagebitmap width/height ' + imageBitmap.width +
+                    ' / ' + imageBitmap.height); 
+        canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);   
         canvas.getContext('2d').drawImage(imageBitmap,0,0);
         let srcIn = cv.imread(canvas);
         let srcResize = new cv.Mat();
-        cv.resize(srcIn,srcResize,new cv.Size(640,480),0,0,cv.INTER_AREA);
-        cv.cvtColor(srcIn,srcResize,cv.COLOR_BGRA2RGB,0);
+        cv.resize(srcIn,srcResize,new cv.Size(700,900),0,0,cv.INTER_AREA);
+        cv.cvtColor(srcResize,srcResize,cv.COLOR_BGRA2RGBA,0);
         canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
         cv.imshow('showVid1',findRects(srcResize));
         srcIn.delete;srcResize.delete;
@@ -102,14 +103,20 @@ function findRects(wrkMat){
     let srcGray = new cv.Mat(wrkMat.cols,wrkMat.rows,cv.CV_8UC1);
     let contours = new cv.MatVector();
     let params = {faster: true, filterByInertia: false, filterByCircularity: true,
-        minThreshold: 165,  maxThreshold:250, filterByColor: false };
+        minThreshold: 100,  maxThreshold:200, filterByColor: false };
+    let paramsAndroid = {filterByInertia: true, filterByCircularity: false,
+        filterbyColor: true,filterByConvexity:true,filterByArea: true,
+        maxConvexity: 3.4028234663852886,maxInertiaRatio: 3.4028234663852886,
+        minCircularity: 0.800000011920929,minArea: 70,maxArea: 300,
+        minConvexity: 0.800000011920929,minInertiaRatio: 0.10000000149011612,
+        minDistBetweenBlobs: 10,minRepeatability: 2
+    }
     let heirs = new cv.Mat();
     let kptTblVal;
     let kptTbl = [];
     let keyPts = simpleBlobDetector(wrkMat,params);
-    cv.cvtColor(wrkMat,srcGray,cv.COLOR_RGB2GRAY,0);
-    cv.threshold(srcGray,srcGray,165,250,cv.THRESH_BINARY);
-    //cv.Canny(srcGray,srcGray,100,250,5,false);
+    cv.cvtColor(wrkMat,srcGray,cv.COLOR_RGBA2GRAY,0);
+    cv.threshold(srcGray,srcGray,225,250,cv.THRESH_BINARY);
     cv.imshow('showGray',srcGray);
     cv.findContours(srcGray,contours,heirs,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE);
     
@@ -200,7 +207,7 @@ function findRects(wrkMat){
 
 <h1 title="camera capture"> </h1>
   
-    <p class="build-info mx-20 "> {@html buildInfo.replace(/\n/g, '<br />')}   </p> 
+    <p class="build-info mx-30 "> {@html buildInfo.replace(/\n/g, '<br />')}   </p> 
     <div  >
         <button type="button" id="stopButton"
         class="px-6 py-2.5 bg-blue-600 text-white font-medium text-md leading-tight
@@ -210,7 +217,7 @@ function findRects(wrkMat){
         Count Dominos
         </button>
     </div> 
-    <div class="flex flex-wrap  gap-2  bg-blue-500 bg-clip-content">
+    <div class="flex flex-wrap  gap-2  ml-4 min-w-max">
         <div class="p-4 " >
             <video id="videO" > howdy  <track kind="captions"/>
             </video>
