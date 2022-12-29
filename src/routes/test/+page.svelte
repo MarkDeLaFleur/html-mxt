@@ -116,7 +116,7 @@ function findRects(wrkMat){
     let kptTbl = [];
     let keyPts = simpleBlobDetector(wrkMat,params);
     cv.cvtColor(wrkMat,srcGray,cv.COLOR_RGBA2GRAY,0);
-    cv.threshold(srcGray,srcGray,225,250,cv.THRESH_BINARY);
+    cv.threshold(srcGray,srcGray,160,255,cv.THRESH_BINARY);
     cv.imshow('showGray',srcGray);
     cv.findContours(srcGray,contours,heirs,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE);
     
