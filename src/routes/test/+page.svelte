@@ -1,10 +1,9 @@
 <script Lang=ts>
     // @ts-nocheck
 import cv from "@techstark/opencv-js"
+import { copyTo } from "@techstark/opencv-js";
 //import utils from "@opencv.js/utils"
-import simpleBlobDetector from "@markdelafleur/simpleblobdetector"
-
-
+import simpleBlobDetector from "@markdelafleur/simpleblobdetector";
 let buildInfo = "loading..."
 //let imageCapture;
 
@@ -38,7 +37,7 @@ async function loadOpencv(){
                     Yellow: new cv.Scalar(255.0,160.0,0.0,255.0),
                     White:  new  cv.Scalar(0.0,0.0,0.0,255.0)};
             Initvideo();
-            document.getElementById('stopButton')
+            document.getElementById('countButton')
                 .addEventListener('click',function (){
                          grabIt();
                 });
@@ -91,9 +90,8 @@ function grabIt(){
         cv.resize(srcIn,srcResize,new cv.Size(700,900),0,0,cv.INTER_AREA);
         cv.cvtColor(srcResize,srcResize,cv.COLOR_BGRA2RGBA,0);
         canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
-        cv.imshow('showVid1',findRects(srcResize));
+        buildInfo = findRects(srcResize);
         srcIn.delete;srcResize.delete;
-    
     })
     .catch(error => console.log('grabit error '+ error));
 }
@@ -103,64 +101,82 @@ function findRects(wrkMat){
     let srcGray = new cv.Mat(wrkMat.cols,wrkMat.rows,cv.CV_8UC1);
     let contours = new cv.MatVector();
     let params = {faster: true, filterByInertia: false, filterByCircularity: true,
-        minThreshold: 100,  maxThreshold:200, filterByColor: false };
+        minThreshold: 100,  maxThreshold:200, filterByColor: false,
+        };
     let paramsAndroid = {filterByInertia: true, filterByCircularity: false,
         filterbyColor: true,filterByConvexity:true,filterByArea: true,
         maxConvexity: 3.4028234663852886,maxInertiaRatio: 3.4028234663852886,
         minCircularity: 0.800000011920929,minArea: 70,maxArea: 300,
         minConvexity: 0.800000011920929,minInertiaRatio: 0.10000000149011612,
-        minDistBetweenBlobs: 10,minRepeatability: 2
-    }
+        minDistBetweenBlobs: 10,minRepeatability: 2};
     let heirs = new cv.Mat();
     let kptTblVal;
     let kptTbl = [];
-    let keyPts = simpleBlobDetector(wrkMat,params);
+    //let keyPts = simpleBlobDetector(wrkMat,params);
     cv.cvtColor(wrkMat,srcGray,cv.COLOR_RGBA2GRAY,0);
-    cv.threshold(srcGray,srcGray,160,255,cv.THRESH_BINARY);
-    cv.imshow('showGray',srcGray);
+    let startThresh = 160;
+    cv.threshold(srcGray,srcGray,startThresh,255,cv.THRESH_BINARY);
+    //cv.imshow('showGray',srcGray);
     cv.findContours(srcGray,contours,heirs,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE);
-    
-    for (let j = 0; j < contours.size();j++){
+    let rectArray = []
+    let showArea = wrkMat.clone();
+    for(let j= 0; j < contours.size(); j++){
 
-        //  go through the contours and build a table of keypoints
-        let kptList = [];
-        keyPts.forEach((kPt) => {
-            if (cv.pointPolygonTest(contours.get(j),kPt.pt,true) > 0  ){
-                    kptList.push(kPt);
-            }    
-        });
-        if (kptList.length > 0){                     //total keypoints in a given rectangle
-            let rect = cv.boundingRect(contours.get(j));
-            kptTblVal = {rect: rect,kPtArray: kptList};
+        let rect = cv.boundingRect(contours.get(j))
+        if ( (cv.contourArea(contours.get(j)) >= 12000) &&
+             (cv.contourArea(contours.get(j)) <= 32000) ) {
+                rectArray.push(rect);
+            }
+            if (cv.contourArea(contours.get(j)) > 1000){
+            cv.rectangle(showArea,new cv.Point(rect.x,rect.y),
+                new cv.Point (rect.x+rect.width,rect.y+rect.height),
+                clr.Green,2,0);
+                cv.putText(showArea, "(" + cv.contourArea(contours.get(j)) + ")", 
+                new cv.Point(rect.x+15,rect.y+20),
+                cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Black,3,cv.LINE_8,false);   
+            };
+
+    
+    };
+ 
+    cv.imshow("showGray",showArea);
+    showArea.delete();
+    rectArray.forEach(them => {
+        let pips = simpleBlobDetector(wrkMat.roi(them),params);
+        if (pips.length > 0){
+            //console.log("pips on rectangle == " + pips.length + 
+           //     " @ x,y " + them.x + ','+ them.y);
+
+            let  kptList = [];
+            pips.forEach (kPt =>{
+                let tmpPt = kPt;
+                //console.log('kPt point x,y ' + ~~kPt.pt.x + ',' + ~~kPt.pt.y);
+                tmpPt.pt.x += them.x;
+                tmpPt.pt.y += them.y;
+                kptList.push(tmpPt);
+                //console.log('pip x,y ' + ~~tmpPt.pt.x+ ','+  ~~tmpPt.pt.y + 
+                //" size " + tmpPt.size)
+            });
+            kptTblVal = {rect: them,kPtArray: kptList};
             kptTbl.push(kptTblVal);
         }
-        
-    }
-    
-    // keypoints without any contours, no dominos....
-    contours = null;  heirs=null; srcGray.delete;
+    });
+    contours.delete;  heirs.delete; srcGray.delete;
     if(kptTbl.length == 0 ){
-        buildInfo = "There were no Dominos detected";   
         kptTbl.delete;
-        return wrkMat;
+        return "There were no Dominos detected";   
     } 
-    console.log(kptTbl.length + " is kptTbl length") 
+    //console.log(kptTbl.length + " is kptTbl length") 
     let dominoStr = "";
     let totalofAllDominos = 0;
-    // still need to work out the javascript sort of the kpyTbl (rect.x rect.y)
-    // we have all the x.y points and I;ve done this before
-   // kptTbl.sort((rect) => rect.x - rect.x)
-
-
     kptTbl.forEach((cc,num) =>{
-        let consoleTemp1 = "";
-        let consoleTemp2 = " area(dot num) ";
         // put in the dots on the domino
         cc.kPtArray.forEach((thing, xNum) =>{
-           let r  = Math.round(thing.size*0.30);
-           cv.circle(wrkMat,thing.pt,r,clr.Yellow,-1);
-           consoleTemp2 += thing.size + "(" + (xNum+1) + ") ";
+           let r  = Math.round(thing.size*.25);
+           //relative to bouding rectangle
+           cv.circle(wrkMat,thing.pt,r,clr.Green,2);
         });
+
         //put the green box around the domino
         cv.rectangle(wrkMat,
            new cv.Point(cc.rect.x,cc.rect.y),
@@ -172,24 +188,16 @@ function findRects(wrkMat){
         let domY = cc.rect.y + cc.rect.height;
         cv.putText(wrkMat, "(" + (num + 1).toString() + ")", 
            new cv.Point(domX,domY),
-           cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Blue,2,cv.LINE_AA,false);
-
-           // write on the ui the domino point totals for each one    
+           cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Blue,2,cv.LINE_AA,false);   
         dominoStr += "#(" + (num+1) + ")__" + cc.kPtArray.length +", "; 
-        totalofAllDominos += cc.kPtArray.length
-        
-        //write to console the area of the rectangle the 
-        // x,y location of the rectangle and the area of the points
-        consoleTemp1 = 'domino ' + (num+1) + ' '+ cc.rect.x + "(x) "+ cc.rect.y + "(y) " +
-                cc.rect.width + "(w) "+ cc.rect.height + "(h) "+
-                cc.rect.width*cc.rect.height + "(w*h) " + consoleTemp2;
-        console.log(consoleTemp1);
+        totalofAllDominos += cc.kPtArray.length;
     });
 
-    buildInfo = dominoStr + " \n total of All Dominos ==> "+ totalofAllDominos;   
+    dominoStr += " \n total of All Dominos ==> "+ totalofAllDominos;   
     kptTbl.delete;
-    return wrkMat;
-
+    cv.imshow('showVid1',wrkMat);
+    wrkMat.delete;
+    return dominoStr;  //sets buildinfo to the summary totals for all dominos
 }
 
 </script>
@@ -209,7 +217,7 @@ function findRects(wrkMat){
   
     <p class="build-info mx-30 "> {@html buildInfo.replace(/\n/g, '<br />')}   </p> 
     <div  >
-        <button type="button" id="stopButton"
+        <button type="button" id="countButton"
         class="px-6 py-2.5 bg-blue-600 text-white font-medium text-md leading-tight
          uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
          focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
