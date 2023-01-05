@@ -8,7 +8,8 @@ let buildInfo = "loading..."
 //let imageCapture;
 
 
-
+let lowArea = 2000;
+let highArea = 30000;
 const FPS = 15;
 let clr = {};
     /**
@@ -120,20 +121,25 @@ function findRects(wrkMat){
     cv.findContours(srcGray,contours,heirs,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE);
     let rectArray = []
     let showArea = wrkMat.clone();
+    let showSettings =  "Min Area " + lowArea + " Max Area " + highArea;
+    cv.putText(showArea,showSettings, 
+                new cv.Point(20,100),cv.FONT_HERSHEY_SCRIPT_COMPLEX,
+                1,clr.Yellow,3,cv.LINE_AA,false);   
+    
     for(let j= 0; j < contours.size(); j++){
 
         let rect = cv.boundingRect(contours.get(j))
-        if ( (cv.contourArea(contours.get(j)) >= 12000) &&
-             (cv.contourArea(contours.get(j)) <= 32000) ) {
+        if ( (cv.contourArea(contours.get(j)) >= lowArea) &&
+             (cv.contourArea(contours.get(j)) <= highArea) ) {
                 rectArray.push(rect);
             }
             if (cv.contourArea(contours.get(j)) > 1000){
             cv.rectangle(showArea,new cv.Point(rect.x,rect.y),
                 new cv.Point (rect.x+rect.width,rect.y+rect.height),
                 clr.Green,2,0);
-                cv.putText(showArea, "(" + cv.contourArea(contours.get(j)) + ")", 
+                cv.putText(showArea, "(" + ~~cv.contourArea(contours.get(j)) + ")", 
                 new cv.Point(rect.x+15,rect.y+20),
-                cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Black,3,cv.LINE_8,false);   
+                cv.FONT_HERSHEY_SIMPLEX,1,clr.Yellow,3,cv.LINE_4,false);   
             };
 
     
@@ -224,6 +230,14 @@ function findRects(wrkMat){
          active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
         Count Dominos
         </button>
+        <label> Min Area
+            <input type=range bind:value={lowArea} min=1000 max=50000 step=1000> 
+            <input type=number bind:value={lowArea} min=1000 max=50000 step=1000>
+             Max Area
+            <input type=range bind:value={highArea} min=0 max=50000 step=1000> 
+            <input type=number bind:value={highArea} min=0 max=50000 step=1000> 
+        
+        </label>
     </div> 
     <div class="flex flex-wrap  gap-2  ml-4 min-w-max">
         <div class="p-4 " >
