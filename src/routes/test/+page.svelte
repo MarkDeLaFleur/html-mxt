@@ -89,7 +89,7 @@ function grabIt(){
         let srcIn = cv.imread(canvas);
         let srcResize = new cv.Mat();
         cv.resize(srcIn,srcResize,new cv.Size(700,900),0,0,cv.INTER_AREA);
-        cv.cvtColor(srcResize,srcResize,cv.COLOR_BGRA2RGBA,0);
+        cv.cvtColor(srcResize,srcResize,cv.COLOR_RGB2BGR,0);
         canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
         buildInfo = findRects(srcResize);
         srcIn.delete;srcResize.delete;
@@ -114,10 +114,10 @@ function findRects(wrkMat){
     let kptTblVal;
     let kptTbl = [];
     //let keyPts = simpleBlobDetector(wrkMat,params);
-    cv.cvtColor(wrkMat,srcGray,cv.COLOR_RGBA2GRAY,0);
+    cv.cvtColor(wrkMat,srcGray,cv.COLOR_BGR2GRAY,0);
     let startThresh = 160;
     cv.threshold(srcGray,srcGray,startThresh,255,cv.THRESH_BINARY);
-    //cv.imshow('showGray',srcGray);
+
     cv.findContours(srcGray,contours,heirs,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE);
     let rectArray = []
     let showArea = wrkMat.clone();
@@ -134,12 +134,13 @@ function findRects(wrkMat){
                 rectArray.push(rect);
             }
             if (cv.contourArea(contours.get(j)) > 1000){
-            cv.rectangle(showArea,new cv.Point(rect.x,rect.y),
-                new cv.Point (rect.x+rect.width,rect.y+rect.height),
-                clr.Green,2,0);
+    
+                cv.rectangle(showArea,new cv.Point(rect.x,rect.y),
+                    new cv.Point (rect.x+rect.width,rect.y+rect.height),
+                    clr.Green,2,0);
                 cv.putText(showArea, "(" + ~~cv.contourArea(contours.get(j)) + ")", 
-                new cv.Point(rect.x+15,rect.y+20),
-                cv.FONT_HERSHEY_SIMPLEX,1,clr.Yellow,3,cv.LINE_4,false);   
+                    new cv.Point(rect.x+15,rect.y+20),
+                    cv.FONT_HERSHEY_PLAIN,2,clr.Red,1,cv.LINE_AA,false);   
             };
 
     
@@ -147,12 +148,15 @@ function findRects(wrkMat){
  
     cv.imshow("showGray",showArea);
     showArea.delete();
-    rectArray.forEach(them => {
+    // 'them' are the rectangles around a domino
+    rectArray.forEach((them,cT) => {
+        /**
+        * @type{cv.KeyPoint}
+        */
         let pips = simpleBlobDetector(wrkMat.roi(them),params);
         if (pips.length > 0){
-            //console.log("pips on rectangle == " + pips.length + 
+           //console.log("pips on rectangle  " + cT +  " == " + pips.length + 
            //     " @ x,y " + them.x + ','+ them.y);
-
             let  kptList = [];
             pips.forEach (kPt =>{
                 let tmpPt = kPt;
@@ -160,8 +164,8 @@ function findRects(wrkMat){
                 tmpPt.pt.x += them.x;
                 tmpPt.pt.y += them.y;
                 kptList.push(tmpPt);
-                //console.log('pip x,y ' + ~~tmpPt.pt.x+ ','+  ~~tmpPt.pt.y + 
-                //" size " + tmpPt.size)
+               // console.log('pip x,y ' + ~~tmpPt.pt.x+ ','+  ~~tmpPt.pt.y + 
+               // " size " + tmpPt.size)
             });
             kptTblVal = {rect: them,kPtArray: kptList};
             kptTbl.push(kptTblVal);
@@ -249,7 +253,11 @@ function findRects(wrkMat){
              </canvas>
         </div>
         
-        <div class="p-4 " >
+<!--
+    showGray is just for showing  a canvas when checking something out
+-->
+
+        <div class="p-4 " > 
             <canvas id="showGray" title="Gray Boy" >
             </canvas>
         </div>
