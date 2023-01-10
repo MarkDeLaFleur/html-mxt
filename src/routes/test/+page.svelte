@@ -1,8 +1,6 @@
 <script Lang=ts>
     // @ts-nocheck
-import cv from "@techstark/opencv-js"
-import { copyTo } from "@techstark/opencv-js";
-//import utils from "@opencv.js/utils"
+import cv from "@techstark/opencv-js";
 import simpleBlobDetector from "@markdelafleur/simpleblobdetector";
 let buildInfo = "loading..."
 //let imageCapture;
@@ -10,16 +8,18 @@ let buildInfo = "loading..."
 
 let lowArea = 2000;
 let highArea = 30000;
-const FPS = 15;
+const FPS = 3;
 let clr = {};
     /**
 	 * @type {HTMLVideoElement}
 	 */
-
-
+let streaming = false;
+let cap;
+let src;
 let time0 = setTimeout((loadOpencv), 1000);
+let videO;
 let imageCapture;
-let mediaConstraint =  {video: { width: {ideal: 640}, 
+let mediaConstraint =  {video: { width: {ideal: 640}, height: {ideal: 480},
                                 facingMode: {ideal: "environment"},}  };
 //let mediaConstraintX = {video: { facingMode: {ideal: "environment"},}  };
 let boxSetting = "flex flex-col basis-auto border-4 border-lime-400"
@@ -40,8 +40,11 @@ async function loadOpencv(){
             Initvideo();
             document.getElementById('countButton')
                 .addEventListener('click',function (){
-                         grabIt();
+                        // grabIt();
+                        FinalCount();
                 });
+            cap = new cv.VideoCapture(videO);
+            time0 = setTimeout(processVideo,0);
         }  //build info length
     }
     catch (err) {
@@ -49,14 +52,43 @@ async function loadOpencv(){
         time0 = setTimeout(loadOpencv,1000);  // try opencv again.
     }
 }
+
+function processVideo() {
+    try {
+        if (!streaming) {
+            // clean and stop.
+            src.delete();
+            dst.delete();
+            return;
+        }
+        let begin = Date.now();
+        // start processing.
+        cap.read(src);
+        //cv.rectangle(src,new cv.Point(10,100),new cv.Point(300,220),new cv.Scalar(255,0,0),2,0);
+    
+        //cv.imshow('showVid1', src);
+        //let roiIn =  src.roi(new cv.Rect(10,100,300, 220));
+        buildInfo = findRects(src);
+        // schedule the next one.
+        let delay = 1000/FPS - (Date.now() - begin);
+        setTimeout(processVideo, delay);
+    } catch (err) {
+        
+        console.log(err);
+    }
+};
+
 async function Initvideo (){
     const stream = await navigator.mediaDevices.getUserMedia(
             mediaConstraint).then((stream) => {
              const track = stream.getVideoTracks()[0];
-             let videO = document.getElementById('videO');
+             videO = document.getElementById('videO');
              videO.srcObject = stream;
+             streaming = true;
              videO.width = track.getSettings().width;
-             
+             videO.height = track.getSettings().height;
+             src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
+    
             imageCapture = new ImageCapture(track);
                 
                 buildInfo = 'track label '+ track.label + 
@@ -68,10 +100,19 @@ async function Initvideo (){
                             ' / ' + videO.videoHeight;
     
                 if(videO.paused) { videO.play();}
+
+  
+            
+
+
            }
             ).catch((err) => {
                 console.log("Video streaming error -- something went wrong "+ err);
             });
+}
+function FinalCount(){
+    streaming= false;
+
 }
 function grabIt(){
     imageCapture.grabFrame()
@@ -174,6 +215,7 @@ function findRects(wrkMat){
     contours.delete;  heirs.delete; srcGray.delete;
     if(kptTbl.length == 0 ){
         kptTbl.delete;
+        cv.imshow("showVid1",wrkMat);
         return "There were no Dominos detected";   
     } 
     //console.log(kptTbl.length + " is kptTbl length") 
@@ -245,7 +287,7 @@ function findRects(wrkMat){
     </div> 
     <div class="flex flex-wrap  gap-2  ml-4 min-w-max">
         <div class="p-4 " >
-            <video id="videO" > howdy  <track kind="captions"/>
+            <video  hidden id="videO" > howdy  <track kind="captions"/>
             </video>
         </div>
         <div class="p-4  "  >
@@ -258,7 +300,7 @@ function findRects(wrkMat){
 -->
 
         <div class="p-4 " > 
-            <canvas id="showGray" title="Gray Boy" >
+            <canvas hidden id="showGray" title="Gray Boy" >
             </canvas>
         </div>
        
