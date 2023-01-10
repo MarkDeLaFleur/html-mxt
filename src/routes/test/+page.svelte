@@ -1,6 +1,6 @@
 <script Lang=ts>
     // @ts-nocheck
-import cv from "@techstark/opencv-js";
+import cv, { VideoReader } from "@techstark/opencv-js";
 import simpleBlobDetector from "@markdelafleur/simpleblobdetector";
 let buildInfo = "loading..."
 //let imageCapture;
@@ -8,7 +8,7 @@ let buildInfo = "loading..."
 
 let lowArea = 2000;
 let highArea = 30000;
-const FPS = 3;
+const FPS = 30;
 let clr = {};
     /**
 	 * @type {HTMLVideoElement}
@@ -58,10 +58,10 @@ function processVideo() {
         if (!streaming) {
             // clean and stop.
             src.delete();
-            dst.delete();
             return;
         }
         let begin = Date.now();
+        
         // start processing.
         cap.read(src);
         //cv.rectangle(src,new cv.Point(10,100),new cv.Point(300,220),new cv.Scalar(255,0,0),2,0);
@@ -85,19 +85,27 @@ async function Initvideo (){
              videO = document.getElementById('videO');
              videO.srcObject = stream;
              streaming = true;
-             videO.width = track.getSettings().width;
-             videO.height = track.getSettings().height;
-             src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
-    
+            
             imageCapture = new ImageCapture(track);
+            if (track.getSettings().width < track.getSettings().height){
+                videO.width = track.getSettings().height;
+                videO.height = track.getSettings().width;
+
+            }
+            else{
+                videO.width = track.getSettings().width;
+                videO.height = track.getSettings().height;
+            
+            }
+            
+            src = new cv.Mat(videO.height,videO.width,cv.CV_8UC4);
+    
                 
-                buildInfo = 'track label '+ track.label + 
+                alert('track label '+ track.label + 
                             '\n track width/height ' + track.getSettings().width +
                             ' / '+ track.getSettings().height +
                             '\n videO width/height ' + videO.width +
-                            ' / ' + videO.height +
-                            ' videO videowidth/Height'+ videO.videoWidth +
-                            ' / ' + videO.videoHeight;
+                            ' / ' + videO.height);
     
                 if(videO.paused) { videO.play();}
 
