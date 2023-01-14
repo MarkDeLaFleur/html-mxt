@@ -16,10 +16,10 @@ onMount(async () =>{
         v[0].playerName2 = "Louis"
         v[0].playerName3 = "Lenny"
         v[0].playerName4 = "Tommy"
-        v[0].playerName5 = "Seth"
-        v[0].playerName6 = "Nancy"
-        v[0].playerName7 = "Carl"
-        v[0].playerName8 = "Charlie"
+        v[0].playerName5 = ""
+        v[0].playerName6 = ""
+        v[0].playerName7 = ""
+        v[0].playerName8 = ""
 
         return v;
     });
