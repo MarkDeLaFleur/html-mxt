@@ -3,8 +3,6 @@
 	import cv, { VideoReader } from '@techstark/opencv-js';
 	import simpleBlobDetector from '@markdelafleur/simpleblobdetector';
 	let buildInfo = 'loading...';
-	let lowArea = 2000;
-	let highArea = 30000;
 	const FPS = 30;
 	let clr = {};
 	/**
@@ -16,10 +14,10 @@
 	let time0 = setTimeout(loadOpencv, 1000);
 	let videO;
 	let imageCapture;
-	let mediaConstraint = {
-		video: { width: { ideal: 700 }, height: { ideal: 300 }, facingMode: { ideal: 'environment' } }
-	};
-	//let mediaConstraintX = {video: { facingMode: {ideal: "environment"},}  };
+	//let mediaConstraint = {
+	//	video: { width: { ideal: 700 }, height: { ideal: 300 }, facingMode: { ideal: 'environment' } }
+	//};
+	let mediaConstraint = {video: { facingMode: {ideal: "environment"},}  };
 	let boxSetting = 'flex flex-col basis-auto border-4 border-lime-400';
 	async function loadOpencv() {
 		try {
@@ -39,8 +37,8 @@
 				};
 				Initvideo();
 				document.getElementById('countButton').addEventListener('click', function () {
-					// grabIt();
-					FinalCount();
+					findRects(cv.imread(document.getElementById('showVid1')));
+
 				});
 				cap = new cv.VideoCapture(videO);
 				setTimeout(processVideo,0);
@@ -69,13 +67,12 @@
 					videO.width = track.getSettings().width;
 					videO.height = track.getSettings().height;
 				}
+				// bump the video width by 100 and cut height in half
+				//videO.width = videO.width + 100;
+				//videO.height = videO.width*.75;
 				src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
-				/*    alert('track label '+ track.label + 
-                            '\n track width/height ' + track.getSettings().width +
-                            ' / '+ track.getSettings().height +
-                            '\n videO width/height ' + videO.width +
-                            ' / ' + videO.height);
-            */
+				console.log('src size is ' + src.size().width + ' ' +
+				src.size().height + 'width by height');
 				if (videO.paused) {
 					videO.play();
 				}
@@ -94,9 +91,11 @@
 			let begin = Date.now();
 
 			cap.read(src);
-			cv.imshow("showVid1",src);
-			//findRects(src);
-			//buildInfo = findRects(src);
+			let roiX = new cv.Mat();
+			let xRect = new cv.Rect()
+			xRect.x = 0; xRect.y = 0; xRect.width = src.size().width; xRect.height= src.size().height/2;
+			roiX = src.roi(xRect);
+			cv.imshow("showVid1",roiX);
 			// schedule the next one.
 			let delay = 1000 / FPS - (Date.now() - begin);
 			setTimeout(processVideo, delay);
@@ -106,29 +105,9 @@
 	}
 
 	function FinalCount() {
-		//streaming = false;
-		grabIt();
+		findRects(cv.imread(document.getElementById('showVid1')));
 	}
-	function grabIt() {
-		imageCapture
-			.grabFrame()
-			.then((imageBitmap) => {
-				let canvas = document.getElementById('showVid2');
-				canvas.width = imageBitmap.width;
-				canvas.height = imageBitmap.height;
-				canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-				canvas.getContext('2d').drawImage(imageBitmap, 0, 0);
-				let srcIn = new cv.Mat();
-				srcIn = cv.imread(canvas);
-				let srcResize = new cv.Mat();
-				cv.resize(srcIn, srcResize, new cv.Size(src.cols,src.rows), 0, 0, cv.INTER_AREA);
-				findRects(srcResize);
-				srcIn.delete;srcResize.delete;
-			
-			})
-			.catch((error) => console.log('grabit error ' + error));
-	}
-
+	
 	function findRects(wrkMat) {
 		let srcGray = new cv.Mat(wrkMat.cols, wrkMat.rows, cv.CV_8UC1);
 		let contours = new cv.MatVector();
@@ -159,34 +138,22 @@
 		let heirs = new cv.Mat();
 		let kptTblVal;
 		let kptTbl = [];
+		let canvas = document.getElementById('showVid2');
+		canvas.width = wrkMat.size().width;
+		canvas.height = wrkMat.size().height;
+		canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);	
 		cv.cvtColor(wrkMat, srcGray, cv.COLOR_BGR2GRAY, 0);
 		let startThresh = 160;
 		cv.threshold(srcGray, srcGray, startThresh, 255, cv.THRESH_BINARY);
 		cv.findContours(srcGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 		let rectArray = [];
 		let showArea = wrkMat.clone();
-		let showSettings = 'Min Area ' + lowArea + ' Max Area ' + highArea;
-		cv.putText(
-			showArea,
-			showSettings,
-			new cv.Point(20, 100),
-			cv.FONT_HERSHEY_SCRIPT_COMPLEX,
-			1,
-			clr.Yellow,
-			3,
-			cv.LINE_AA,
-			false
-		);
-
+		
 		for (let j = 0; j < contours.size(); j++) {
 			let rect = cv.boundingRect(contours.get(j));
-			if (
-				cv.contourArea(contours.get(j)) >= lowArea &&
-				cv.contourArea(contours.get(j)) <= highArea
-			) {
+			let whRatio = Math.round( rect.width/rect.height);
+			if ( whRatio = 2) {
 				rectArray.push(rect);
-			}
-			if (cv.contourArea(contours.get(j)) > 1000) {
 				cv.rectangle(
 					showArea,
 					new cv.Point(rect.x, rect.y),
@@ -197,7 +164,7 @@
 				);
 				cv.putText(
 					showArea,
-					'(' + ~~cv.contourArea(contours.get(j)) + ')',
+					'(' + Math.round(rect.width / rect.height) + ')',
 					new cv.Point(rect.x + 15, rect.y + 20),
 					cv.FONT_HERSHEY_PLAIN,
 					2,
@@ -285,11 +252,14 @@
 
 		dominoStr += ' \n total of All Dominos ==> ' + totalofAllDominos;
 		kptTbl.delete;
+		canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 		cv.imshow('showVid2', wrkMat);
 		wrkMat.delete;
 		buildInfo = dominoStr;
-		return; //sets buildinfo to the summary totals for all dominos
+		return;
+
 	}
+	
 </script>
 
 <!-- svelte-ignore a11y-missing-content -->
@@ -307,15 +277,7 @@
 	>
 		Count Dominos
 	</button>
-	<label>
-		Min Area
-		<input type="range" bind:value={lowArea} min="1000" max="50000" step="1000" />
-		<input type="number" bind:value={lowArea} min="1000" max="50000" step="1000" />
-		Max Area
-		<input type="range" bind:value={highArea} min="0" max="50000" step="1000" />
-		<input type="number" bind:value={highArea} min="0" max="50000" step="1000" />
-	</label>
-</div>
+	</div>
 <div class="flex flex-wrap  gap-2  ml-4 min-w-max">
 	<div class="p-4 ">
 		<video hidden id="videO"> howdy <track kind="captions" /> </video>
@@ -333,8 +295,9 @@
 -->
 
 	<div class="p-4 ">
-		<canvas hidden id="showGray" title="Gray Boy" />
+		<canvas  id="showGray" title="Gray Boy" />
 	</div>
+	
 </div>
 
 <style>
