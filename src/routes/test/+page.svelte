@@ -1,6 +1,6 @@
 <script Lang ts>
 	// @ts-nocheck
-	import cv, { VideoReader } from '@techstark/opencv-js';
+	import cv from '@techstark/opencv-js';
 	import simpleBlobDetector from '@markdelafleur/simpleblobdetector';
 	let buildInfo = 'loading...';
 	const FPS = 30;
@@ -37,8 +37,8 @@
 				};
 				Initvideo();
 				document.getElementById('countButton').addEventListener('click', function () {
-					findRects(cv.imread(document.getElementById('showVid1')));
-
+					findRects();
+					
 				});
 				cap = new cv.VideoCapture(videO);
 				setTimeout(processVideo,0);
@@ -85,7 +85,7 @@
 		try {
 			if (!streaming) {
 				// clean and stop.
-				src.delete();
+				src.delete;
 				return;
 			}
 			let begin = Date.now();
@@ -103,12 +103,12 @@
 			console.log(err);
 		}
 	}
-
-	function FinalCount() {
-		findRects(cv.imread(document.getElementById('showVid1')));
-	}
 	
-	function findRects(wrkMat) {
+	function findRects() {
+		let tmpMat = new cv.Mat()
+		let wrkMat = new cv.Mat()
+		tmpMat = cv.imread(document.getElementById('showVid1'));
+		cv.resize(tmpMat,wrkMat,new cv.Size(src.size().width,src.size().height,cv.INTER_LINEAR_EXACT));
 		let srcGray = new cv.Mat(wrkMat.cols, wrkMat.rows, cv.CV_8UC1);
 		let contours = new cv.MatVector();
 		let params = {
@@ -177,7 +177,7 @@
 		}
 
 		cv.imshow('showGray', showArea);
-		showArea.delete();
+		showArea.delete;
 		// 'them' are the rectangles around a domino
 		rectArray.forEach((them, cT) => {
 			/**
@@ -201,9 +201,8 @@
 				kptTbl.push(kptTblVal);
 			}
 		});
-		contours.delete;
-		heirs.delete;
-		srcGray.delete;
+		contours.delete;heirs.delete;srcGray.delete;tmpMat.delete;
+
 		if (kptTbl.length == 0) {
 			kptTbl.delete;
 			cv.imshow('showVid2', wrkMat);
@@ -265,40 +264,40 @@
 <!-- svelte-ignore a11y-missing-content -->
 <h1 title="camera capture" />
 
+
 <p class="build-info mx-30 ">{@html buildInfo.replace(/\n/g, '<br />')}</p>
-<div>
-	<button
-		type="button"
-		id="countButton"
-		class="px-6 py-2.5 bg-blue-600 text-white font-medium text-md leading-tight
-         uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
-         focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
-         active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
-	>
-		Count Dominos
-	</button>
-	</div>
 <div class="flex flex-wrap  gap-2  ml-4 min-w-max">
 	<div class="p-4 ">
 		<video hidden id="videO"> howdy <track kind="captions" /> </video>
 	</div>
 	<div class="p-4  ">
+		<canvas id="wrkCanvas" title="workCanvas " hidden/>
 		<canvas id="showVid1" title="Big Daddy" />
 		<canvas id="showVid2" title="Big Domino" />
 	</div>
 	<div class="p-4  ">
 		<canvas id="showVid2" title="Big Domino" />
 	</div>
-
-	<!--
-    showGray is just for showing  a canvas when checking something out
--->
+</div>
+<div>
+	<button
+		type="button"
+		id="countButton"
+		class=" ml-2 px-3 py-3 bg-blue-600 text-white font-medium text-md leading-tight
+         uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
+         focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
+         active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
+	>
+		Count Dominos
+	</button>
 
 	<div class="p-4 ">
 		<canvas  id="showGray" title="Gray Boy" />
 	</div>
 	
 </div>
+
+
 
 <style>
 	.build-info {

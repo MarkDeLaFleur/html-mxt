@@ -2,7 +2,7 @@
  import "../app.css";
  import { page } from '$app/stores';
  import MxtSvg   from '$lib/svelteIcons/mxt.svelte'
-  
+ export const ssr = false; 
  </script>
  
 <div class="max-w-2xl mx-auto">
@@ -27,15 +27,15 @@
       <svg class=" w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
     </button>
   </div>
-  <div class=" md:flex justify-between items-start w-full md:w-auto md:order-1" id="mobile-menu-3">
-    <ul class="flex-col md:flex-row flex md:space-x-8 mt-4 md:mt-0 md:text-sm md:font-medium">
+  <div class="flex justify-between items-start  w-auto order-1" id="mobile-menu-3">
+    <ul class=" flex-row flex space-x-8 mt-4  text-sm font-medium">
       
       <MxtSvg class="w-10"></MxtSvg>
       <li class:active={$page.url.pathname === '/'}>
         <a href="/" class="bg-blue-700 md:bg-transparent text-white block pl-3 pr-4 py-2 md:text-blue-700 md:p-0 rounded" aria-current="page">Home</a>
       </li>
-      <li class:active={$page.url.pathname === '/test'}>
-        <a href="test/" class="text-gray-700 hover:bg-gray-50 border-b border-gray-100 md:hover:bg-transparent md:border-0 block pl-3 pr-4 py-2 md:hover:text-blue-700 md:p-0">Test</a>
+      <li class:active={$page.url.pathname === '/'}>
+        <a href="/test" class="text-gray-700 hover:bg-gray-50 border-b border-gray-100 md:hover:bg-transparent md:border-0 block pl-3 pr-4 py-2 md:hover:text-blue-700 md:p-0">Test</a>
       </li>
       
     </ul>

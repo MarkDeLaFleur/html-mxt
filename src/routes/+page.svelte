@@ -16,10 +16,10 @@ onMount(async () =>{
         v[0].playerName2 = "Louis"
         v[0].playerName3 = "Lenny"
         v[0].playerName4 = "Tommy"
-        v[0].playerName5 = ""
-        v[0].playerName6 = ""
-        v[0].playerName7 = ""
-        v[0].playerName8 = ""
+        v[0].playerName5 = "   "
+        v[0].playerName6 = "   "
+        v[0].playerName7 = "   "
+        v[0].playerName8 = "   "
 
         return v;
     });
@@ -29,7 +29,7 @@ onMount(async () =>{
  
 </script>
 <body>
-  <h1 class="text-3xl text-blue-400 underline">Mexican Train Domino Counter and Score Keeper</h1>
+  <h1 class="text-base text-blue-400 underline">Mexican Train Domino Counter and Score Keeper</h1>
 <p> <br>  </p>
 
   

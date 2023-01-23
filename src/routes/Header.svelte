@@ -1,6 +1,6 @@
 <script>
   import "./app.css";
-	import { page } from '$app/stores';
+	//import { page } from '$app/stores';
 </script>
 <header>
     <!-- This is an example component -->
