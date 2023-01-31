@@ -1,31 +1,6 @@
 <script>
-/*	import DoubleTwelve from '$lib/svelteIcons/DoubleTwelve.svelte';
-	import DoubleEleven from '$lib/svelteIcons/DoubleEleven.svelte';
-	import DoubleTen from '$lib/svelteIcons/DoubleTen.svelte';
-	import DoubleNine from '$lib/svelteIcons/DoubleNine.svelte';
-	import DoubleEight from '$lib/svelteIcons/DoubleEight.svelte';
-	import DoubleSeven from '$lib/svelteIcons/DoubleSeven.svelte';
-	import DoubleSix from '$lib/svelteIcons/DoubleSix.svelte';
-	import DoubleFive from '$lib/svelteIcons/DoubleFive.svelte';
-	import DoubleFour from '$lib/svelteIcons/DoubleFour.svelte';
-	import DoubleThree from '$lib/svelteIcons/DoubleThree.svelte';
-	import DoubleTwo from '$lib/svelteIcons/DoubleTwo.svelte';
-	import DoubleOneX from '$lib/svelteIcons/DoubleOneX.svelte'
-	import DoubleBlank from '$lib/svelteIcons/DoubleBlank.svelte';
-	import DoubleOne from '$lib/svelteIcons/DoubleOne.svelte';
-	import XX12 from '$lib/svelteIcons/DoubleTwelve.svelte';
-	let TryThis = [{ref: Double12}];
-	*/
-	export let playerNameTable = [{
-	blankColumn: "Round",
-	playerName1: " ",
-	playerName2: " ", 
-	playerName3: " ", 
-	playerName4: " ",
-	playerName5: " ",
-	playerName6: " ", 
-	playerName7: " ",
-	playerName8: " "}];
+	import {playerScore} from './TableStore.js'
+
 
 	//  SVG files can't be loaded directly into the html without finagling so I 
 	// created the dominos with google draw, saved as svg the optimized using a utility. 
@@ -42,157 +17,55 @@
 	const D3  = '<svg viewBox="0 0 100 200" fill="none" stroke-linecap="square" stroke-miterlimit="10" xmlns="http://www.w3.org/2000/svg"><clipPath id="a"><path d="M0 0h100v180.123H0V0z"/></clipPath><g clip-path="url(#a)"><path fill="#fff" d="M0 0h100v180.123H0z" fill-rule="evenodd"/><path fill="#000" d="M39.056 88.244c0-.521.423-.945.945-.945h27.181a.945.945 0 0 1 .945.945v3.78a.945.945 0 0 1-.945.945h-27.18a.945.945 0 0 1-.946-.945z" fill-rule="evenodd"/><path stroke="#000" stroke-linejoin="round" stroke-linecap="butt" d="M39.056 88.244c0-.521.423-.945.945-.945h27.181a.945.945 0 0 1 .945.945v3.78a.945.945 0 0 1-.945.945h-27.18a.945.945 0 0 1-.946-.945z"/><path fill="#fff" d="M11.48 20.187c0-7.092 5.749-12.84 12.84-12.84h51.36a12.84 12.84 0 0 1 12.84 12.84v141.248c0 7.092-5.749 12.84-12.84 12.84H24.32c-7.091 0-12.84-5.748-12.84-12.84z" fill-rule="evenodd"/><path stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" d="M11.48 20.187c0-7.092 5.749-12.84 12.84-12.84h51.36a12.84 12.84 0 0 1 12.84 12.84v141.248c0 7.092-5.749 12.84-12.84 12.84H24.32c-7.091 0-12.84-5.748-12.84-12.84z"/><path fill="red" d="M25.785 21.8c0-3.767 2.143-6.82 4.787-6.82 1.27 0 2.487.719 3.385 1.998.898 1.278 1.402 3.013 1.402 4.821 0 3.766-2.143 6.82-4.787 6.82s-4.787-3.054-4.787-6.82zM47.009 130.618c0-3.766 2.143-6.82 4.787-6.82 1.27 0 2.487.72 3.385 1.998.898 1.279 1.402 3.013 1.402 4.822 0 3.766-2.143 6.819-4.787 6.819s-4.787-3.053-4.787-6.82zM47.009 45.712c0-3.766 2.143-6.819 4.787-6.819 1.27 0 2.488.719 3.386 1.998.897 1.278 1.402 3.013 1.402 4.821 0 3.766-2.144 6.82-4.788 6.82s-4.787-3.054-4.787-6.82z" fill-rule="evenodd"/><path fill="none" d="M26.09 90.003h52.914"/><path stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" d="M26.09 90.003h52.914"/><path fill="red" d="M70.084 73.005c0-3.766 2.144-6.82 4.788-6.82 1.27 0 2.487.72 3.385 1.998.898 1.279 1.402 3.013 1.402 4.822 0 3.766-2.143 6.819-4.787 6.819s-4.788-3.053-4.788-6.82zM26.656 106.99c0-3.766 2.143-6.819 4.787-6.819 1.27 0 2.488.719 3.385 1.998.898 1.278 1.403 3.013 1.403 4.821 0 3.766-2.144 6.82-4.788 6.82s-4.787-3.054-4.787-6.82zM70.083 157.868c0-3.766 2.143-6.818 4.787-6.818 1.27 0 2.488.718 3.386 1.997.898 1.279 1.402 3.013 1.402 4.821 0 3.766-2.144 6.82-4.788 6.82s-4.787-3.054-4.787-6.82z" fill-rule="evenodd"/></g></svg>';
 	const D2  = '<svg viewBox="0 0 100 200" fill="none" stroke-linecap="square" stroke-miterlimit="10" xmlns="http://www.w3.org/2000/svg"><clipPath id="a"><path d="M0 0h100v179.186H0V0z"/></clipPath><g clip-path="url(#a)"><path fill="#fff" d="M0 0h100v179.186H0z" fill-rule="evenodd"/><path fill="#000" d="M38.714 87.035c0-.52.421-.94.94-.94H67.76a.94.94 0 0 1 .94.94v3.758a.94.94 0 0 1-.94.94H39.654a.94.94 0 0 1-.94-.94z" fill-rule="evenodd"/><path stroke="#000" stroke-linejoin="round" stroke-linecap="butt" d="M38.714 87.035c0-.52.421-.94.94-.94H67.76a.94.94 0 0 1 .94.94v3.758a.94.94 0 0 1-.94.94H39.654a.94.94 0 0 1-.94-.94z"/><path fill="#fff" d="M10.283 19.777c0-7.312 5.928-13.239 13.24-13.239h52.954a13.24 13.24 0 0 1 13.24 13.24v139.631c0 7.312-5.928 13.24-13.24 13.24H23.523c-7.312 0-13.24-5.928-13.24-13.24z" fill-rule="evenodd"/><path stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" d="M10.283 19.777c0-7.312 5.928-13.239 13.24-13.239h52.954a13.24 13.24 0 0 1 13.24 13.24v139.631c0 7.312-5.928 13.24-13.24 13.24H23.523c-7.312 0-13.24-5.928-13.24-13.24z"/><path fill="#7f6000" d="M25.031 20.922c0-3.749 2.214-6.788 4.945-6.788 1.312 0 2.57.715 3.497 1.988.927 1.273 1.448 3 1.448 4.8 0 3.748-2.214 6.787-4.945 6.787-2.73 0-4.945-3.039-4.945-6.787z" fill-rule="evenodd"/><path fill="none" d="M25.347 88.785h54.551"/><path stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" d="M25.347 88.785h54.551"/><path fill="#7f6000" d="M70.704 71.873c0-3.748 2.214-6.787 4.945-6.787 1.312 0 2.57.715 3.497 1.988.927 1.273 1.448 3 1.448 4.8 0 3.748-2.214 6.787-4.945 6.787-2.73 0-4.945-3.039-4.945-6.788zM25.93 105.69c0-3.748 2.213-6.787 4.944-6.787 1.312 0 2.57.715 3.497 1.988.927 1.273 1.448 3 1.448 4.8 0 3.748-2.214 6.787-4.945 6.787-2.73 0-4.945-3.039-4.945-6.787zM70.703 156.317c0-3.749 2.214-6.788 4.945-6.788 1.312 0 2.57.715 3.497 1.988.927 1.273 1.448 3 1.448 4.8 0 3.748-2.214 6.787-4.945 6.787-2.73 0-4.945-3.039-4.945-6.787z" fill-rule="evenodd"/></g></svg>';
 	const D1  = '<svg viewBox="0 0 100 200" fill="none" stroke-linecap="square" stroke-miterlimit="10" xmlns="http://www.w3.org/2000/svg"><clipPath id="a"><path d="M0 0h100v200H0V0z"/></clipPath><g clip-path="url(#a)"><path fill="#fff" d="M0 0h100v200H0z" fill-rule="evenodd"/><path fill="#000" d="M39.133 96.38c0-.572.463-1.035 1.034-1.035H66.98a1.034 1.034 0 0 1 1.034 1.034v4.137c0 .57-.463 1.034-1.034 1.034H40.167a1.034 1.034 0 0 1-1.034-1.034z" fill-rule="evenodd"/><path stroke="#000" stroke-linejoin="round" stroke-linecap="butt" d="M39.133 96.38c0-.572.463-1.035 1.034-1.035H66.98a1.034 1.034 0 0 1 1.034 1.034v4.137c0 .57-.463 1.034-1.034 1.034H40.167a1.034 1.034 0 0 1-1.034-1.034z"/><path fill="#fff" d="M11.732 20.78c0-7.045 5.711-12.756 12.756-12.756h51.024A12.756 12.756 0 0 1 88.268 20.78v156.787c0 7.045-5.711 12.756-12.756 12.756H24.488c-7.045 0-12.756-5.711-12.756-12.756z" fill-rule="evenodd"/><path stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" d="M11.732 20.78c0-7.045 5.711-12.756 12.756-12.756h51.024A12.756 12.756 0 0 1 88.268 20.78v156.787c0 7.045-5.711 12.756-12.756 12.756H24.488c-7.045 0-12.756-5.711-12.756-12.756z"/><path fill="#000" d="M47.034 142.657c0-4.114 2.13-7.449 4.756-7.449 1.261 0 2.471.785 3.363 2.182.892 1.397 1.393 3.291 1.393 5.267 0 4.114-2.13 7.449-4.756 7.449-2.627 0-4.756-3.335-4.756-7.449zM47.035 49.927c0-4.114 2.129-7.449 4.755-7.449 1.262 0 2.472.785 3.363 2.182.892 1.397 1.393 3.291 1.393 5.267 0 4.114-2.129 7.449-4.756 7.449-2.626 0-4.755-3.335-4.755-7.45z" fill-rule="evenodd"/><path fill="none" d="M26.25 98.297h52.598"/><path stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" d="M26.25 98.297h52.598"/></g></svg>';
-	const D0  = '<svg viewBox="0 0 100 181.803" fill="none" stroke-linecap="square" stroke-miterlimit="10" xmlns="http://www.w3.org/2000/svg"><clipPath id="a"><path d="M0 0h100v181.803H0V0z"/></clipPath><g clip-path="url(#a)"><path fill="#fff" d="M0 0h100v181.803H0z" fill-rule="evenodd"/><path fill="#000" d="M39.436 88.244c0-.521.423-.945.944-.945h26.174a.945.945 0 0 1 .945.945v3.78a.945.945 0 0 1-.945.945H40.38a.945.945 0 0 1-.944-.945z" fill-rule="evenodd"/><path stroke="#000" stroke-linejoin="round" stroke-linecap="butt" d="M39.436 88.244c0-.521.423-.945.944-.945h26.174a.945.945 0 0 1 .945.945v3.78a.945.945 0 0 1-.945.945H40.38a.945.945 0 0 1-.944-.945z"/><path fill="#fff" d="M12.819 19.74c0-6.845 5.549-12.394 12.394-12.394h49.574A12.394 12.394 0 0 1 87.181 19.74v142.142c0 6.845-5.549 12.394-12.394 12.394H25.213c-6.845 0-12.394-5.55-12.394-12.394z" fill-rule="evenodd"/><path stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" d="M12.819 19.74c0-6.845 5.549-12.394 12.394-12.394h49.574A12.394 12.394 0 0 1 87.181 19.74v142.142c0 6.845-5.549 12.394-12.394 12.394H25.213c-6.845 0-12.394-5.55-12.394-12.394z"/><path fill="none" d="M26.921 90.003h51.087"/><path stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" d="M26.921 90.003h51.087"/></g></svg>';
+	const D0  = '<svg viewBox="0 0 100 200" fill="none" stroke-linecap="square" stroke-miterlimit="10" xmlns="http://www.w3.org/2000/svg"><clipPath id="a"><path d="M0 0h100v181.803H0V0z"/></clipPath><g clip-path="url(#a)"><path fill="#fff" d="M0 0h100v181.803H0z" fill-rule="evenodd"/><path fill="#000" d="M39.436 88.244c0-.521.423-.945.944-.945h26.174a.945.945 0 0 1 .945.945v3.78a.945.945 0 0 1-.945.945H40.38a.945.945 0 0 1-.944-.945z" fill-rule="evenodd"/><path stroke="#000" stroke-linejoin="round" stroke-linecap="butt" d="M39.436 88.244c0-.521.423-.945.944-.945h26.174a.945.945 0 0 1 .945.945v3.78a.945.945 0 0 1-.945.945H40.38a.945.945 0 0 1-.944-.945z"/><path fill="#fff" d="M12.819 19.74c0-6.845 5.549-12.394 12.394-12.394h49.574A12.394 12.394 0 0 1 87.181 19.74v142.142c0 6.845-5.549 12.394-12.394 12.394H25.213c-6.845 0-12.394-5.55-12.394-12.394z" fill-rule="evenodd"/><path stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" d="M12.819 19.74c0-6.845 5.549-12.394 12.394-12.394h49.574A12.394 12.394 0 0 1 87.181 19.74v142.142c0 6.845-5.549 12.394-12.394 12.394H25.213c-6.845 0-12.394-5.55-12.394-12.394z"/><path fill="none" d="M26.921 90.003h51.087"/><path stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" d="M26.921 90.003h51.087"/></g></svg>';
 
 	let iconSvgs = [D12,D11,D10,D9,D8,D7,D6,D5,D4,D3,D2,D1,D0];
+	//setting up the table entry scores and icons for each player
 	/**
 	 * @type {any[]}
 	 */
 	let roundTableData = [];
-	iconSvgs.forEach(iCon => roundTableData.push({icon: iCon,scoreC1: "", scoreC2: "",scoreC3: "", scoreC4: "",
-								scoreC5: "", scoreC6: "",scoreC7: "", scoreC8: ""}
-								) );
-	
-	
-	/**
-	 * @type {any}
-	 */
-	 export let style;
+	iconSvgs.forEach((iCon,index) => {
+		roundTableData.push({icon: iCon}) 
+	});
+
 </script>
 
-<table class={style}>
+<table class="min-w-full border text-center" >
+	<thead class="border-b">
 		<tr>
-			{#each Object.values(playerNameTable[0]) as player}
-				<th>{player}</th>
+			<th scope="col" class="border-r px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900"
+			contenteditable="true"
+		> Round
+		</th>
+	
+			{#each $playerScore as players,playerIndex}
+			<th scope="col" class="border-r px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900"
+				contenteditable="true" bind:innerHTML={$playerScore[playerIndex].playerName}
+			>{players.playerName }
+			</th>
 			{/each}
 		<tr/>
-
-		{#each roundTableData as {icon,scoreC1,scoreC2,scoreC3,scoreC4,scoreC5,scoreC6,scoreC7,scoreC8}}
-		<tr>
-			<td
-			class=" block scale-50"
-			contenteditable="false" 
-			bind:innerHTML={icon}>{icon}</td
-		>
-		<td
-					class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900"
-					contenteditable="true"
-					bind:innerHTML={scoreC1}>{scoreC1}</td
-				>
-				<td
-				class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900"
-				contenteditable="true"
-				bind:innerHTML={scoreC2}>{scoreC2}</td
-			>
-			<td
-			class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900"
-			contenteditable="true"
-			bind:innerHTML={scoreC3}>{scoreC3}</td
-		>
-		<td
-					class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900"
-					contenteditable="true"
-					bind:innerHTML={scoreC4}>{scoreC4}</td
-				>
-				<td
-				class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900"
-				contenteditable="true"
-				bind:innerHTML={scoreC5}>{scoreC5}</td
-			>
-			<td
-			class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900"
-			contenteditable="true"
-			bind:innerHTML={scoreC6}>{scoreC6}</td
-		>
-		<td
-					class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900"
-					contenteditable="true"
-					bind:innerHTML={scoreC7}>{scoreC7}</td
-				>
-				<td
-				class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900"
-				contenteditable="true"
-				bind:innerHTML={scoreC8}>{scoreC8}</td
-			>
-
-			</tr>
+	</thead>
+	{#each roundTableData as {icon},rowptr}
+	<tr class=" even:bg-green-300 odd:bg-purple-300 border-b">
+		<td class="whitespace-nowrap border"	contenteditable="false" bind:innerHTML={icon} >
+			{icon } 
+		</td>
+		
+		
+		{#each $playerScore as rndScore,colptr}
+		<td	class="whitespace-nowrap border font-medium text-slate-900"
+			contenteditable="true" 
+			bind:innerHTML= {$playerScore[colptr].pScore[rowptr]}>
+			{rndScore.pScore[rowptr]}
+		</td>
 		{/each}
+				
+
+	</tr>
+	{/each}		
+		
+
 </table>
 
-<style>
-	table, th, td{
-		border: 1px solid;
-		border-collapse: collapse;
-		margin-bottom: 10px;
-	}
-	
-	table.redTable {
-		border: 2px solid #A40808;
-		background-color: #EEE7DB;
-		width: 100%;
-		text-align: center;
-		border-collapse: collapse;
-	}
-	table.redTable td, table.redTable th {
-		border: 1px solid #AAAAAA;
-		padding: 3px 2px;
-	}
-	table.redTable tbody td  {
-		font-size: 13px;
-	}
-	
-	table.redTable tr:nth-child(even) {
-		background: #F5C8BF;
-	}
-	table.redTable thead {
-		background: #A40808;
-		background: -moz-linear-gradient(top, #bb4646 0%, #ad2020 66%, #A40808 100%);
-		background: -webkit-linear-gradient(top, #bb4646 0%, #ad2020 66%, #A40808 100%);
-		background: linear-gradient(to bottom, #bb4646 0%, #ad2020 66%, #A40808 100%);
-	}
-	table.redTable thead th {
-		font-size: 19px;
-		font-weight: bold;
-		color: #FFFFFF;
-		text-align: center;
-		border-left: 2px solid #A40808;
-	}
-	table.redTable thead th:first-child {
-		border-left: none;
-	}
-
-	table.blueTable {
-		border: 1px solid #1C6EA4;
-		background-color: #EEEEEE;
-		width: 100%;
-		text-align: left;
-		border-collapse: collapse;
-	}
-	table.blueTable td, table.blueTable th {
-		border: 1px solid #AAAAAA;
-		padding: 3px 2px;
-	}
-	table.blueTable tbody td {
-		font-size: 13px;
-	}
-	table.blueTable tr:nth-child(even) {
-		background: #D0E4F5;
-	}
-	table.blueTable thead {
-		background: #1C6EA4;
-		background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
-		background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
-		background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
-		border-bottom: 2px solid #444444;
-	}
-	table.blueTable thead th {
-		font-size: 15px;
-		font-weight: bold;
-		color: #FFFFFF;
-		border-left: 2px solid #D0E4F5;
-	}
-	table.blueTable thead th:first-child {
-		border-left: none;
-	}
-
-</style>

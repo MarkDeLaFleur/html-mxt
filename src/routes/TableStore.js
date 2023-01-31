@@ -1,69 +1,37 @@
 
 import { writable } from 'svelte/store';
-export let playerNameTable = writable([{blankColumn: " Round ",
-	playerName1: " ",
-	playerName2: " ",
-	playerName3: " ",
-	playerName4: " ",
-	playerName5: " ",
-	playerName6: " ",
-	playerName7: " ",
-	playerName8: " "}]);
-	
-export let playersScore = writable([
-	{
-		"Round": "doubleTwelve",
-		"Score": [" "," "," "," "," "," "," "," "],
+export let playerScore = writable([
+	{	"playerName": "Billy",
+		"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
 	},
 	{
-		"Round": "doubleEleven",
-	 	"Score": [" "," "," "," "," "," "," "," "],
+		"playerName": "Willy",
+	 	"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
    	},
    	{
-		"Round": "doubleTen",
-     	"Score": [" "," "," "," "," "," "," "," "],
+		"playerName": "Goofy",
+     	"pScore": [" "," "," "," "," "," "," "," "," "," "," "," ","  "],
   	},
   	{
-		"Round": "doubleNine",
-  	 	"Score": [" "," "," "," "," "," "," "," "],
+		"playerName": "",
+  	 	"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
     },
     {
-		"Round": "doubleEight",
-     	"Score": [" "," "," "," "," "," "," "," "],
+		"playerName": "",
+     	"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
 	},
 	{
-		"Round": "doubleSeven",
-		"Score": [" "," "," "," "," "," "," "," "],
+		"playerName": "",
+		"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
 	},
 	{
-		"Round": "doubleSix",
-		"Score": [" "," "," "," "," "," "," "," "],
+		"playerName": "",
+		"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
 	},
 	{
-		"Round": "doubleFive",
-		"Score": [" "," "," "," "," "," "," "," "],
-	},
-	{
-		"Round": "doubleFour",
-		"Score": [" "," "," "," "," "," "," "," "],
-	},
-	{
-		"Round": "doubleThree",
-		"Score": [" "," "," "," "," "," "," "," "],
-	},
-	{
-		"Round": "doubleTwo",
-		"Score": [" "," "," "," "," "," "," "," "],
-	},
-	{
-		"Round": "doubleOne",
-		"Score": [" "," "," "," "," "," "," "," "],
-	},
-	{
-		"Round": "doubleBlank",
-		"Score": [" "," "," "," "," "," "," "," "],
-	},
-
+		"playerName": "",
+		"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
+	}
 ]);
 
 export let colors = writable([
