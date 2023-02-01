@@ -2,8 +2,7 @@
  import "../app.css";
  import { page } from '$app/stores';
  import MxtSvg   from '$lib/svelteIcons/mxt.svelte'
- export const ssr = false; 
- </script>
+  </script>
  
 <div class="max-w-2xl mx-auto">
 <nav class="border-gray-200 px-2 mb-10">

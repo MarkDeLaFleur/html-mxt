@@ -1,7 +1,5 @@
 <script>
 	import {playerScore} from './TableStore.js'
-
-
 	//  SVG files can't be loaded directly into the html without finagling so I 
 	// created the dominos with google draw, saved as svg the optimized using a utility. 
 	// scaling is a bit weird....
@@ -28,6 +26,7 @@
 	iconSvgs.forEach((iCon,index) => {
 		roundTableData.push({icon: iCon}) 
 	});
+
 
 </script>
 

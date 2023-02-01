@@ -1,67 +1,39 @@
 
-import { writable } from 'svelte/store';
-export let playerScore = writable([
-	{	"playerName": "Billy",
+import { localStore } from '../localStore.js'
+  
+  
+const initialPlayerScore = [
+	{	"playerName": " ",
 		"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
 	},
 	{
-		"playerName": "Willy",
+		"playerName": " ",
 	 	"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
    	},
    	{
-		"playerName": "Goofy",
+		"playerName": " ",
      	"pScore": [" "," "," "," "," "," "," "," "," "," "," "," ","  "],
   	},
   	{
-		"playerName": "",
+		"playerName": " ",
   	 	"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
     },
     {
-		"playerName": "",
+		"playerName": " ",
      	"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
 	},
 	{
-		"playerName": "",
+		"playerName": " ",
 		"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
 	},
 	{
-		"playerName": "",
+		"playerName": " ",
 		"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
 	},
 	{
 		"playerName": "",
 		"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
 	}
-]);
-
-export let colors = writable([
-	{
-		"Name" : "Cyan",
-		"HEX" : "#00FFFF"
-	},
-	{
-		"Name" : "Yellow",
-		"HEX" : "#FFFF00"
-	},
-	{
-		"Name" : "Blue",
-		"HEX" : "#0000FF"
-	},
-	{
-		"Name" : "Lime",
-		"HEX" : "#00FF00"
-	},
-	{
-		"Name" : "Red",
-		"HEX" : "#FF0000"
-	},
-	{
-		"Name" : "White",
-		"HEX" : "#FFFFFF"
-	},
-	{
-		"Name" : "Black",
-		"HEX" : "#000000"
-	},
-])
-
+];
+export const playerScore = localStore('html-mxt', initialPlayerScore)
+console.log(playerScore)
