@@ -9,6 +9,7 @@
 	 * @type {HTMLVideoElement}
 	 */
 	let streaming = false;
+	let stream;
 	let cap;
 	let src;
 	let time0 = setTimeout(loadOpencv, 1000);
@@ -52,11 +53,12 @@
 
 
 	async function Initvideo() {
-		const stream = await navigator.mediaDevices
+		stream = await navigator.mediaDevices
 			.getUserMedia(mediaConstraint)
 			.then((stream) => {
 				const track = stream.getVideoTracks()[0];
 				videO = document.getElementById('videO');
+				window.localStream = stream;
 				videO.srcObject = stream;
 				streaming = true;
 				imageCapture = new ImageCapture(track);
@@ -70,9 +72,10 @@
 				// bump the video width by 100 and cut height in half
 				//videO.width = videO.width + 100;
 				//videO.height = videO.width*.75;
+				
 				src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
-				console.log('src size is ' + src.size().width + ' ' +
-				src.size().height + 'width by height');
+				//console.log('src size is ' + src.size().width + ' ' +
+				//src.size().height + 'width by height');
 				if (videO.paused) {
 					videO.play();
 				}
@@ -82,20 +85,23 @@
 			});
 	}
 	function processVideo() {
-		try {
-			if (!streaming) {
-				// clean and stop.
-				src.delete;
-				return;
+		if (document.getElementById("showVid1") == null)  {  // home button clicked
+					src.delete;
+					window.localStream.getVideoTracks().forEach(track => track.stop());
+					// stops the webcam but it seems you have to refresh the home screen to turn off the 
+					// indicator light
+					return;
 			}
-			let begin = Date.now();
 
+		try {
+			let begin = Date.now();
 			cap.read(src);
 			let roiX = new cv.Mat();
 			let xRect = new cv.Rect()
 			xRect.x = 0; xRect.y = 0; xRect.width = src.size().width; xRect.height= src.size().height/2;
 			roiX = src.roi(xRect);
 			cv.imshow("showVid1",roiX);
+			roiX.delete;
 			// schedule the next one.
 			let delay = 1000 / FPS - (Date.now() - begin);
 			setTimeout(processVideo, delay);
