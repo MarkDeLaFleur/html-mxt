@@ -31,7 +31,7 @@ import {playerScore} from './TableStore.js'
 
 </script>
 
-<table class=" table-fixed w-full border " >
+<table class=" table-flex md:table-fixed w-full border " >
 	<thead >
 		<tr >
 			<th  class="px-6 py-1  border sticky top-0  text-red-900 bg-red-300"

@@ -19,7 +19,6 @@
 	//	video: { width: { ideal: 700 }, height: { ideal: 300 }, facingMode: { ideal: 'environment' } }
 	//};
 	let mediaConstraint = {video: { facingMode: {ideal: "environment"},}  };
-	let boxSetting = 'flex flex-col basis-auto border-4 border-lime-400';
 	async function loadOpencv() {
 		try {
 			clearTimeout(time0);
@@ -271,25 +270,22 @@
 <h1 title="camera capture" />
 
 
-<p class="build-info mx-30 ">{@html buildInfo.replace(/\n/g, '<br />')}</p>
-<div class="flex flex-wrap  gap-2  ml-4 min-w-max">
-	<div class="p-4 ">
+<p class="build-info flex-wrap w-max px-5 mx-30 border text-4xl lg:text-xl">
+	{@html buildInfo.replace(/\n/g, '<br />')}</p>
+<div >
+	<div>
 		<video hidden id="videO"> howdy <track kind="captions" /> </video>
-	</div>
-	<div class="p-4  ">
 		<canvas id="wrkCanvas" title="workCanvas " hidden/>
-		<canvas id="showVid1" title="Big Daddy" />
-		<canvas id="showVid2" title="Big Domino" />
 	</div>
-	<div class="p-4  ">
-		<canvas id="showVid2" title="Big Domino" />
-	</div>
+
 </div>
 <div>
+	<canvas class="w-100 h-1/2 ml-5 lg:ml-10 " id="showVid1" title="Big Daddy" />
+	
 	<button
 		type="button"
 		id="countButton"
-		class=" ml-2 px-3 py-3 bg-blue-600 text-white font-medium text-md leading-tight
+		class="ml-5 lg:ml-2 px-3 py-3 bg-blue-600 text-white font-medium text-md leading-tight
          uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
          focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
          active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
@@ -297,19 +293,12 @@
 		Count Dominos
 	</button>
 
-	<div class="p-4 ">
-		<canvas  id="showGray" title="Gray Boy" />
+	<div class="p-4 flex w-full mb-4">
+		<div >
+			<canvas class="w-100  h-1/2 px-2 py-2" id="showVid2" title="Big Domino"/>
+			<canvas class="w-100  h-1/2 px-2 py-2" id="showGray" title="Gray Boy" />
+	
+		</div>
 	</div>
 	
 </div>
-
-
-
-<style>
-	.build-info {
-		border: 2px;
-		width: 900px;
-		height: 100px;
-		font-size: 1em;
-	}
-</style>
