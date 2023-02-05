@@ -71,7 +71,6 @@
 				// bump the video width by 100 and cut height in half
 				//videO.width = videO.width + 100;
 				//videO.height = videO.width*.75;
-				
 				src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
 				//console.log('src size is ' + src.size().width + ' ' +
 				//src.size().height + 'width by height');
@@ -94,26 +93,31 @@
 
 		try {
 			let begin = Date.now();
+
 			cap.read(src);
 			let roiX = new cv.Mat();
-			let xRect = new cv.Rect()
+			let xRect = new cv.Rect();
 			xRect.x = 0; xRect.y = 0; xRect.width = src.size().width; xRect.height= src.size().height/2;
 			roiX = src.roi(xRect);
 			cv.imshow("showVid1",roiX);
-			roiX.delete;
+			roiX.delete; 
 			// schedule the next one.
 			let delay = 1000 / FPS - (Date.now() - begin);
 			setTimeout(processVideo, delay);
 		} catch (err) {
-			console.log(err);
+			console.log(err + ' in process video callback');
 		}
 	}
 	
 	function findRects() {
+
 		let tmpMat = new cv.Mat()
-		let wrkMat = new cv.Mat()
+		let wrkMat = new cv.Mat(src.size().width,src.size().height,cv.CV_8UC1)
 		tmpMat = cv.imread(document.getElementById('showVid1'));
+		
 		cv.resize(tmpMat,wrkMat,new cv.Size(src.size().width,src.size().height,cv.INTER_LINEAR_EXACT));
+
+	
 		let srcGray = new cv.Mat(wrkMat.cols, wrkMat.rows, cv.CV_8UC1);
 		let contours = new cv.MatVector();
 		let params = {
@@ -267,21 +271,24 @@
 </script>
 
 <!-- svelte-ignore a11y-missing-content -->
-<h1 title="camera capture" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<h1 title="camera capture" > </h1>
 
 
-<p class="build-info flex-wrap w-max px-5 mx-30 border text-4xl lg:text-xl">
+<p class="build-info flex-wrap w-max px-5 mx-30 border text-xl md:text-xl">
 	{@html buildInfo.replace(/\n/g, '<br />')}</p>
 <div >
-	<div>
+	
 		<video hidden id="videO"> howdy <track kind="captions" /> </video>
 		<canvas id="wrkCanvas" title="workCanvas " hidden/>
-	</div>
+	
 
 </div>
+<div class="p-4 flex w-full h-1/2 mb-4" >
+	<canvas class="ml-5 lg:ml-10 w-full " id="showVid1" title="Big Daddy" />
+</div>
 <div>
-	<canvas class="w-100 h-1/2 ml-5 lg:ml-10 " id="showVid1" title="Big Daddy" />
-	
 	<button
 		type="button"
 		id="countButton"
