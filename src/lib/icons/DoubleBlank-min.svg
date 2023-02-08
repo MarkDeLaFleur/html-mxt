@@ -1,1 +1,10 @@
-<svg viewBox="0 0 100 181.803" fill="none" stroke-linecap="square" stroke-miterlimit="10" xmlns="http://www.w3.org/2000/svg"><clipPath id="a"><path d="M0 0h100v181.803H0V0z"/></clipPath><g clip-path="url(#a)"><path fill="#fff" d="M0 0h100v181.803H0z" fill-rule="evenodd"/><path fill="#000" d="M39.436 88.244c0-.521.423-.945.944-.945h26.174a.945.945 0 0 1 .945.945v3.78a.945.945 0 0 1-.945.945H40.38a.945.945 0 0 1-.944-.945z" fill-rule="evenodd"/><path stroke="#000" stroke-linejoin="round" stroke-linecap="butt" d="M39.436 88.244c0-.521.423-.945.944-.945h26.174a.945.945 0 0 1 .945.945v3.78a.945.945 0 0 1-.945.945H40.38a.945.945 0 0 1-.944-.945z"/><path fill="#fff" d="M12.819 19.74c0-6.845 5.549-12.394 12.394-12.394h49.574A12.394 12.394 0 0 1 87.181 19.74v142.142c0 6.845-5.549 12.394-12.394 12.394H25.213c-6.845 0-12.394-5.55-12.394-12.394z" fill-rule="evenodd"/><path stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" d="M12.819 19.74c0-6.845 5.549-12.394 12.394-12.394h49.574A12.394 12.394 0 0 1 87.181 19.74v142.142c0 6.845-5.549 12.394-12.394 12.394H25.213c-6.845 0-12.394-5.55-12.394-12.394z"/><path fill="none" d="M26.921 90.003h51.087"/><path stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" d="M26.921 90.003h51.087"/></g></svg>
+<svg fill="none" stroke-linecap="square" stroke-miterlimit="10" version="1.1" viewBox="0 0 50 80" xmlns="http://www.w3.org/2000/svg">
+ <clipPath id="a">
+  <path d="m0 0h100v181.8h-100z"/>
+ </clipPath>
+ <g transform="matrix(-.5 0 0 -.44004 50 80)" clip-path="url(#a)" style="stroke-width:2.1319">
+  <path d="m12.819 19.74c0-6.845 5.549-12.394 12.394-12.394h49.574a12.394 12.394 0 0 1 12.394 12.394v142.14c0 6.845-5.549 12.394-12.394 12.394h-49.574c-6.845 0-12.394-5.55-12.394-12.394z" stroke="#000" stroke-linecap="butt" stroke-linejoin="round" stroke-width="4.2638"/>
+  <path d="m21.992 90.003h56.016" stroke="#000" stroke-linecap="butt" stroke-linejoin="round" stroke-width="4.2638"/>
+  <ellipse transform="scale(-1)" cx="-49.348" cy="-130.34" rx="4.4693" ry="6.771" style="fill:#fff;stroke-width:4.545"/>
+ </g>
+</svg>

@@ -1,10 +1,12 @@
 <script Lang ts>
 	// @ts-nocheck
+	import SavePoints from './SavePoints.svelte';
 	import cv from '@techstark/opencv-js';
 	import simpleBlobDetector from '@markdelafleur/simpleblobdetector';
 	let buildInfo = 'loading...';
 	const FPS = 30;
 	let clr = {};
+	let selected;
 	/**
 	 * @type {HTMLVideoElement}
 	 */
@@ -110,6 +112,11 @@
 	}
 	
 	function findRects() {
+		console.log('selected is ' + selected)
+		const sel = document.getElementsByTagName('select')
+		//once we have an index we can update players score based on selected player and selected round.
+		// I'll put both the selectables in SavePoints svelte
+		console.log('selected player index ' + sel[0].selectedIndex)
 
 		let tmpMat = new cv.Mat()
 		let wrkMat = new cv.Mat(src.size().width,src.size().height,cv.CV_8UC1)
@@ -307,5 +314,9 @@
 	
 		</div>
 	</div>
+<SavePoints 
+
+bind:value={selected}   />
+{JSON.stringify(selected, null, 2)}
 	
 </div>
