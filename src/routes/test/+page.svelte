@@ -314,9 +314,10 @@
 	
 		</div>
 	</div>
-<SavePoints 
+	<SavePoints bind:value={selected}   />
+	<li>
 
-bind:value={selected}   />
-{JSON.stringify(selected, null, 2)}
+	{JSON.stringify(selected, null, 1)}
+</li>
 	
 </div>

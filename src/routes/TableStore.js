@@ -36,4 +36,4 @@ const initialPlayerScore = [
 	}
 ];
 export const playerScore = localStore('html-mxt', initialPlayerScore)
-console.log(playerScore)
+//console.log(playerScore)

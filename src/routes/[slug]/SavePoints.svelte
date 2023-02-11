@@ -10,6 +10,8 @@
   console.log('options'+ options.length)
   $: { value = options[index].player;    }
   </script>
+
+
   <select bind:value={index}>
     {#each options as option, i}
       <option value={i}>
