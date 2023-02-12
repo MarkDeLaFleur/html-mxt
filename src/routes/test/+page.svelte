@@ -17,6 +17,7 @@
 	let time0 = setTimeout(loadOpencv, 1000);
 	let videO;
 	let imageCapture;
+	let xRect;
 	//let mediaConstraint = {
 	//	video: { width: { ideal: 700 }, height: { ideal: 300 }, facingMode: { ideal: 'environment' } }
 	//};
@@ -98,10 +99,12 @@
 
 			cap.read(src);
 			let roiX = new cv.Mat();
-			let xRect = new cv.Rect();
+			xRect = new cv.Rect();
+			// we will use a slider to define the recatangle on the canvas later
 			xRect.x = 0; xRect.y = 0; xRect.width = src.size().width; xRect.height= src.size().height/2;
-			roiX = src.roi(xRect);
-			cv.imshow("showVid1",roiX);
+
+			cv.rectangle(src,new cv.Point(xRect.x,xRect.y),new cv.Point(xRect.width,xRect.height),clr.Green)
+			cv.imshow("showVid1",src);
 			roiX.delete; 
 			// schedule the next one.
 			let delay = 1000 / FPS - (Date.now() - begin);
@@ -121,8 +124,8 @@
 		let tmpMat = new cv.Mat()
 		let wrkMat = new cv.Mat(src.size().width,src.size().height,cv.CV_8UC1)
 		tmpMat = cv.imread(document.getElementById('showVid1'));
-		
-		cv.resize(tmpMat,wrkMat,new cv.Size(src.size().width,src.size().height,cv.INTER_LINEAR_EXACT));
+		wrkMat = tmpMat.roi(xRect);		
+		//cv.resize(tmpMat,wrkMat,new cv.Size(src.size().width,src.size().height,cv.INTER_LINEAR_EXACT));
 
 	
 		let srcGray = new cv.Mat(wrkMat.cols, wrkMat.rows, cv.CV_8UC1);

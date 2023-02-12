@@ -1,9 +1,10 @@
 <script>
-import Table from './Table.svelte';	
+import TableLayout from './TableLayout.svelte';
 </script>
 <body>
   <h1 class="text-base text-blue-400 underline">
     Mexican Train Domino Counter and Score Keeper</h1>
 <p> <br>  </p>
-  <Table  />
+  <TableLayout  />
+
 </body>  
