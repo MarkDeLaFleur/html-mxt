@@ -15,8 +15,17 @@
   <select bind:value={index}>
     {#each options as option, i}
       <option value={i}>
-         {display_func(option.player)}
+         {display_func(option.player) + "  " }
       </option>
     {/each}
   </select>
+  <br><br>
+
+  {#each options as option, i}
+  <label> {display_func(option.player)}
+
+    <input type=checkbox bind:group={options} name="playerGroup" value={i}>
+  </label>     
+
+  {/each}
   

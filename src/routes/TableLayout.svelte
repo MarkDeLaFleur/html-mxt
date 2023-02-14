@@ -33,10 +33,9 @@
 			{#each roundTableData as {icon},rowptr}
 		    <tr class="even:bg-green-300 odd:bg-yellow-400 ">
 			    <td class="	bg-white " >
-					<div class="items-center h-18" >
-						<a class="h-0" href="/{rowptr}" >{@html icon}
+					<a  href="/{rowptr}" >{@html icon}
 						</a>
-					</div>
+					
 				    
 			    </td>
 		

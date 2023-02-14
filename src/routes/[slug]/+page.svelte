@@ -9,15 +9,13 @@
 
 </script>
   
-  <h1>Domino Camera Capture for Domino </h1>
-  <div>{@html roundTableData[data.content].icon}
-  </div>
-  <div class="px-6">
-    <li>           Player  {JSON.stringify(selected, null, 1)} Selected</li>
-  <SavePoints  bind:value={selected}   />
-	<li>
+ <h1> Camera Capture - Domino Counter </h1>
 
-	
-    </li>
+  <div class=" w-12 h-6"> <br>
+   {@html roundTableData[data.content].icon} <br>
   </div>
-	
+  
+  <SavePoints bind:value={selected} />
+
+  
+  

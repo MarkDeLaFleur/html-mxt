@@ -40,6 +40,7 @@
 		"@markdelafleur/simpleblobdetector": "github:MarkDeLaFleur/simpleblobdetector",
 		"@opencv.js/utils": "^1.1.0",
 		"@techstark/opencv-js": "^4.6.0-release.1",
-		"svelte-range-slider-pips": "^2.1.1"
+		"svelte-range-slider-pips": "^2.1.1",
+		"svelte-slider": "^1.0.1"
 	}
 }

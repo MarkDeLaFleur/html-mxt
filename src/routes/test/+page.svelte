@@ -3,10 +3,12 @@
 	import SavePoints from './SavePoints.svelte';
 	import cv from '@techstark/opencv-js';
 	import simpleBlobDetector from '@markdelafleur/simpleblobdetector';
+	import RangeSlider from 'svelte-range-slider-pips';
 	let buildInfo = 'loading...';
 	const FPS = 30;
 	let clr = {};
 	let selected;
+
 	/**
 	 * @type {HTMLVideoElement}
 	 */
@@ -18,6 +20,8 @@
 	let videO;
 	let imageCapture;
 	let xRect;
+	let rangeValuesXY = [10,100];
+	let rangeValuesWH = [10,100];  // change in init video to width height
 	//let mediaConstraint = {
 	//	video: { width: { ideal: 700 }, height: { ideal: 300 }, facingMode: { ideal: 'environment' } }
 	//};
@@ -75,6 +79,11 @@
 				//videO.width = videO.width + 100;
 				//videO.height = videO.width*.75;
 				src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
+				rangeValuesXY=[0,videO.width];
+				rangeValuesWH=[0,videO.height];
+				console.log('rangeValuesXY ' + rangeValuesXY)
+				
+				console.log('rangeValuesWH ' + rangeValuesWH)
 				//console.log('src size is ' + src.size().width + ' ' +
 				//src.size().height + 'width by height');
 				if (videO.paused) {
@@ -100,12 +109,16 @@
 			cap.read(src);
 			let roiX = new cv.Mat();
 			xRect = new cv.Rect();
-			// we will use a slider to define the recatangle on the canvas later
-			xRect.x = 0; xRect.y = 0; xRect.width = src.size().width; xRect.height= src.size().height/2;
-
+			//rangeValueXY is the origin 0,0 , if increase or decrease x, that is the new origin
+			// if you decrease or increase y you change the starting point so y should always be
+			// greater than x 
+			xRect.x = rangeValuesXY[0]; xRect.y = rangeValuesWH[0]; 
+			xRect.width = rangeValuesXY[1]-20; xRect.height= rangeValuesWH[1]-20;
+			console.log('xRect '+ xRect.x,xRect.y,xRect.width,xRect.height)
 			cv.rectangle(src,new cv.Point(xRect.x,xRect.y),new cv.Point(xRect.width,xRect.height),clr.Green)
 			cv.imshow("showVid1",src);
 			roiX.delete; 
+
 			// schedule the next one.
 			let delay = 1000 / FPS - (Date.now() - begin);
 			setTimeout(processVideo, delay);
@@ -121,7 +134,7 @@
 		// I'll put both the selectables in SavePoints svelte
 		console.log('selected player index ' + sel[0].selectedIndex)
 
-		let tmpMat = new cv.Mat()
+		let tmpMat = new cv.Mat(src.size().width,src.size().height,cv.CV_8UC1)
 		let wrkMat = new cv.Mat(src.size().width,src.size().height,cv.CV_8UC1)
 		tmpMat = cv.imread(document.getElementById('showVid1'));
 		wrkMat = tmpMat.roi(xRect);		
@@ -288,6 +301,19 @@
 
 <p class="build-info flex-wrap w-max px-5 mx-30 border text-xl md:text-xl">
 	{@html buildInfo.replace(/\n/g, '<br />')}</p>
+
+<div class="px-10 w-1/2 h-10">
+	<ul>Capture XY Range {rangeValuesXY}</ul>
+	<RangeSlider bind:values={rangeValuesXY} float pips first='label' 
+	last='label' value={rangeValuesXY} min={0}	max={640}	>
+  </RangeSlider>
+
+  <RangeSlider bind:values={rangeValuesWH} float pips first='label' last='label' 
+  value={rangeValuesWH} min={0}
+  max={480}	>
+</RangeSlider>
+  
+</div>
 <div >
 	
 		<video hidden id="videO"> howdy <track kind="captions" /> </video>
