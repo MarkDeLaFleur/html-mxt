@@ -1,5 +1,4 @@
 <script>
-
 import Footer from './Footer.svelte';
 import {roundTableData } from './IconSvg.js';
 import {playerScore} from './TableStore.js'
@@ -10,7 +9,6 @@ import {playerScore} from './TableStore.js'
 
 	
 </script>
-
 <table class=" table-flex md:table-fixed w-full border " >
 	<thead >
 		<tr >
@@ -51,4 +49,5 @@ import {playerScore} from './TableStore.js'
 	</tbody>	
 
 </table>
+
 

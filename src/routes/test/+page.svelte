@@ -3,11 +3,18 @@
 	import SavePoints from './SavePoints.svelte';
 	import cv from '@techstark/opencv-js';
 	import simpleBlobDetector from '@markdelafleur/simpleblobdetector';
-	import RangeSlider from 'svelte-range-slider-pips';
+	import DrawRect from './DrawRect.svelte';
 	let buildInfo = 'loading...';
 	const FPS = 30;
 	let clr = {};
 	let selected;
+	let drawRectVars;   //holder for DrawRect components startPosition and endPosition
+	let startPosition = {col: 0, row: 0};
+	let endPosition = {col: 0, row: 0};
+	let tmpPts;
+
+	let cl = 0;
+
 
 	/**
 	 * @type {HTMLVideoElement}
@@ -19,13 +26,12 @@
 	let time0 = setTimeout(loadOpencv, 1000);
 	let videO;
 	let imageCapture;
-	let xRect;
-	let rangeValuesXY = [10,100];
-	let rangeValuesWH = [10,100];  // change in init video to width height
+
+  // change in init video to width height
 	//let mediaConstraint = {
 	//	video: { width: { ideal: 700 }, height: { ideal: 300 }, facingMode: { ideal: 'environment' } }
 	//};
-	let mediaConstraint = {video: { facingMode: {ideal: "environment"},}  };
+	let mediaConstraint = {video: { facingMode: {ideal: "environment"},width: { ideal: 800 }  }};
 	async function loadOpencv() {
 		try {
 			clearTimeout(time0);
@@ -79,13 +85,6 @@
 				//videO.width = videO.width + 100;
 				//videO.height = videO.width*.75;
 				src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
-				rangeValuesXY=[0,videO.width];
-				rangeValuesWH=[0,videO.height];
-				console.log('rangeValuesXY ' + rangeValuesXY)
-				
-				console.log('rangeValuesWH ' + rangeValuesWH)
-				//console.log('src size is ' + src.size().width + ' ' +
-				//src.size().height + 'width by height');
 				if (videO.paused) {
 					videO.play();
 				}
@@ -105,20 +104,11 @@
 
 		try {
 			let begin = Date.now();
-
 			cap.read(src);
-			let roiX = new cv.Mat();
-			xRect = new cv.Rect();
-			//rangeValueXY is the origin 0,0 , if increase or decrease x, that is the new origin
-			// if you decrease or increase y you change the starting point so y should always be
-			// greater than x 
-			xRect.x = rangeValuesXY[0]; xRect.y = rangeValuesWH[0]; 
-			xRect.width = rangeValuesXY[1]-20; xRect.height= rangeValuesWH[1]-20;
-			console.log('xRect '+ xRect.x,xRect.y,xRect.width,xRect.height)
-			cv.rectangle(src,new cv.Point(xRect.x,xRect.y),new cv.Point(xRect.width,xRect.height),clr.Green)
+			tmpPts = rectPts();
+			//console.log('start ' + tmpPts[0].x + '/' + tmpPts[0].y + 'end ' + tmpPts[1].x + '/' + tmpPts[1].y)
+			cv.rectangle(src,tmpPts[0],tmpPts[1],clr.Green,2);
 			cv.imshow("showVid1",src);
-			roiX.delete; 
-
 			// schedule the next one.
 			let delay = 1000 / FPS - (Date.now() - begin);
 			setTimeout(processVideo, delay);
@@ -133,14 +123,18 @@
 		//once we have an index we can update players score based on selected player and selected round.
 		// I'll put both the selectables in SavePoints svelte
 		console.log('selected player index ' + sel[0].selectedIndex)
-
-		let tmpMat = new cv.Mat(src.size().width,src.size().height,cv.CV_8UC1)
-		let wrkMat = new cv.Mat(src.size().width,src.size().height,cv.CV_8UC1)
-		tmpMat = cv.imread(document.getElementById('showVid1'));
-		wrkMat = tmpMat.roi(xRect);		
-		//cv.resize(tmpMat,wrkMat,new cv.Size(src.size().width,src.size().height,cv.INTER_LINEAR_EXACT));
-
-	
+		let tmpMat = src.clone();
+		let wrkMat = new cv.Mat();
+		// tmpPts contains the adjusted starting/ ending coordinates.
+		// x is column y is row!!
+		if (tmpPts[1].x - tmpPts[0].x > 0 	) {
+            //  roi is row col  to r+r and col + col
+			let roi = new cv.Rect(tmpPts[0].x,tmpPts[0].y,
+			tmpPts[1].x - tmpPts[0].x,tmpPts[1].y - tmpPts[0].y)
+			console.log('roi ==> ' + roi.y + '/' + roi.x + '/'  + roi.width+ '/'+roi.height)
+			wrkMat = tmpMat.roi(roi);
+		}
+		else { wrkMat = tmpMat.clone();}	
 		let srcGray = new cv.Mat(wrkMat.cols, wrkMat.rows, cv.CV_8UC1);
 		let contours = new cv.MatVector();
 		let params = {
@@ -290,6 +284,23 @@
 		return;
 
 	}
+	function rectPts(){
+		// depending on which way the cursor was dragged you have to adjust start end
+		startPosition.col = (drawRectVars.startPosition.col > drawRectVars.endPosition.col) ? 
+					 drawRectVars.endPosition.col : drawRectVars.startPosition.col;
+		endPosition.col   = (drawRectVars.endPosition.col > drawRectVars.startPosition.col) ?
+					drawRectVars.endPosition.col : drawRectVars.startPosition.col;		 
+		startPosition.row = (drawRectVars.startPosition.row > drawRectVars.endPosition.row) ? 
+					 drawRectVars.endPosition.row : drawRectVars.startPosition.row;
+		endPosition.row   = (drawRectVars.endPosition.row > drawRectVars.startPosition.row) ?
+					drawRectVars.endPosition.row : drawRectVars.startPosition.row;
+		let arg = [new cv.Point(startPosition.col,startPosition.row),
+				   new cv.Point(endPosition.col,endPosition.row)];
+		return arg;
+			
+							 
+		
+	}
 	
 </script>
 
@@ -303,16 +314,8 @@
 	{@html buildInfo.replace(/\n/g, '<br />')}</p>
 
 <div class="px-10 w-1/2 h-10">
-	<ul>Capture XY Range {rangeValuesXY}</ul>
-	<RangeSlider bind:values={rangeValuesXY} float pips first='label' 
-	last='label' value={rangeValuesXY} min={0}	max={640}	>
-  </RangeSlider>
 
-  <RangeSlider bind:values={rangeValuesWH} float pips first='label' last='label' 
-  value={rangeValuesWH} min={0}
-  max={480}	>
-</RangeSlider>
-  
+
 </div>
 <div >
 	
@@ -321,9 +324,7 @@
 	
 
 </div>
-<div class="p-4 flex w-full h-1/2 mb-4" >
-	<canvas class="ml-5 lg:ml-10 w-full " id="showVid1" title="Big Daddy" />
-</div>
+<DrawRect bind:this={drawRectVars}  />
 <div>
 	<button
 		type="button"
@@ -350,3 +351,4 @@
 </li>
 	
 </div>
+
