@@ -1,13 +1,12 @@
 <script Lang ts>
 	// @ts-nocheck
-	import SavePoints from './SavePoints.svelte';
 	import cv from '@techstark/opencv-js';
 	import simpleBlobDetector from '@markdelafleur/simpleblobdetector';
 	import DrawRect from './DrawRect.svelte';
 	let buildInfo = 'loading...';
 	const FPS = 30;
 	let clr = {};
-	let selected;
+	export let selected=0;
 	let drawRectVars;   //holder for DrawRect components startPosition and endPosition
 	let startPosition = {col: 0, row: 0};
 	let endPosition = {col: 0, row: 0};
@@ -53,7 +52,12 @@
 					findRects();
 					
 				});
-				cap = new cv.VideoCapture(videO);
+				document.getElementById('UpdatePlayerScore').addEventListener('click', function () {
+					updatePlayerTable();
+					
+				});
+
+                cap = new cv.VideoCapture(videO);
 				setTimeout(processVideo,0);
 			} //build info length
 		} catch (err) {
@@ -117,10 +121,6 @@
 	
 	function findRects() {
 		console.log('selected is ' + selected)
-		const sel = document.getElementsByTagName('select')
-		//once we have an index we can update players score based on selected player and selected round.
-		// I'll put both the selectables in SavePoints svelte
-		console.log('selected player index ' + sel[0].selectedIndex)
 		let tmpMat = src.clone();
 		let wrkMat = new cv.Mat();
 		// tmpPts contains the adjusted starting/ ending coordinates.
@@ -280,6 +280,15 @@
 		return;
 
 	}
+    function updatePlayerTable(){
+        // update and get out
+        window.localStream.getVideoTracks().forEach(track => track.stop());
+					// stops the webcam but it seems you have to refresh the home screen to turn off the 
+					// indicator light
+		return;
+	
+
+    }
 	
 </script>
 
@@ -314,6 +323,16 @@
 	>
 		Count Dominos
 	</button>
+	<button
+		type="button"
+		id="UpdatePlayerScore"
+		class="ml-5 lg:ml-2 px-3 py-3 bg-blue-600 text-white font-medium text-md leading-tight
+         uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
+         focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
+         active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
+	>
+		Update Player's Score
+	</button>
 
 	<div class="p-4 flex w-full mb-4">
 		<div >
@@ -324,11 +343,6 @@
 	
 		</div>
 	</div>
-	<SavePoints bind:value={selected}   />
-	<li>
-
-	{JSON.stringify(selected, null, 1)}
-</li>
 	
 </div>
 
