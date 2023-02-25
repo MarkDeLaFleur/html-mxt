@@ -3,17 +3,21 @@
 	import cv from '@techstark/opencv-js';
 	import simpleBlobDetector from '@markdelafleur/simpleblobdetector';
 	import DrawRect from './DrawRect.svelte';
+	import {goto} from '$app/navigation'
 	let buildInfo = 'loading...';
+	import { playerScore } from '../TableStore.js'
+	export let dominoRound=0;
 	const FPS = 30;
 	let clr = {};
 	export let selected=0;
+	$: {console.log($playerScore[selected].playerName + ' ' + $playerScore[selected].pScore[dominoRound])}
 	let drawRectVars;   //holder for DrawRect components startPosition and endPosition
 	let startPosition = {col: 0, row: 0};
 	let endPosition = {col: 0, row: 0};
 	let tmpPts;
-
+	let totalofAllDominos = 0;
 	let cl = 0;
-
+	
 
 	/**
 	 * @type {HTMLVideoElement}
@@ -234,7 +238,7 @@
 		}
 		//console.log(kptTbl.length + " is kptTbl length")
 		let dominoStr = '';
-		let totalofAllDominos = 0;
+		totalofAllDominos = 0;
 		kptTbl.forEach((cc, num) => {
 			// put in the dots on the domino
 			cc.kPtArray.forEach((thing, xNum) => {
@@ -282,11 +286,21 @@
 	}
     function updatePlayerTable(){
         // update and get out
-        window.localStream.getVideoTracks().forEach(track => track.stop());
+		//using dominoRound, selected (index) and adding total of all dominos to table.
+		//show it first:
+		console.log( 'selected ' + selected + ' Round ' + dominoRound + ' Player Name ' + 
+		$playerScore[selected].playerName + ' current score ' + 
+		$playerScore[selected].pScore[dominoRound] + ' new Total ' +
+		'updated score')
+
+		$playerScore[selected].pScore[dominoRound]  = parseInt($playerScore[selected].pScore[dominoRound]) +
+ 		    totalofAllDominos ;
+
+		window.localStream.getVideoTracks().forEach(track => track.stop());
 					// stops the webcam but it seems you have to refresh the home screen to turn off the 
 					// indicator light
-		return;
-	
+		
+			goto('/');
 
     }
 	
@@ -311,6 +325,8 @@
 		<canvas id="wrkCanvas" title="workCanvas " hidden/>
 	
 
+</div>
+<div>
 </div>
 <div>
 	<button
