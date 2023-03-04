@@ -1,7 +1,8 @@
 <svelte:options accessors={true} />
 <script >
 import {onMount } from "svelte";
-export let canvasId = "theCanvas";  //sent as prop from page.svelte
+export let canvasId = "theCanvas";  
+export let canvasWidth = 0;//sent as prop from page.svelte
 export let width = 0;
 export let height = 0;
 export let startPosition = {row: 0, col: 0};
@@ -10,6 +11,7 @@ let context;
 let canvasEle;
 let isDrawStart = false;
 onMount(async () =>{
+    console.log('the canvas Id is ' + canvasId);
     canvasEle = document.getElementById(canvasId);
     context = canvasEle.getContext('2d')}
     );
@@ -62,9 +64,9 @@ const mouseupListener = (event) => {
 }
 
 </script>
-<div class="p-4 flex w-full h-1/2 mb-4"
-	> <canvas id="{canvasId}"  class="ml-5 lg:ml-10 w-full border cursor-crosshair " width=800
-     title="Big Daddy  {startPosition.col} / {startPosition.row} by {endPosition.col} / {endPosition.row}" 
+<div 
+	> <canvas id="{canvasId}"  class="ml-5 lg:ml-10 border cursor-crosshair " width={canvasWidth}
+     title="Big Daddy {canvasWidth} {startPosition.col} / {startPosition.row} by {endPosition.col} / {endPosition.row}" 
 
     on:touchend="{mouseupListener}"    on:touchmove="{mouseMoveListener}"
     on:touchstart="{mouseDownListener}"

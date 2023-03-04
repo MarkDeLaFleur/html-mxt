@@ -12,6 +12,7 @@
 	export let selected=0;
 	$: {console.log($playerScore[selected].playerName + ' ' + $playerScore[selected].pScore[dominoRound])}
 	let drawRectVars;   //holder for DrawRect components startPosition and endPosition
+	let hoochie;
 	let startPosition = {col: 0, row: 0};
 	let endPosition = {col: 0, row: 0};
 	let tmpPts;
@@ -34,7 +35,8 @@
 	//let mediaConstraint = {
 	//	video: { width: { ideal: 700 }, height: { ideal: 300 }, facingMode: { ideal: 'environment' } }
 	//};
-	let mediaConstraint = {video: { facingMode: {ideal: "environment"},width: { ideal: 800 }  }};
+	let mediaConstraint = {video: { facingMode: {ideal: "environment"},
+							width: { ideal: 800 },  height: {ideal: 600}  }};
 	async function loadOpencv() {
 		try {
 			clearTimeout(time0);
@@ -90,6 +92,7 @@
 					videO.height = track.getSettings().height;
 				}
 				src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
+				hoochie = videO.width;
 				if (videO.paused) {
 					videO.play();
 				}
@@ -127,16 +130,17 @@
 		console.log('selected is ' + selected)
 		let tmpMat = src.clone();
 		let wrkMat = new cv.Mat();
-		// tmpPts contains the adjusted starting/ ending coordinates.
-		// x is column y is row!!
 		if (drawRectVars.width != 0 	) {
             const tRect = new cv.Rect(drawRectVars.startPosition.col,drawRectVars.startPosition.row,
 			drawRectVars.width,drawRectVars.height)
 			wrkMat = tmpMat.roi(tRect);
 		}
 		else { wrkMat = tmpMat.clone();}	
-		let srcGray = new cv.Mat(wrkMat.cols, wrkMat.rows, cv.CV_8UC1);
+		let srcGray = new cv.Mat(wrkMat.size().height, wrkMat.size().width, cv.CV_8UC1);
 		let contours = new cv.MatVector();
+		console.log('srcGray is ' + srcGray.size().height + ' by ' + srcGray.size().width);
+		console.log('tmpMat is height/width ' + tmpMat.size().height + ' / ' + tmpMat.size().width )
+		console.log('srcGray height/width is ' + srcGray.size().height + '/' + srcGray.size().width )
 		let params = {
 			faster: true,
 			filterByInertia: false,
@@ -173,12 +177,11 @@
 		cv.threshold(srcGray, srcGray, startThresh, 255, cv.THRESH_BINARY);
 		cv.findContours(srcGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 		let rectArray = [];
-		let showArea = wrkMat.clone();
+		let showArea = wrkMat ; // wrkMat.clone();
 		
 		for (let j = 0; j < contours.size(); j++) {
 			let rect = cv.boundingRect(contours.get(j));
-			let whRatio = Math.round( rect.width/rect.height);
-			if ( whRatio == 2) {
+			if (Math.round(rect.width) > 99){
 				rectArray.push(rect);
 				cv.rectangle(
 					showArea,
@@ -190,14 +193,14 @@
 				);
 				cv.putText(
 					showArea,
-					'(' + Math.round(rect.width / rect.height) + ')',
-					new cv.Point(rect.x + 15, rect.y + 20),
+					'(' + Math.round(rect.width) + ')',
+					new cv.Point(rect.x, rect.y),
 					cv.FONT_HERSHEY_PLAIN,
 					2,
-					clr.Red,
+					clr.Black,
 					1,
 					cv.LINE_AA,
-					false
+					0
 				);
 			}
 		}
@@ -292,73 +295,65 @@
 		$playerScore[selected].playerName + ' current score ' + 
 		$playerScore[selected].pScore[dominoRound] + ' new Total ' +
 		'updated score')
-
+		if (!Number.isNaN($playerScore[selected].pScore[dominoRound] ) ) {
 		$playerScore[selected].pScore[dominoRound]  = parseInt($playerScore[selected].pScore[dominoRound]) +
- 		    totalofAllDominos ;
+ 		    totalofAllDominos ;}
+		else {$playerScore[selected].pScore[dominoRound] =  totalofAllDominos};
 
 		window.localStream.getVideoTracks().forEach(track => track.stop());
 					// stops the webcam but it seems you have to refresh the home screen to turn off the 
 					// indicator light
-		
-			goto('/');
+		goto('/');
 
     }
 	
 </script>
 
 <!-- svelte-ignore a11y-missing-content -->
-
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<h1 title="camera capture" > </h1>
-
-
-<p class="build-info flex-wrap w-max px-5 mx-30 border text-xl md:text-xl">
-	{@html buildInfo.replace(/\n/g, '<br />')}</p>
-
-<div class="px-10 w-1/2 h-10">
-
-
-</div>
-<div >
-	
-		<video hidden id="videO"> howdy <track kind="captions" /> </video>
-		<canvas id="wrkCanvas" title="workCanvas " hidden/>
-	
-
-</div>
-<div>
-</div>
-<div>
-	<button
-		type="button"
-		id="countButton"
-		class="ml-5 lg:ml-2 px-3 py-3 bg-blue-600 text-white font-medium text-md leading-tight
-         uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
-         focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
-         active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
-	>
-		Count Dominos
-	</button>
-	<button
-		type="button"
-		id="UpdatePlayerScore"
-		class="ml-5 lg:ml-2 px-3 py-3 bg-blue-600 text-white font-medium text-md leading-tight
-         uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
-         focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
-         active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out"
-	>
-		Update Player's Score
-	</button>
-
-	<div class="p-4 flex w-full mb-4">
-		<div >
-			<DrawRect bind:this={drawRectVars} canvasId="showVid1" />
-
-			<canvas class="w-100  h-1/2 px-2 py-2" id="showVid2" title="Big Domino"/>
-			<canvas class="w-100  h-1/2 px-2 py-2" id="showGray" title="Gray Boy" />
-	
-		</div>
+<div  class="flex flex-row bg-gray-200 columns-3">
+	<div class="text-gray-700 text-left border-gray-400  px-4 py-2 m-2">	
+		<p class="build-info w-max px-5 mx-30 border text-xl md:text-xl">	
+		{@html buildInfo.replace(/\n/g, '<br />')}
+		</p>
 	</div>
+</div>
+<div  class="flex flex-row ">
+
+	<div class="text-gray-700 text-left border-gray-400  px-4 py-2 m-2">
+		<button
+			type="button" id="countButton"
+			class="ml-5 lg:ml-2 px-3 py-3 bg-blue-600 text-white font-medium text-md leading-tight
+         			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
+       				  focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
+        			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
+		Count Dominos
+		</button>
+		<button
+			type="button" id="UpdatePlayerScore"
+			class="ml-5 lg:ml-2 px-3 py-3 bg-blue-600 text-white font-medium text-md leading-tight
+         			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
+        			 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
+        			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
+		Update Player's Score
+		</button>
+	</div>
+<div  class="flex flex-row ">
+	
+		<div class="text-gray-700 text-left border-gray-400  px-4 py-2 m-2">
+			<DrawRect bind:this={drawRectVars} canvasId="showVid1" bind:canvasWidth={hoochie}/>
+			<canvas id="showVid2" title="Big Domino {hoochie}">
+			</canvas>
+			<canvas id="showGray" title="Gray Boy {hoochie}">
+			</canvas> 
+		</div>
+
+		<div class="text-gray-700 text-left border-gray-400  px-4 py-2 m-2">
+			<video hidden id="videO"> howdy <track kind="captions" /> </video>
+			<canvas id="wrkCanvas" title="workCanvas " hidden/>
+		</div>
+	
+	</div>
+
 	
 </div>
 

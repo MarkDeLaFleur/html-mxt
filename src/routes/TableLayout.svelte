@@ -5,7 +5,7 @@
     import {playerScore} from './TableStore.js'
     
         //  SVG files can't be loaded directly into the html without finagling so I 
-        // created the dominos with google draw, saved as svg the optimized using a utility. 
+        // created the dominos with google draw / inkscape. 
     
     
         
@@ -29,15 +29,13 @@
 		</thead>
 		<Footer/>
 		<tbody >
-    <!-- Remove the nasty inline CSS fixed height on production and replace it with a CSS class — this is just for demonstration purposes! -->
-			{#each roundTableData as {icon},rowptr}
+   		{#each roundTableData as {icon},rowptr}
 		    <tr class="even:bg-green-300 odd:bg-yellow-400 ">
 			    <td class="	bg-white " >
+					 <!-- Using slug to pass which round is being processed by the domino capture page -->
 					<a  href="/{rowptr}" >{@html icon}
 						</a>
-					
-				    
-			    </td>
+				</td>
 		
 			    {#each $playerScore as rndScore,colptr}
 			    <td	class="border text-end " contenteditable="true"
