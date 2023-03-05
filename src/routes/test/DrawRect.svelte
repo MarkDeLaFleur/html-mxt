@@ -62,8 +62,8 @@ const mouseupListener = (event) => {
 }
 
 </script>
-<div class="p-4 flex w-full h-1/2 mb-4"
-	> <canvas id="{canvasId}"  class="ml-5 lg:ml-10 w-full border cursor-crosshair " width=800
+<div class="px-4 py-2 flex w-full "
+	> <canvas id="{canvasId}"  class="w-full border cursor-crosshair " width=800
      title="Big Daddy  {startPosition.col} / {startPosition.row} by {endPosition.col} / {endPosition.row}" 
 
     on:touchend="{mouseupListener}"    on:touchmove="{mouseMoveListener}"

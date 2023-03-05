@@ -310,19 +310,15 @@
 </script>
 
 <!-- svelte-ignore a11y-missing-content -->
-<div  class="flex flex-row bg-gray-200 columns-3">
-	<div class="text-gray-700 text-left border-gray-400  px-4 py-2 m-2">	
-		<p class="build-info w-max px-5 mx-30 border text-xl md:text-xl">	
-		{@html buildInfo.replace(/\n/g, '<br />')}
+<div >	
+		<p class="block overflow-auto text-gray-700 border-red-400  px-4  w-full h-12 build-info" >	
+		{@html buildInfo.replace(/\n/g, '<br />')} <br />
 		</p>
-	</div>
 </div>
-<div  class="flex flex-row ">
-
-	<div class="text-gray-700 text-left border-gray-400  px-4 py-2 m-2">
+<div >
 		<button
 			type="button" id="countButton"
-			class="ml-5 lg:ml-2 px-3 py-3 bg-blue-600 text-white font-medium text-md leading-tight
+			class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
          			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
        				  focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
         			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
@@ -330,16 +326,15 @@
 		</button>
 		<button
 			type="button" id="UpdatePlayerScore"
-			class="ml-5 lg:ml-2 px-3 py-3 bg-blue-600 text-white font-medium text-md leading-tight
+			class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
          			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
         			 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
         			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
 		Update Player's Score
 		</button>
-	</div>
-<div  class="flex flex-row ">
+</div>
 	
-		<div class="text-gray-700 text-left border-gray-400  px-4 py-2 m-2">
+		<div class="block text-gray-700 text-left border-gray-400  px-4 py-2 pt-2">
 			<DrawRect bind:this={drawRectVars} canvasId="showVid1" bind:canvasWidth={hoochie}/>
 			<canvas id="showVid2" title="Big Domino {hoochie}">
 			</canvas>
@@ -347,13 +342,13 @@
 			</canvas> 
 		</div>
 
-		<div class="text-gray-700 text-left border-gray-400  px-4 py-2 m-2">
+		<div class="text-gray-700 text-left border-gray-400  px-4 py-2 ">
 			<video hidden id="videO"> howdy <track kind="captions" /> </video>
 			<canvas id="wrkCanvas" title="workCanvas " hidden/>
 		</div>
 	
-	</div>
+
 
 	
-</div>
+
 

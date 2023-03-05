@@ -16,17 +16,14 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1"  />
 <h1 title="camera capture" > </h1>
-<div class="flex flex-col ">
-  <div class="w-1/6">
+<div class="block w-1/5 text-left  px-2 py-2 ">
+  Scoring for Round {12-data.content}
+  <div class="w-1/4 px-2">
     {@html roundTableData[data.content].icon} 
-  
-   </div>
- 
-  <div class="w-1/5 h-5 text-center">
-    Scoring for Round {12-data.content} <br>
+  </div>
+</div>
+<div class="block w-full px-2 ">
     <SavePoints bind:index={playerIndex}/>
-    </div>
-  
 </div>
 
 <CaptureDominos bind:selected={playerIndex} dominoRound={data.content}/>
