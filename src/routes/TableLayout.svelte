@@ -1,14 +1,8 @@
 <script>
 
-    import Footer from './Footer.svelte';
-    import {roundTableData } from './IconSvg.js';
-    import {playerScore} from './TableStore.js'
-    
-        //  SVG files can't be loaded directly into the html without finagling so I 
-        // created the dominos with google draw / inkscape. 
-    
-    
-        
+import Footer from './Footer.svelte';
+import {roundTableData } from './IconSvg.js';
+import {playerScore} from './TableStore.js'
 </script>
 <div class="container ">
 
@@ -18,11 +12,9 @@
             <tr >
                 <th	> #
 			    </th>
-	
 			    {#each $playerScore as players,playerIndex}
-			    <th  class="border "
-				    contenteditable="true" bind:innerHTML={$playerScore[playerIndex].playerName}
-			        >{players.playerName}
+			    <th  class="border"
+				    contenteditable="true" bind:innerHTML={$playerScore[playerIndex].playerName}>	        
 			    </th>
 			    {/each}
 		    <tr/>
@@ -34,7 +26,7 @@
 			    <td class="	bg-white " >
 					 <!-- Using slug to pass which round is being processed by the domino capture page -->
 					<a  href="/{rowptr}" >{@html icon}
-						</a>
+					</a>
 				</td>
 		
 			    {#each $playerScore as rndScore,colptr}

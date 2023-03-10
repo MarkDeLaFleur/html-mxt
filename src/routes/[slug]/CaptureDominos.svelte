@@ -6,13 +6,15 @@
 	import {goto} from '$app/navigation'
 	let buildInfo = 'loading...';
 	import { playerScore } from '../TableStore.js'
+	import Canvasresize from './Canvasresize.svelte';
+	export let canvasWidth = 0;
+	export let canvasHeight = 0;
 	export let dominoRound=0;
-	const FPS = 30;
+	const FPS = 15;
 	let clr = {};
 	export let selected=0;
 	$: {console.log($playerScore[selected].playerName + ' ' + $playerScore[selected].pScore[dominoRound])}
 	let drawRectVars;   //holder for DrawRect components startPosition and endPosition
-	let hoochie;
 	let startPosition = {col: 0, row: 0};
 	let endPosition = {col: 0, row: 0};
 	let tmpPts;
@@ -54,15 +56,6 @@
 					White: new cv.Scalar(0.0, 0.0, 0.0, 255.0)
 				};
 				Initvideo();
-				document.getElementById('countButton').addEventListener('click', function () {
-					findRects();
-					
-				});
-				document.getElementById('UpdatePlayerScore').addEventListener('click', function () {
-					updatePlayerTable();
-					
-				});
-
                 cap = new cv.VideoCapture(videO);
 				setTimeout(processVideo,0);
 			} //build info length
@@ -92,7 +85,8 @@
 					videO.height = track.getSettings().height;
 				}
 				src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
-				hoochie = videO.width;
+				canvasWidth = videO.width;
+				canvasHeight = videO.height;
 				if (videO.paused) {
 					videO.play();
 				}
@@ -113,11 +107,9 @@
 		try {
 			let begin = Date.now();
 			cap.read(src);
-			// drawing a rectangle uses 2 Point tuples but ROI uses RECT
-			cv.rectangle(src,new cv.Point(drawRectVars.startPosition.col,drawRectVars.startPosition.row),
-			new cv.Point((drawRectVars.width+drawRectVars.startPosition.col),
-							(drawRectVars.height+drawRectVars.startPosition.row)),clr.Green,2);
-			cv.imshow("showVid1",src);
+			let matTest = src.roi(new cv.Rect(0,0,parseInt(canvasWidth),parseInt(canvasHeight)));
+			cv.imshow("showVid1",matTest);
+			src.delete;matTest.delete;
 			// schedule the next one.
 			let delay = 1000 / FPS - (Date.now() - begin);
 			setTimeout(processVideo, delay);
@@ -127,20 +119,13 @@
 	}
 	
 	function findRects() {
-		console.log('selected is ' + selected)
-		let tmpMat = src.clone();
-		let wrkMat = new cv.Mat();
-		if (drawRectVars.width != 0 	) {
-            const tRect = new cv.Rect(drawRectVars.startPosition.col,drawRectVars.startPosition.row,
-			drawRectVars.width,drawRectVars.height)
-			wrkMat = tmpMat.roi(tRect);
-		}
-		else { wrkMat = tmpMat.clone();}	
+		//we will get a cv.mat from the canvas and we get here from the countButton
+		let wrkCanvas = document.getElementById("showVid1")
+		let wrkCanvasCTX = wrkCanvas.getContext('2d');
+		let imagedataFromCanvas = wrkCanvasCTX.getImageData(0,0,wrkCanvas.width,wrkCanvas.height);
+		let wrkMat = cv.matFromImageData(imagedataFromCanvas);
 		let srcGray = new cv.Mat(wrkMat.size().height, wrkMat.size().width, cv.CV_8UC1);
 		let contours = new cv.MatVector();
-		console.log('srcGray is ' + srcGray.size().height + ' by ' + srcGray.size().width);
-		console.log('tmpMat is height/width ' + tmpMat.size().height + ' / ' + tmpMat.size().width )
-		console.log('srcGray height/width is ' + srcGray.size().height + '/' + srcGray.size().width )
 		let params = {
 			faster: true,
 			filterByInertia: false,
@@ -177,7 +162,7 @@
 		cv.threshold(srcGray, srcGray, startThresh, 255, cv.THRESH_BINARY);
 		cv.findContours(srcGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 		let rectArray = [];
-		let showArea = wrkMat ; // wrkMat.clone();
+		let showArea = srcGray; // wrkMat.clone();
 		
 		for (let j = 0; j < contours.size(); j++) {
 			let rect = cv.boundingRect(contours.get(j));
@@ -214,32 +199,27 @@
 			 */
 			let pips = simpleBlobDetector(wrkMat.roi(them), params);
 			if (pips.length > 0) {
-				//console.log("pips on rectangle  " + cT +  " == " + pips.length +
-				//     " @ x,y " + them.x + ','+ them.y);
 				let kptList = [];
 				pips.forEach((kPt) => {
 					let tmpPt = kPt;
-					//console.log('kPt point x,y ' + ~~kPt.pt.x + ',' + ~~kPt.pt.y);
 					tmpPt.pt.x += them.x;
 					tmpPt.pt.y += them.y;
 					kptList.push(tmpPt);
-					// console.log('pip x,y ' + ~~tmpPt.pt.x+ ','+  ~~tmpPt.pt.y +
-					// " size " + tmpPt.size)
 				});
 				kptTblVal = { rect: them, kPtArray: kptList };
 				kptTbl.push(kptTblVal);
 			}
 		});
-		contours.delete;heirs.delete;srcGray.delete;tmpMat.delete;
+		contours.delete;heirs.delete;srcGray.delete;
 
 		if (kptTbl.length == 0) {
 			kptTbl.delete;
+			canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);	
 			cv.imshow('showVid2', wrkMat);
 			wrkMat.delete;
 			buildInfo = 'There were no Dominos detected';
 			return;
 		}
-		//console.log(kptTbl.length + " is kptTbl length")
 		let dominoStr = '';
 		totalofAllDominos = 0;
 		kptTbl.forEach((cc, num) => {
@@ -298,7 +278,7 @@
 		if (!Number.isNaN($playerScore[selected].pScore[dominoRound] ) ) {
 		$playerScore[selected].pScore[dominoRound]  = parseInt($playerScore[selected].pScore[dominoRound]) +
  		    totalofAllDominos ;}
-		else {$playerScore[selected].pScore[dominoRound] =  totalofAllDominos};
+		else {$playerScore[selected].pScore[dominoRound] +=  totalofAllDominos};
 
 		window.localStream.getVideoTracks().forEach(track => track.stop());
 					// stops the webcam but it seems you have to refresh the home screen to turn off the 
@@ -317,7 +297,7 @@
 </div>
 <div >
 		<button
-			type="button" id="countButton"
+			type="button" id="countButton" on:click={findRects}
 			class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
          			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
        				  focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
@@ -325,7 +305,7 @@
 		Count Dominos
 		</button>
 		<button
-			type="button" id="UpdatePlayerScore"
+			type="button" id="UpdatePlayerScore" on:click={updatePlayerTable}
 			class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
          			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
         			 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
@@ -334,17 +314,16 @@
 		</button>
 </div>
 	
-		<div class="block text-gray-700 text-left border-gray-400  px-4 py-2 pt-2">
-			<DrawRect bind:this={drawRectVars} canvasId="showVid1" bind:canvasWidth={hoochie}/>
-			<canvas id="showVid2" title="Big Domino {hoochie}">
+		<div class="block text-gray-700 text-left border-gray-400  px-4 py-2 pt-3">
+			<Canvasresize canvasId="showVid1" bind:canvasWidth bind:canvasHeight />
+			<canvas id="showVid2" class="ml-5 lg:ml-10 border" title="Big Domino {canvasWidth} / {canvasHeight}">
 			</canvas>
-			<canvas id="showGray" title="Gray Boy {hoochie}">
+			<canvas id="showGray"  class="ml-5 lg:ml-10 border " title="Gray Boy {canvasWidth} / {canvasHeight}">
 			</canvas> 
 		</div>
 
 		<div class="text-gray-700 text-left border-gray-400  px-4 py-2 ">
 			<video hidden id="videO"> howdy <track kind="captions" /> </video>
-			<canvas id="wrkCanvas" title="workCanvas " hidden/>
 		</div>
 	
 

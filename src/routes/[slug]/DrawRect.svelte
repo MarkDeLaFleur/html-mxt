@@ -32,7 +32,9 @@ let getClientOffset = (event) => {
 }
 
 let drawRectangle = (width, height) => {
-
+  canvasEle.width = canvasWidth;
+  canvasEle.height = canvasWidth;
+  console.log('canvasEle width and height ' + canvasEle.width + '/' + canvasEle.height);
   context.beginPath();
   context.strokeStyle = "brown"; // add blue color to the border
   context.lineWidth = 3; // increase the border width
