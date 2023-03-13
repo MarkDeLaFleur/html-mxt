@@ -6,34 +6,36 @@ import {playerScore} from './TableStore.js'
 </script>
 <div class="container ">
 
-  <table class=" table-flex md:table-fixed w-full border" >
+  <table class=" table-fixed w-full border-2 border-black " >
 	
-		<thead class="border sticky top-0 text-red-900 bg-red-300">
-            <tr >
-                <th	> #
-			    </th>
-			    {#each $playerScore as players,playerIndex}
-			    <th  class="border"
-				    contenteditable="true" bind:innerHTML={$playerScore[playerIndex].playerName}>	        
-			    </th>
-			    {/each}
-		    <tr/>
+		<thead class="sticky top-0 border-black text-red-900 bg-red-300 w-5">
+				<tr >
+					<th class="border-2 border-black text-red-900 bg-red-400 flex-none w-11 h-8"> 
+						#       
+					</th>
+					{#each $playerScore as players,playerIndex}
+					<th class="border-2 border-black" contenteditable="true" 
+					bind:innerHTML={$playerScore[playerIndex].playerName}>
+						{players.playerName}       
+					</th>
+					{/each}
+				<tr/>
 		</thead>
 		<Footer/>
 		<tbody >
    		{#each roundTableData as {icon},rowptr}
-		    <tr class="even:bg-green-300 odd:bg-yellow-400 ">
-			    <td class="	bg-white " >
+		    <tr class=" border-2 border-black text-right bg-white">
+			    <td class="border-2 border-black" >
 					 <!-- Using slug to pass which round is being processed by the domino capture page -->
 					<a  href="/{rowptr}" >{@html icon}
 					</a>
 				</td>
 		
 			    {#each $playerScore as rndScore,colptr}
-			    <td	class="border text-end " contenteditable="true"
-                    bind:innerHTML= {$playerScore[colptr].pScore[rowptr]}>
-			        {rndScore.pScore[rowptr]}
-			    </td>
+			    <td class="border-2  border-black align-bottom " contenteditable="true" 
+					bind:innerHTML={$playerScore[colptr].pScore[rowptr]} >
+                {rndScore.pScore[rowptr]}
+				</td>
 			    {/each}
 		    </tr>
 	        {/each}	

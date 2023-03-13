@@ -121,7 +121,8 @@
 	function findRects() {
 		//we will get a cv.mat from the canvas and we get here from the countButton
 		let wrkCanvas = document.getElementById("showVid1")
-		let wrkCanvasCTX = wrkCanvas.getContext('2d');
+		let wrkCanvasCTX = wrkCanvas.getContext('2d', { alpha: true , desynchronized: false , 
+							colorSpace: 'srgb' , willReadFrequently: true} );
 		let imagedataFromCanvas = wrkCanvasCTX.getImageData(0,0,wrkCanvas.width,wrkCanvas.height);
 		let wrkMat = cv.matFromImageData(imagedataFromCanvas);
 		let srcGray = new cv.Mat(wrkMat.size().height, wrkMat.size().width, cv.CV_8UC1);
@@ -156,7 +157,10 @@
 		let canvas = document.getElementById('showVid2');
 		canvas.width = wrkMat.size().width;
 		canvas.height = wrkMat.size().height;
-		canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);	
+		canvas.getContext('2d', { alpha: true , 
+								desynchronized: false ,
+								colorSpace: 'srgb' ,
+								willReadFrequently: true} ).clearRect(0, 0, canvas.width, canvas.height);	
 		cv.cvtColor(wrkMat, srcGray, cv.COLOR_BGR2GRAY, 0);
 		let startThresh = 160;
 		cv.threshold(srcGray, srcGray, startThresh, 255, cv.THRESH_BINARY);
@@ -182,7 +186,7 @@
 					new cv.Point(rect.x, rect.y),
 					cv.FONT_HERSHEY_PLAIN,
 					2,
-					clr.Black,
+					clr.Yellow,
 					1,
 					cv.LINE_AA,
 					0
@@ -214,7 +218,7 @@
 
 		if (kptTbl.length == 0) {
 			kptTbl.delete;
-			canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);	
+			canvas.getContext('2d', { alpha: true , desynchronized: false , colorSpace: 'srgb' , willReadFrequently: true} ).clearRect(0, 0, canvas.width, canvas.height);	
 			cv.imshow('showVid2', wrkMat);
 			wrkMat.delete;
 			buildInfo = 'There were no Dominos detected';
@@ -271,15 +275,8 @@
         // update and get out
 		//using dominoRound, selected (index) and adding total of all dominos to table.
 		//show it first:
-		console.log( 'selected ' + selected + ' Round ' + dominoRound + ' Player Name ' + 
-		$playerScore[selected].playerName + ' current score ' + 
-		$playerScore[selected].pScore[dominoRound] + ' new Total ' +
-		'updated score')
-		if (!Number.isNaN($playerScore[selected].pScore[dominoRound] ) ) {
-		$playerScore[selected].pScore[dominoRound]  = parseInt($playerScore[selected].pScore[dominoRound]) +
- 		    totalofAllDominos ;}
-		else {$playerScore[selected].pScore[dominoRound] +=  totalofAllDominos};
-
+		$playerScore[selected].pScore[dominoRound]  =   totalofAllDominos ;
+		if (videO.play()) videO.paused;
 		window.localStream.getVideoTracks().forEach(track => track.stop());
 					// stops the webcam but it seems you have to refresh the home screen to turn off the 
 					// indicator light

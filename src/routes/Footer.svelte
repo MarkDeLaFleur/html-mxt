@@ -11,16 +11,16 @@
        }
 </script>
 
-<tfoot class="border sticky bottom-0 px-6 py-3 text-red-900 bg-red-300">
+<tfoot class="border-2 border-black sticky bottom-0 px-6 py-3 text-red-900 bg-red-300">
        <tr >
 
        
-              <td class="px-6 py-0 border sitcky bottom-0">
+              <td class="text-left py-0 border-2 border-black sticky bottom-0 font-bold text-sm ">
                        TOTAL
                </td>
 
               {#each $playerScore as players}
-              <td	class="px-6 py-0 text-right border" >  
+              <td	class="py-0 text-right border-2 border-black" >  
                     {calcScore(players.pScore) }
               </td>
               {/each}
