@@ -2,10 +2,9 @@
 	// @ts-nocheck
 	import cv from '@techstark/opencv-js';
 	import simpleBlobDetector from '@markdelafleur/simpleblobdetector';
-	import DrawRect from './DrawRect.svelte';
 	import {goto} from '$app/navigation'
 	let buildInfo = 'loading...';
-	import { playerScore } from '../TableStore.js'
+	import { playerScore } from '$lib/myFunctions/TableStore'
 	import Canvasresize from './Canvasresize.svelte';
 	export let canvasWidth = 0;
 	export let canvasHeight = 0;
@@ -13,8 +12,7 @@
 	const FPS = 15;
 	let clr = {};
 	export let selected=0;
-	$: {console.log($playerScore[selected].playerName + ' ' + $playerScore[selected].pScore[dominoRound])}
-	let drawRectVars;   //holder for DrawRect components startPosition and endPosition
+	$: {console.log($playerScore[selected].playerName + ' ' + $playerScore[selected].pScore[dominoRound])}; 
 	let startPosition = {col: 0, row: 0};
 	let endPosition = {col: 0, row: 0};
 	let tmpPts;
@@ -288,7 +286,7 @@
 
 <!-- svelte-ignore a11y-missing-content -->
 <div >	
-		<p class="block overflow-auto text-gray-700 border-red-400  px-4  w-full h-12 build-info" >	
+		<p class="block overflow-auto text-gray-700 border-red-400  px-4  w-full h-24 build-info" >	
 		{@html buildInfo.replace(/\n/g, '<br />')} <br />
 		</p>
 </div>

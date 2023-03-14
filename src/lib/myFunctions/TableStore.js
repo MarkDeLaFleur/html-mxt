@@ -1,5 +1,5 @@
 
-import { localStore } from '../localStore.js'
+import { localStore } from '$lib/myFunctions/localStore'
   
   
 const initialPlayerScore = [

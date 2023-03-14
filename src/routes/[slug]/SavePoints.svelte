@@ -1,5 +1,5 @@
 <script lang ts>
-   	import { playerScore } from '../TableStore';
+   	import { playerScore } from '$lib/myFunctions/TableStore';
     export let options = [];
     export let display_func = a => a + "  ";
     export let index = 0;

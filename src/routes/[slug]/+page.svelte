@@ -1,6 +1,6 @@
 <script>
 	/** @type {import('./$types').PageData} */
-  import {roundTableData } from '../IconSvg.js'; 
+  import {roundTableData } from '$lib/myFunctions/IconSvg' 
 	import CaptureDominos from './CaptureDominos.svelte'; 
 	import SavePoints from './SavePoints.svelte';
   export let  playerIndex = 0;

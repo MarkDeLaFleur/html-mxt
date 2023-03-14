@@ -1,5 +1,5 @@
 <script>
-       import { playerScore } from "./TableStore";
+       import { playerScore } from "$lib/myFunctions/TableStore";
  
        function calcScore(pScorearr){
               let sum = 0;

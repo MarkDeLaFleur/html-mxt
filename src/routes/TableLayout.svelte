@@ -1,8 +1,8 @@
 <script>
 
 import Footer from './Footer.svelte';
-import {roundTableData } from './IconSvg.js';
-import {playerScore} from './TableStore.js'
+import {roundTableData } from '$lib/myFunctions/IconSvg';
+import {playerScore} from '$lib/myFunctions/TableStore'
 </script>
 <div class="container ">
 
