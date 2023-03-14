@@ -6,7 +6,7 @@ import {playerScore} from '$lib/myFunctions/TableStore'
 </script>
 <div class="container ">
 
-  <table class=" table-fixed w-full border-2 border-black " >
+  <table class=" table-fixed w-full border-2 border-black ml-5" >
 	
 		<thead class="sticky top-0 border-black text-red-900 bg-red-300 w-5">
 				<tr >

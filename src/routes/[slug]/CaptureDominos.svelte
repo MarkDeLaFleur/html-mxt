@@ -285,8 +285,8 @@
 </script>
 
 <!-- svelte-ignore a11y-missing-content -->
-<div >	
-		<p class="block overflow-auto text-gray-700 border-red-400  px-4  w-full h-24 build-info" >	
+<div class="block overflow-auto border text-gray-700 border-red-400 ml-10 px-4  w-full h-24 build-info">	
+		<p  >	Information Section <br>
 		{@html buildInfo.replace(/\n/g, '<br />')} <br />
 		</p>
 </div>

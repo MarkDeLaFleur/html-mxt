@@ -11,14 +11,16 @@
     }
 	  $: { index; console.log(index + ' from SavePoints ')   }
   
-  </script>
+</script>
+<div>
   <br><br>
+  <label> Choose which player gets score updated <br>
   {#each options as option, i}
-    <label> 
+
       <input type=radio bind:group={index} name="playerIndex" value={i} >
        {display_func(option.player)} 
-    </label>  
+    
   {/each}
- 
-  
+  </label>
+</div>
  
