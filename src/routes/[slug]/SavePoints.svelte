@@ -1,7 +1,7 @@
 <script lang ts>
    	import { playerScore } from '$lib/myFunctions/TableStore';
     export let options = [];
-    export let display_func = a => a + "  ";
+    export let display_func = a => a + '   ';
     export let index = 0;
     //export let playerIndex;
     for (let x = 0; x< $playerScore.length;x++){
@@ -14,13 +14,14 @@
 </script>
 <div>
   <br><br>
-  <label> Choose which player gets score updated <br>
+  <label> Choose which player to apply points to:    
   {#each options as option, i}
 
       <input type=radio bind:group={index} name="playerIndex" value={i} >
-       {display_func(option.player)} 
+        {display_func(option.player)} 
     
   {/each}
+  <br><br>
   </label>
 </div>
  

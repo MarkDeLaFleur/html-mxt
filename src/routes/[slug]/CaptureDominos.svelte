@@ -43,7 +43,7 @@
 			window.cv = cv;
 			buildInfo = cv.getBuildInformation();
 			if (buildInfo.length > 0) {
-				buildInfo = 'OPENCV Loaded..';
+				buildInfo = 'Ready to Count!';
 				clr = {
 					Red: new cv.Scalar(255.0, 0.0, 0.0, 255.0),
 					Blue: new cv.Scalar(0.0, 0.0, 255.0, 255.0),
@@ -123,7 +123,7 @@
 							colorSpace: 'srgb' , willReadFrequently: true} );
 		let imagedataFromCanvas = wrkCanvasCTX.getImageData(0,0,wrkCanvas.width,wrkCanvas.height);
 		let wrkMat = cv.matFromImageData(imagedataFromCanvas);
-		let srcGray = new cv.Mat(wrkMat.size().height, wrkMat.size().width, cv.CV_8UC1);
+		let wrkGray = new cv.Mat(wrkMat.size().height, wrkMat.size().width, cv.CV_8UC1);
 		let contours = new cv.MatVector();
 		let params = {
 			faster: true,
@@ -159,13 +159,13 @@
 								desynchronized: false ,
 								colorSpace: 'srgb' ,
 								willReadFrequently: true} ).clearRect(0, 0, canvas.width, canvas.height);	
-		cv.cvtColor(wrkMat, srcGray, cv.COLOR_BGR2GRAY, 0);
+		cv.cvtColor(wrkMat, wrkGray, cv.COLOR_BGR2GRAY, 0);
 		let startThresh = 160;
-		cv.threshold(srcGray, srcGray, startThresh, 255, cv.THRESH_BINARY);
-		cv.findContours(srcGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+		cv.threshold(wrkGray, wrkGray, startThresh, 255, cv.THRESH_BINARY);
+		cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 		let rectArray = [];
-		let showArea = srcGray; // wrkMat.clone();
-		
+		let showArea = wrkGray; 
+		// put any rectangles with a width > 99 into an array.
 		for (let j = 0; j < contours.size(); j++) {
 			let rect = cv.boundingRect(contours.get(j));
 			if (Math.round(rect.width) > 99){
@@ -194,11 +194,11 @@
 
 		cv.imshow('showGray', showArea);
 		showArea.delete;
-		// 'them' are the rectangles around a domino
 		rectArray.forEach((them, cT) => {
 			/**
 			 * @type{cv.KeyPoint}
 			 */
+			// we are going after the rectangl bounding rects captured from wrkMat using the ROI
 			let pips = simpleBlobDetector(wrkMat.roi(them), params);
 			if (pips.length > 0) {
 				let kptList = [];
@@ -212,7 +212,7 @@
 				kptTbl.push(kptTblVal);
 			}
 		});
-		contours.delete;heirs.delete;srcGray.delete;
+		contours.delete;heirs.delete;wrkGray.delete;
 
 		if (kptTbl.length == 0) {
 			kptTbl.delete;
@@ -285,12 +285,13 @@
 </script>
 
 <!-- svelte-ignore a11y-missing-content -->
-<div class="block overflow-auto border text-gray-700 border-red-400 ml-10 px-4  w-full h-24 build-info">	
-		<p  >	Information Section <br>
-		{@html buildInfo.replace(/\n/g, '<br />')} <br />
+<div class="block overflow-auto border text-gray-700 border-red-400 ml-10 px-4  w-3/4 h-24 build-info">	
+		<p >	Information Section <br>
+		{@html buildInfo.replace(/\n/g, '<br />')}  
 		</p>
 </div>
-<div >
+<div>
+		<br>
 		<button
 			type="button" id="countButton" on:click={findRects}
 			class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
@@ -307,6 +308,7 @@
         			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
 		Update Player's Score
 		</button>
+		
 </div>
 	
 		<div class="block text-gray-700 text-left border-gray-400  px-4 py-2 pt-3">

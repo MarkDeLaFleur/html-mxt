@@ -16,9 +16,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1"  />
 <h1 title="camera capture" > </h1>
-<div class="block w-1/5 text-left  px-2 py-2 ">
+<div class="block w-1/2 text-left  px-2 py-2 ">
   Scoring for Round {12-data.content}
-  <div class="w-1/4 px-2">
+  <div class="block w-1/4 px-2 h-5">
     {@html roundTableData[data.content].icon} 
   </div>
 </div>

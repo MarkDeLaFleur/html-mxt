@@ -14,7 +14,8 @@ import {playerScore} from '$lib/myFunctions/TableStore'
 						#       
 					</th>
 					{#each $playerScore as players,playerIndex}
-					<th class="border-2 border-black" contenteditable="true" 
+					<th  class="border-2 border-black empty:before:content-[attr(placeHolder)]" 
+					contenteditable="true" placeHolder="Player Name Here"
 					bind:innerHTML={$playerScore[playerIndex].playerName}>
 						{players.playerName}       
 					</th>
