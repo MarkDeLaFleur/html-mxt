@@ -1,6 +1,6 @@
 <script Lang ts>
 	// @ts-nocheck
-	import cv from '@techstark/opencv-js';
+	import cv, { pointPolygonTest } from '@techstark/opencv-js';
 	import simpleBlobDetector from '@markdelafleur/simpleblobdetector';
 	import {goto} from '$app/navigation'
 	let buildInfo = 'loading...';
@@ -131,6 +131,7 @@
 			filterByCircularity: true,
 			minThreshold: 100,
 			maxThreshold: 200,
+			minDistBetweenBlobs: 10,
 			filterByColor: false
 		};
 		let paramsAndroid = {
@@ -150,7 +151,6 @@
 			minRepeatability: 2
 		};
 		let heirs = new cv.Mat();
-		let kptTblVal;
 		let kptTbl = [];
 		let canvas = document.getElementById('showVid2');
 		canvas.width = wrkMat.size().width;
@@ -166,10 +166,12 @@
 		let rectArray = [];
 		let showArea = wrkGray; 
 		// put any rectangles with a width > 99 into an array.
+		// smaller than that and it's not likely to be a domino.
 		for (let j = 0; j < contours.size(); j++) {
 			let rect = cv.boundingRect(contours.get(j));
-			if (Math.round(rect.width) > 99){
-				rectArray.push(rect);
+			if (Math.round(rect.width / rect.height) == 2){
+				rectArray.push(rect); 
+				//console.log('saved rectangle width for  ' + (rectArray.length) + ' is ' + rect.width) 
 				cv.rectangle(
 					showArea,
 					new cv.Point(rect.x, rect.y),
@@ -180,13 +182,13 @@
 				);
 				cv.putText(
 					showArea,
-					'(' + Math.round(rect.width) + ')',
-					new cv.Point(rect.x, rect.y),
+					'(' + Math.round(rect.width / rect.height) + ')',
+					new cv.Point(rect.x, rect.y+40),
 					cv.FONT_HERSHEY_PLAIN,
 					2,
-					clr.Yellow,
+					clr.Black,
 					1,
-					cv.LINE_AA,
+					cv.LINE_4,
 					0
 				);
 			}
@@ -194,24 +196,26 @@
 
 		cv.imshow('showGray', showArea);
 		showArea.delete;
-		rectArray.forEach((them, cT) => {
+		// now we have an array of bounding rectangles
+		rectArray.forEach((dominoDetected) => {
 			/**
 			 * @type{cv.KeyPoint}
 			 */
-			// we are going after the rectangl bounding rects captured from wrkMat using the ROI
-			let pips = simpleBlobDetector(wrkMat.roi(them), params);
+			// we are going after the rectangle bounding rects captured from wrkMat using the ROI
+			let pips = simpleBlobDetector(wrkMat.roi(dominoDetected), params);
 			if (pips.length > 0) {
-				let kptList = [];
-				pips.forEach((kPt) => {
-					let tmpPt = kPt;
-					tmpPt.pt.x += them.x;
-					tmpPt.pt.y += them.y;
-					kptList.push(tmpPt);
+				let tempArr = []   // convert pips keyPoint to an array
+				pips.forEach(keyP => {
+					if (keyP.size < 25) tempArr.push(keyP)
 				});
-				kptTblVal = { rect: them, kPtArray: kptList };
-				kptTbl.push(kptTblVal);
+				kptTbl.push({ rect: dominoDetected, kPtArray: tempArr });
+
+				//console.log('Domino  at x/y ' + kptTbl[kptTbl.length-1].rect.x + '/' + kptTbl[kptTbl.length-1].rect.y +
+				// ' has ' + kptTbl[kptTbl.length-1].kPtArray.length +  ' pips ' )
+	
 			}
 		});
+		// looped through our rectangles and build another array with the rectangle, and the keypoints ( pips)
 		contours.delete;heirs.delete;wrkGray.delete;
 
 		if (kptTbl.length == 0) {
@@ -224,27 +228,30 @@
 		}
 		let dominoStr = '';
 		totalofAllDominos = 0;
-		kptTbl.forEach((cc, num) => {
+		kptTbl.forEach((dominoRect, num) => {
 			// put in the dots on the domino
-			cc.kPtArray.forEach((thing, xNum) => {
-				let r = Math.round(thing.size * 0.25);
-				//relative to bouding rectangle
-				cv.circle(wrkMat, thing.pt, r, clr.Green, 2);
+			dominoRect.kPtArray.forEach((pipCoord, xNum) => {
+				let r = Math.round(pipCoord.size *0.25);
+				//console.log('Rect ' + (num+1) + ' Pip Size  ' + Math.round(pipCoord.size))
+				//relative to bounding rectangle
+				cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
+				dominoRect.rect.y), r, clr.Green, 2);
 			});
 
 			//put the green box around the domino
 			cv.rectangle(
 				wrkMat,
-				new cv.Point(cc.rect.x, cc.rect.y),
-				new cv.Point(cc.rect.x + cc.rect.width, cc.rect.y + cc.rect.height),
+				new cv.Point(dominoRect.rect.x, dominoRect.rect.y),
+				new cv.Point(dominoRect.rect.x + dominoRect.rect.width, dominoRect.rect.y + 
+				dominoRect.rect.height),
 				clr.Green,
 				2,
 				0
 			);
 
 			// put the domino number near the right bottom
-			let domX = cc.rect.x + cc.rect.width;
-			let domY = cc.rect.y + cc.rect.height;
+			let domX = dominoRect.rect.x + dominoRect.rect.width;
+			let domY = dominoRect.rect.y + dominoRect.rect.height;
 			cv.putText(
 				wrkMat,
 				'(' + (num + 1).toString() + ')',
@@ -256,11 +263,12 @@
 				cv.LINE_AA,
 				false
 			);
-			dominoStr += '#(' + (num + 1) + ')__' + cc.kPtArray.length + ', ';
-			totalofAllDominos += cc.kPtArray.length;
+			dominoStr +=  (num + 1) + '==>' + dominoRect.kPtArray.length + ', ';
+			totalofAllDominos += dominoRect.kPtArray.length;
 		});
 
-		dominoStr += ' \n total of All Dominos ==> ' + totalofAllDominos;
+		dominoStr = ' \n total of All Dominos ==> ' + totalofAllDominos + '\n' +
+		  dominoStr.substring(0,dominoStr.lastIndexOf(','));
 		kptTbl.delete;
 		canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 		cv.imshow('showVid2', wrkMat);
