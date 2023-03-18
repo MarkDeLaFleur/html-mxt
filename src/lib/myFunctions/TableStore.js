@@ -15,19 +15,19 @@ const initialPlayerScore = [
      	"pScore": [" "," "," "," "," "," "," "," "," "," "," "," ","  "],
   	},
   	{
-		"playerName": " ",
+		"playerName": "",
   	 	"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
     },
     {
-		"playerName": " ",
+		"playerName": "",
      	"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
 	},
 	{
-		"playerName": " ",
+		"playerName": "",
 		"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
 	},
 	{
-		"playerName": " ",
+		"playerName": "",
 		"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
 	},
 	{

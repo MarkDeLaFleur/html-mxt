@@ -123,7 +123,9 @@
 							colorSpace: 'srgb' , willReadFrequently: true} );
 		let imagedataFromCanvas = wrkCanvasCTX.getImageData(0,0,wrkCanvas.width,wrkCanvas.height);
 		let wrkMat = cv.matFromImageData(imagedataFromCanvas);
+
 		let wrkGray = new cv.Mat(wrkMat.size().height, wrkMat.size().width, cv.CV_8UC1);
+		let wrkHough = new cv.Mat(wrkMat.size().height, wrkMat.size().width, cv.CV_8UC1);
 		let contours = new cv.MatVector();
 		let params = {
 			faster: true,
@@ -155,11 +157,12 @@
 		let canvas = document.getElementById('showVid2');
 		canvas.width = wrkMat.size().width;
 		canvas.height = wrkMat.size().height;
+		let circlesMat = new cv.Mat();
 		canvas.getContext('2d', { alpha: true , 
 								desynchronized: false ,
 								colorSpace: 'srgb' ,
 								willReadFrequently: true} ).clearRect(0, 0, canvas.width, canvas.height);	
-		cv.cvtColor(wrkMat, wrkGray, cv.COLOR_BGR2GRAY, 0);
+		cv.cvtColor(wrkMat, wrkGray, cv.COLOR_RGBA2GRAY, 0);
 		let startThresh = 160;
 		cv.threshold(wrkGray, wrkGray, startThresh, 255, cv.THRESH_BINARY);
 		cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
@@ -169,9 +172,8 @@
 		// smaller than that and it's not likely to be a domino.
 		for (let j = 0; j < contours.size(); j++) {
 			let rect = cv.boundingRect(contours.get(j));
-			if (Math.round(rect.width / rect.height) == 2){
+			if (Math.round(rect.width / rect.height) == 2 && Math.round(rect.width*rect.height) > 1000){
 				rectArray.push(rect); 
-				//console.log('saved rectangle width for  ' + (rectArray.length) + ' is ' + rect.width) 
 				cv.rectangle(
 					showArea,
 					new cv.Point(rect.x, rect.y),
@@ -180,6 +182,7 @@
 					2,
 					0
 				);
+
 				cv.putText(
 					showArea,
 					'(' + Math.round(rect.width / rect.height) + ')',
@@ -194,7 +197,7 @@
 			}
 		}
 
-		cv.imshow('showGray', showArea);
+		//cv.imshow('showGray', showArea);
 		showArea.delete;
 		// now we have an array of bounding rectangles
 		rectArray.forEach((dominoDetected) => {
