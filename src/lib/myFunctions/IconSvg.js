@@ -177,14 +177,13 @@
 						  '<ellipse transform="scale(-1)" cx="-29.763" cy="-155.82" rx="4.6182" ry="5.5861" style="fill:#5f8dd3;stroke-width:3.7415"/>'+
 						  '<ellipse transform="scale(-1)" cx="-49.847" cy="-155.82" rx="4.6182" ry="5.5861" style="fill:#5f8dd3;stroke-width:3.7415"/>'+
 						  '</g></svg>';
-	//let iconSvgs = [D12,D11,D10,D9,D8,D7,D6,D5,D4,D3,D2,D1,D0];
     let iconSvgs = [D12,D11,D10,D9,D8,D7,D6,D5,D4,D3,D2,D1,D0];
 	//setting up the table entry scores and icons for each player
 	/**
 	 * @type {any[]}
 	 */
 	export let roundTableData = [];
-	iconSvgs.forEach((iCon,index) => {
+	iconSvgs.forEach((iCon) => {
 		roundTableData.push({icon: iCon}) 
 	});
     

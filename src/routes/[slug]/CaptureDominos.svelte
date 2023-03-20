@@ -9,7 +9,7 @@
 	export let canvasWidth = 0;
 	export let canvasHeight = 0;
 	export let dominoRound=0;
-	const FPS = 15;
+	const FPS = 6;
 	let clr = {};
 	export let selected=0;
 	$: {console.log($playerScore[selected].playerName + ' ' + $playerScore[selected].pScore[dominoRound])}; 
@@ -108,7 +108,6 @@
 			let matTest = src.roi(new cv.Rect(0,0,parseInt(canvasWidth),parseInt(canvasHeight)));
 			cv.imshow("showVid1",matTest);
 			src.delete;matTest.delete;
-			// schedule the next one.
 			let delay = 1000 / FPS - (Date.now() - begin);
 			setTimeout(processVideo, delay);
 		} catch (err) {
