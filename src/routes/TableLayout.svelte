@@ -4,13 +4,15 @@ import Footer from './Footer.svelte';
 import {roundTableData } from '$lib/myFunctions/IconSvg';
 import {playerScore} from '$lib/myFunctions/TableStore'
 </script>
+<body>
+	<p class="font-semibold text-center text-xl  w-full">Mexican Train for the Brain</p>
 <div class="container ">
 
-  <table class=" table-fixed w-full border-2 border-black ml-5" >
+  <table class=" table-fixed w-full border-2 border-black ml-5 mx-auto" >
 	
-		<thead class="sticky top-0 border-black text-red-900 bg-red-300 w-5">
+		<thead class="sticky top-0 border-black text-red-900  w-5">
 				<tr >
-					<th class="border-2 border-black text-red-900 bg-red-400 flex-none w-11 h-8"> 
+					<th class="border-2 border-black text-red-900  flex-none w-11 h-8"> 
 						#       
 					</th>
 					{#each $playerScore as players,playerIndex}
@@ -43,3 +45,4 @@ import {playerScore} from '$lib/myFunctions/TableStore'
 		</tbody>
     </table>
 </div>
+</body>

@@ -1,4 +1,4 @@
-export const mxTLogo = '<svg class="w-12 h-12 " fill="none" stroke-linecap="square" stroke-miterlimit="10" version="1.1" viewBox="0 0 446.75 384.71" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'+
+export const mxTLogo = '<svg class="w-15 h-12 " fill="none" stroke-linecap="square" stroke-miterlimit="10" version="1.1" viewBox="0 0 446.75 384.71" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'+
                 '<clipPath id="a"><path d="M0 0h446.753v384.711H0V0z"/></clipPath><g clip-path="url(#a)"><path d="M0 0h446.753v384.711H0z" fill="#fff" fill-rule="evenodd"/>'+
                 '<path d="m13.471 0h401.14v349.07h-401.14z" fill="none"/><g transform="matrix(.40106 0 0 .3409 13.471 0)">  <clipPath id="b">'+
                 '<path d="M0 0h1000.195v1024H0z" clip-rule="evenodd"/></clipPath>'+

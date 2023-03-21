@@ -1,49 +1,54 @@
 <script>
- import "../app.css";
- import { page } from '$app/stores';
-	import { mxTLogo } from "$lib/myFunctions/mxTLogo.js";
- 
- 
-  </script>
- 
-<div class="max-w-2xl mx-auto">
-   {@html mxTLogo}
-<nav class="border-gray-200 px-2 mb-10">
-  <div class="container mx-auto flex flex-wrap items-start justify-between">
-  <a href="#/" class="flex">
-     
-      <span class="self-start text-lg font-semibold whitespace-nowrap"></span>
-  </a>
-  <div class="flex md:order-2">
+import "../app.css";
+import { page } from '$app/stores';
+import { mxTLogo } from "$lib/myFunctions/mxTLogo.js";
+let showMenu = false;
 
-        
-     <button data-collapse-toggle="mobile-menu-3" type="button" class="md:hidden text-gray-400 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300 rounded-lg inline-flex items-center justify-center" aria-controls="mobile-menu-3" aria-expanded="false">
-      <span class="sr-only">Open main menu</span>
-      <span class="sr-only">Open main menu</span>
-      <span class="sr-only">Open main menu</span>
+function toggleNavbar() {
+  showMenu = !showMenu;
+}
+</script>
+<header class="bg-slate-400">
+<div>
+  <div  class="container px-4 md:px-0 mx-auto w-full h-13 flex justify-between">
+    <a  href="/">
+       {@html mxTLogo} 
+
+  </a>    
+    <nav>
       
-      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
-      <svg class=" w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-    </button>
-  </div>
-  <div class="flex justify-between items-start  w-auto order-1" id="mobile-menu-3">
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <div on:click={toggleNavbar} class="flex justify-between md:hidden">
+        <button
+          type="button"
+          class="text-gray-800 hover:text-gray-400 focus:outline-none focus:text-gray-400"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+         </svg>
+        </button>
+
+  
+      </div>
       
-    <ul class=" flex-row flex space-x-8 mt-4  text-sm font-medium">
- 
-      <li class:active={$page.url.pathname === '/'}>
-        <a href="/" class="bg-blue-700 md:bg-transparent text-white block pl-3 pr-4 py-2 md:text-blue-700 md:p-0 rounded" aria-current="page">Back to Main</a>
-      </li>
-      
-      
-    </ul>
-  </div>
-  </div>
-</nav>
+
+    <!-- Mobile Menu open: "block", Menu closed: "hidden" -->
+  
+
+    <div
+      class="flex-col  space-y-4 md:flex md:space-y-0 md:flex-row md:items-center md:space-x-5 md:mt-1
+       {showMenu ? 'flex' : 'hidden'} bg-slate-400 px-5 py-5"
+    >
+      <a class=" text-gray-800 hover:text-white" href="/#">Home</a>
+      <a class="text-gray-800 hover:text-white" href="/newGame">New Game</a>
+      <a class="text-gray-800 hover:text-white" href="/contact">Contact US</a>
+      <a class="text-gray-800 hover:text-white" href="/About">About MxT</a>
+    </div>
+  </nav>
 </div>
-<body>
-  <h1 class="text-base text-blue-400 underline  ml-5">
-    Mexican Train Domino Counter and Score Keeper</h1>
-<p> <br>  </p>
-</body>
+</div>
+
+</header>
+    
 
 <slot></slot>
