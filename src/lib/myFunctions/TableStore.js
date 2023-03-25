@@ -3,15 +3,15 @@ import { localStore } from '$lib/myFunctions/localStore'
   
   
 const initialPlayerScore = [
-	{	"playerName": " ",
+	{	"playerName": "",
 		"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
 	},
 	{
-		"playerName": " ",
+		"playerName": "",
 	 	"pScore": [" "," "," "," "," "," "," "," "," "," "," "," "," "],
    	},
    	{
-		"playerName": " ",
+		"playerName": "",
      	"pScore": [" "," "," "," "," "," "," "," "," "," "," "," ","  "],
   	},
   	{

@@ -40,7 +40,7 @@ function toggleNavbar() {
        {showMenu ? 'flex' : 'hidden'} bg-slate-400 px-5 py-5"
     >
       <a class=" text-gray-800 hover:text-white" href="/#">Home</a>
-      <a class="text-gray-800 hover:text-white" href="/newGame">New Game</a>
+      <a class="text-gray-800 hover:text-white" href="/newGame" data-sveltekit-preload-data="tap" >New Game</a>
       <a class="text-gray-800 hover:text-white" href="/contact">Contact US</a>
       <a class="text-gray-800 hover:text-white" href="/About">About MxT</a>
     </div>

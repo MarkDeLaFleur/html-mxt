@@ -1,6 +1,6 @@
 <script Lang ts>
 	// @ts-nocheck
-	import cv, { pointPolygonTest } from '@techstark/opencv-js';
+	import cv from '@techstark/opencv-js';
 	import simpleBlobDetector from '@markdelafleur/simpleblobdetector';
 	import {goto} from '$app/navigation'
 	let buildInfo = 'loading...';

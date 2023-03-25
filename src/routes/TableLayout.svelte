@@ -3,12 +3,13 @@
 import Footer from './Footer.svelte';
 import {roundTableData } from '$lib/myFunctions/IconSvg';
 import {playerScore} from '$lib/myFunctions/TableStore'
+$: {playerScore};
 </script>
 <body>
-	<p class="font-semibold text-center text-xl  w-full">Mexican Train for the Brain</p>
+	<p class="font-semibold text-center text-xl  w-full">Mexican Train Score Keeper and Pip Counter</p>
 <div class="container ">
 
-  <table class=" table-fixed w-full border-2 border-black ml-5 mx-auto" >
+  <table  class=" table-fixed w-full border-2 border-black ml-5 mx-auto" >
 	
 		<thead class="sticky top-0 border-black text-red-900  w-5">
 				<tr >
@@ -33,13 +34,15 @@ import {playerScore} from '$lib/myFunctions/TableStore'
 					<a  href="/{rowptr}" >{@html icon}
 					</a>
 				</td>
-		
-			    {#each $playerScore as rndScore,colptr}
-			    <td class="border-2  border-black align-bottom " contenteditable="true" 
-					bind:innerHTML={$playerScore[colptr].pScore[rowptr]} >
-                {rndScore.pScore[rowptr]}
-				</td>
-			    {/each}
+				
+			    	{#each $playerScore as rndScore,colptr}
+			    	<td class="border-2  border-black align-bottom " contenteditable="true"
+						 id='score{rowptr}{colptr}'
+						bind:innerHTML={$playerScore[colptr].pScore[rowptr]} >
+                		{rndScore.pScore[rowptr]}
+					</td>
+			    	{/each}
+				
 		    </tr>
 	        {/each}	
 		</tbody>
