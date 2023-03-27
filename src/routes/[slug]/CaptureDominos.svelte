@@ -30,6 +30,17 @@
 	let time0 = setTimeout(loadOpencv, 1000);
 	let videO;
 	let imageCapture;
+	let matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
+	let params = {
+			faster: true,
+			filterByInertia: false,
+			filterByCircularity: true,
+			minThreshold: 100,
+			maxThreshold: 200,
+			minDistBetweenBlobs: 10,
+			filterByColor: false
+		};
+
 
   // change in init video to width height
 	//let mediaConstraint = {
@@ -105,16 +116,122 @@
 		try {
 			let begin = Date.now();
 			cap.read(src);
-			let matTest = src.roi(new cv.Rect(0,0,parseInt(canvasWidth),parseInt(canvasHeight)));
-			cv.imshow("showVid1",matTest);
-			src.delete;matTest.delete;
+			matTest = doRects(src.roi(new cv.Rect(0,0,parseInt(canvasWidth),parseInt(canvasHeight))));
+			cv.imshow("showVid1",matTest.tmpMat);
+			src.delete;
 			let delay = 1000 / FPS - (Date.now() - begin);
 			setTimeout(processVideo, delay);
 		} catch (err) {
 			console.log(err + ' in process video callback');
 		}
 	}
+	function doRects(matIn){
+		let contours = new cv.MatVector();
+		let wrkGray = new cv.Mat(matIn.size().height, matIn.size().width, cv.CV_8UC1);
+		cv.cvtColor(matIn, wrkGray, cv.COLOR_RGBA2GRAY, 0);
+		let startThresh = 160;
+		cv.threshold(wrkGray, wrkGray, startThresh, 255, cv.THRESH_BINARY);
+		cv.findContours(wrkGray, contours, new cv.Mat(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+		let rectArray = [];
+		for (let j = 0; j < contours.size(); j++) {
+			let rect = cv.boundingRect(contours.get(j));
+			if (Math.round(rect.width / rect.height) == 2 && Math.round(rect.width*rect.height) > 1000){
+				rectArray.push(rect); 
+				cv.rectangle(
+					matIn,
+					new cv.Point(rect.x, rect.y),
+					new cv.Point(rect.x + rect.width, rect.y + rect.height),
+					clr.Green,
+					2,
+					0
+				);
+
+			};
+		}
+		contours.delete;wrkGray.delete;
+		
+		return {tmpMat: matIn, rectArray: rectArray};
+	}
+	function findRectsRedo () {
+		let wrkMat = matTest.tmpMat.clone();
+		let canvas = document.getElementById('showVid2');
+		canvas.width = wrkMat.size().width;
+		canvas.height = wrkMat.size().height;
+		canvas.getContext('2d', { alpha: true , 
+								desynchronized: false ,
+								colorSpace: 'srgb' ,
+								willReadFrequently: true} ).clearRect(0, 0, canvas.width, canvas.height);	
 	
+
+		let kptTbl = [];
+		matTest.rectArray.forEach((dominoDetected) => {
+			/**
+			 * @type{cv.KeyPoint}
+			 */
+			// we are going after the rectangle bounding rects captured from wrkMat using the ROI
+			let pips = simpleBlobDetector(wrkMat.roi(dominoDetected), params);
+			if (pips.length > 0) {
+				let tempArr = [];   // convert pips keyPoint to an array
+				pips.forEach(keyP => {
+					console.log('key size is ' + keyP.size)
+					if (keyP.size < 25) tempArr.push(keyP)
+				});
+				kptTbl.push({ rect: dominoDetected, kPtArray: tempArr });
+
+				//console.log('Domino  at x/y ' + kptTbl[kptTbl.length-1].rect.x + '/' + kptTbl[kptTbl.length-1].rect.y +
+				// ' has ' + kptTbl[kptTbl.length-1].kPtArray.length +  ' pips ' )
+	
+			}
+		});
+		if (kptTbl.length == 0) {
+			kptTbl.delete;
+			canvas.getContext('2d', { alpha: true , desynchronized: false , colorSpace: 'srgb' , willReadFrequently: true} ).clearRect(0, 0, canvas.width, canvas.height);	
+			cv.imshow('showVid2', wrkMat);
+			wrkMat.delete;
+			buildInfo = 'There were no Dominos detected';
+			return;
+		}
+		let dominoStr = '';
+		totalofAllDominos = 0;
+		kptTbl.forEach((dominoRect, num) => {
+			// put in the dots on the domino
+			dominoRect.kPtArray.forEach((pipCoord, xNum) => {
+				let r = Math.round(pipCoord.size *0.25);
+				//console.log('Rect ' + (num+1) + ' Pip Size  ' + Math.round(pipCoord.size))
+				//relative to bounding rectangle
+				cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
+				dominoRect.rect.y), r, clr.Green, 2);
+			});
+		
+			let domX = dominoRect.rect.x + dominoRect.rect.width;
+			let domY = dominoRect.rect.y + dominoRect.rect.height;
+			cv.putText(
+				wrkMat,
+				'(' + (num + 1).toString() + ')',
+				new cv.Point(domX, domY),
+				cv.FONT_HERSHEY_SIMPLEX,
+				0.5,
+				clr.Blue,
+				2,
+				cv.LINE_AA,
+				false
+			);
+			dominoStr +=  (num + 1) + '==>' + dominoRect.kPtArray.length + ', ';
+			totalofAllDominos += dominoRect.kPtArray.length;
+		});
+
+		dominoStr = ' \n total of All Dominos ==> ' + totalofAllDominos + '\n' +
+		dominoStr.substring(0,dominoStr.lastIndexOf(','));
+		kptTbl.delete;
+		canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+		cv.imshow('showVid2', wrkMat);
+		wrkMat.delete;
+		buildInfo = dominoStr;
+		return;
+
+
+
+	}
 	function findRects() {
 		//we will get a cv.mat from the canvas and we get here from the countButton
 		let wrkCanvas = document.getElementById("showVid1")
@@ -124,7 +241,6 @@
 		let wrkMat = cv.matFromImageData(imagedataFromCanvas);
 
 		let wrkGray = new cv.Mat(wrkMat.size().height, wrkMat.size().width, cv.CV_8UC1);
-		let wrkHough = new cv.Mat(wrkMat.size().height, wrkMat.size().width, cv.CV_8UC1);
 		let contours = new cv.MatVector();
 		let params = {
 			faster: true,
@@ -303,7 +419,7 @@
 <div>
 		<br>
 		<button
-			type="button" id="countButton" on:click={findRects}
+			type="button" id="countButton" on:click={findRectsRedo}
 			class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
          			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
        				  focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
