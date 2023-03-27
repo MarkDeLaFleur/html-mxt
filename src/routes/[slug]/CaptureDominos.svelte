@@ -31,6 +31,23 @@
 	let videO;
 	let imageCapture;
 	let matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
+	let paramsAndroid = {
+			filterByInertia: true,
+			filterByCircularity: false,
+			filterbyColor: true,
+			filterByConvexity: true,
+			filterByArea: true,
+			maxConvexity: 3.4028234663852886,
+			maxInertiaRatio: 3.4028234663852886,
+			minCircularity: 0.800000011920929,
+			minArea: 70,
+			maxArea: 300,
+			minConvexity: 0.800000011920929,
+			minInertiaRatio: 0.10000000149011612,
+			minDistBetweenBlobs: 10,
+			minRepeatability: 2
+		};
+
 	let params = {
 			faster: true,
 			filterByInertia: false,
@@ -42,10 +59,6 @@
 		};
 
 
-  // change in init video to width height
-	//let mediaConstraint = {
-	//	video: { width: { ideal: 700 }, height: { ideal: 300 }, facingMode: { ideal: 'environment' } }
-	//};
 	let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 							width: { ideal: 800 },  height: {ideal: 600}  }};
 	async function loadOpencv() {
@@ -116,7 +129,7 @@
 		try {
 			let begin = Date.now();
 			cap.read(src);
-			matTest = doRects(src.roi(new cv.Rect(0,0,parseInt(canvasWidth),parseInt(canvasHeight))));
+			matTest = putRects(src.roi(new cv.Rect(0,0,parseInt(canvasWidth),parseInt(canvasHeight))));
 			cv.imshow("showVid1",matTest.tmpMat);
 			src.delete;
 			let delay = 1000 / FPS - (Date.now() - begin);
@@ -125,7 +138,7 @@
 			console.log(err + ' in process video callback');
 		}
 	}
-	function doRects(matIn){
+	function putRects(matIn){
 		let contours = new cv.MatVector();
 		let wrkGray = new cv.Mat(matIn.size().height, matIn.size().width, cv.CV_8UC1);
 		cv.cvtColor(matIn, wrkGray, cv.COLOR_RGBA2GRAY, 0);
@@ -152,7 +165,7 @@
 		
 		return {tmpMat: matIn, rectArray: rectArray};
 	}
-	function findRectsRedo () {
+	function countDominoPips () {
 		let wrkMat = matTest.tmpMat.clone();
 		let canvas = document.getElementById('showVid2');
 		canvas.width = wrkMat.size().width;
@@ -173,7 +186,7 @@
 			if (pips.length > 0) {
 				let tempArr = [];   // convert pips keyPoint to an array
 				pips.forEach(keyP => {
-					console.log('key size is ' + keyP.size)
+					//console.log('key size is ' + keyP.size)
 					if (keyP.size < 25) tempArr.push(keyP)
 				});
 				kptTbl.push({ rect: dominoDetected, kPtArray: tempArr });
@@ -228,174 +241,8 @@
 		wrkMat.delete;
 		buildInfo = dominoStr;
 		return;
-
-
-
 	}
-	function findRects() {
-		//we will get a cv.mat from the canvas and we get here from the countButton
-		let wrkCanvas = document.getElementById("showVid1")
-		let wrkCanvasCTX = wrkCanvas.getContext('2d', { alpha: true , desynchronized: false , 
-							colorSpace: 'srgb' , willReadFrequently: true} );
-		let imagedataFromCanvas = wrkCanvasCTX.getImageData(0,0,wrkCanvas.width,wrkCanvas.height);
-		let wrkMat = cv.matFromImageData(imagedataFromCanvas);
-
-		let wrkGray = new cv.Mat(wrkMat.size().height, wrkMat.size().width, cv.CV_8UC1);
-		let contours = new cv.MatVector();
-		let params = {
-			faster: true,
-			filterByInertia: false,
-			filterByCircularity: true,
-			minThreshold: 100,
-			maxThreshold: 200,
-			minDistBetweenBlobs: 10,
-			filterByColor: false
-		};
-		let paramsAndroid = {
-			filterByInertia: true,
-			filterByCircularity: false,
-			filterbyColor: true,
-			filterByConvexity: true,
-			filterByArea: true,
-			maxConvexity: 3.4028234663852886,
-			maxInertiaRatio: 3.4028234663852886,
-			minCircularity: 0.800000011920929,
-			minArea: 70,
-			maxArea: 300,
-			minConvexity: 0.800000011920929,
-			minInertiaRatio: 0.10000000149011612,
-			minDistBetweenBlobs: 10,
-			minRepeatability: 2
-		};
-		let heirs = new cv.Mat();
-		let kptTbl = [];
-		let canvas = document.getElementById('showVid2');
-		canvas.width = wrkMat.size().width;
-		canvas.height = wrkMat.size().height;
-		let circlesMat = new cv.Mat();
-		canvas.getContext('2d', { alpha: true , 
-								desynchronized: false ,
-								colorSpace: 'srgb' ,
-								willReadFrequently: true} ).clearRect(0, 0, canvas.width, canvas.height);	
-		cv.cvtColor(wrkMat, wrkGray, cv.COLOR_RGBA2GRAY, 0);
-		let startThresh = 160;
-		cv.threshold(wrkGray, wrkGray, startThresh, 255, cv.THRESH_BINARY);
-		cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
-		let rectArray = [];
-		let showArea = wrkGray; 
-		// put any rectangles with a width > 99 into an array.
-		// smaller than that and it's not likely to be a domino.
-		for (let j = 0; j < contours.size(); j++) {
-			let rect = cv.boundingRect(contours.get(j));
-			if (Math.round(rect.width / rect.height) == 2 && Math.round(rect.width*rect.height) > 1000){
-				rectArray.push(rect); 
-				cv.rectangle(
-					showArea,
-					new cv.Point(rect.x, rect.y),
-					new cv.Point(rect.x + rect.width, rect.y + rect.height),
-					clr.Green,
-					2,
-					0
-				);
-
-				cv.putText(
-					showArea,
-					'(' + Math.round(rect.width / rect.height) + ')',
-					new cv.Point(rect.x, rect.y+40),
-					cv.FONT_HERSHEY_PLAIN,
-					2,
-					clr.Black,
-					1,
-					cv.LINE_4,
-					0
-				);
-			}
-		}
-
-		//cv.imshow('showGray', showArea);
-		showArea.delete;
-		// now we have an array of bounding rectangles
-		rectArray.forEach((dominoDetected) => {
-			/**
-			 * @type{cv.KeyPoint}
-			 */
-			// we are going after the rectangle bounding rects captured from wrkMat using the ROI
-			let pips = simpleBlobDetector(wrkMat.roi(dominoDetected), params);
-			if (pips.length > 0) {
-				let tempArr = []   // convert pips keyPoint to an array
-				pips.forEach(keyP => {
-					if (keyP.size < 25) tempArr.push(keyP)
-				});
-				kptTbl.push({ rect: dominoDetected, kPtArray: tempArr });
-
-				//console.log('Domino  at x/y ' + kptTbl[kptTbl.length-1].rect.x + '/' + kptTbl[kptTbl.length-1].rect.y +
-				// ' has ' + kptTbl[kptTbl.length-1].kPtArray.length +  ' pips ' )
-	
-			}
-		});
-		// looped through our rectangles and build another array with the rectangle, and the keypoints ( pips)
-		contours.delete;heirs.delete;wrkGray.delete;
-
-		if (kptTbl.length == 0) {
-			kptTbl.delete;
-			canvas.getContext('2d', { alpha: true , desynchronized: false , colorSpace: 'srgb' , willReadFrequently: true} ).clearRect(0, 0, canvas.width, canvas.height);	
-			cv.imshow('showVid2', wrkMat);
-			wrkMat.delete;
-			buildInfo = 'There were no Dominos detected';
-			return;
-		}
-		let dominoStr = '';
-		totalofAllDominos = 0;
-		kptTbl.forEach((dominoRect, num) => {
-			// put in the dots on the domino
-			dominoRect.kPtArray.forEach((pipCoord, xNum) => {
-				let r = Math.round(pipCoord.size *0.25);
-				//console.log('Rect ' + (num+1) + ' Pip Size  ' + Math.round(pipCoord.size))
-				//relative to bounding rectangle
-				cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
-				dominoRect.rect.y), r, clr.Green, 2);
-			});
-
-			//put the green box around the domino
-			cv.rectangle(
-				wrkMat,
-				new cv.Point(dominoRect.rect.x, dominoRect.rect.y),
-				new cv.Point(dominoRect.rect.x + dominoRect.rect.width, dominoRect.rect.y + 
-				dominoRect.rect.height),
-				clr.Green,
-				2,
-				0
-			);
-
-			// put the domino number near the right bottom
-			let domX = dominoRect.rect.x + dominoRect.rect.width;
-			let domY = dominoRect.rect.y + dominoRect.rect.height;
-			cv.putText(
-				wrkMat,
-				'(' + (num + 1).toString() + ')',
-				new cv.Point(domX, domY),
-				cv.FONT_HERSHEY_SIMPLEX,
-				0.5,
-				clr.Blue,
-				2,
-				cv.LINE_AA,
-				false
-			);
-			dominoStr +=  (num + 1) + '==>' + dominoRect.kPtArray.length + ', ';
-			totalofAllDominos += dominoRect.kPtArray.length;
-		});
-
-		dominoStr = ' \n total of All Dominos ==> ' + totalofAllDominos + '\n' +
-		  dominoStr.substring(0,dominoStr.lastIndexOf(','));
-		kptTbl.delete;
-		canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-		cv.imshow('showVid2', wrkMat);
-		wrkMat.delete;
-		buildInfo = dominoStr;
-		return;
-
-	}
-    function updatePlayerTable(){
+	function updatePlayerTable(){
         // update and get out
 		//using dominoRound, selected (index) and adding total of all dominos to table.
 		//show it first:
@@ -419,7 +266,7 @@
 <div>
 		<br>
 		<button
-			type="button" id="countButton" on:click={findRectsRedo}
+			type="button" id="countButton" on:click={countDominoPips}
 			class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
          			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
        				  focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
