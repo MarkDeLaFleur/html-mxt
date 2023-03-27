@@ -118,15 +118,15 @@
 			});
 	}
 	function processVideo() {
-		if (document.getElementById("showVid1") == null)  {  // home button clicked
+		try {
+			if (document.getElementById("showVid1") === null)  {  // home button clicked
 					src.delete;
 					window.localStream.getVideoTracks().forEach(track => track.stop());
 					// stops the webcam but it seems you have to refresh the home screen to turn off the 
 					// indicator light
-					return;
-			}
-
-		try {
+					goto('/');
+					
+			};
 			let begin = Date.now();
 			cap.read(src);
 			matTest = putRects(src.roi(new cv.Rect(0,0,parseInt(canvasWidth),parseInt(canvasHeight))));
@@ -135,7 +135,7 @@
 			let delay = 1000 / FPS - (Date.now() - begin);
 			setTimeout(processVideo, delay);
 		} catch (err) {
-			console.log(err + ' in process video callback');
+			console.log(err + ' in process video callback' + document.getElementById("showVid1"));
 		}
 	}
 	function putRects(matIn){
