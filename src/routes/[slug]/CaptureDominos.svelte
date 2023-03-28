@@ -26,11 +26,10 @@
 	let streaming = false;
 	let stream;
 	let cap;
-	let src;
 	let time0 = setTimeout(loadOpencv, 1000);
 	let videO;
 	let imageCapture;
-	let matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
+	let matTest; 
 	let paramsAndroid = {
 			filterByInertia: true,
 			filterByCircularity: false,
@@ -79,6 +78,8 @@
 				};
 				Initvideo();
                 cap = new cv.VideoCapture(videO);
+				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
+
 				setTimeout(processVideo,0);
 			} //build info length
 		} catch (err) {
@@ -106,7 +107,6 @@
 					videO.width = track.getSettings().width;
 					videO.height = track.getSettings().height;
 				}
-				src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
 				canvasWidth = videO.width;
 				canvasHeight = videO.height;
 				if (videO.paused) {
@@ -119,23 +119,26 @@
 	}
 	function processVideo() {
 		try {
+			let src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
+			cap.read(src);
+			let begin = Date.now();
+			matTest = putRects(src.roi(new cv.Rect(0,0,parseInt(canvasWidth),parseInt(canvasHeight))));
 			if (document.getElementById("showVid1") === null)  {  // home button clicked
-					src.delete;
+					src.delete,matTest.delete;
 					window.localStream.getVideoTracks().forEach(track => track.stop());
 					// stops the webcam but it seems you have to refresh the home screen to turn off the 
 					// indicator light
 					goto('/');
-					
+			}
+			else {
+				cv.imshow("showVid1",matTest.tmpMat);
+				src.delete, matTest.delete;
+				let delay = 1000 / FPS - (Date.now() - begin);
+				setTimeout(processVideo, delay);
 			};
-			let begin = Date.now();
-			cap.read(src);
-			matTest = putRects(src.roi(new cv.Rect(0,0,parseInt(canvasWidth),parseInt(canvasHeight))));
-			cv.imshow("showVid1",matTest.tmpMat);
-			src.delete;
-			let delay = 1000 / FPS - (Date.now() - begin);
-			setTimeout(processVideo, delay);
+			
 		} catch (err) {
-			console.log(err + ' in process video callback' + document.getElementById("showVid1"));
+			console.log(err + ' in process video callback "ShowVid1" ' );
 		}
 	}
 	function putRects(matIn){
@@ -144,10 +147,10 @@
 		cv.cvtColor(matIn, wrkGray, cv.COLOR_RGBA2GRAY, 0);
 		let startThresh = 160;
 		cv.threshold(wrkGray, wrkGray, startThresh, 255, cv.THRESH_BINARY);
-		cv.findContours(wrkGray, contours, new cv.Mat(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+		cv.findContours(wrkGray, contours, new cv.Mat(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE);
 		let rectArray = [];
 		for (let j = 0; j < contours.size(); j++) {
-			let rect = cv.boundingRect(contours.get(j));
+			const rect = cv.boundingRect(contours.get(j));
 			if (Math.round(rect.width / rect.height) == 2 && Math.round(rect.width*rect.height) > 1000){
 				rectArray.push(rect); 
 				cv.rectangle(
@@ -165,8 +168,9 @@
 		
 		return {tmpMat: matIn, rectArray: rectArray};
 	}
-	function countDominoPips () {
-		let wrkMat = matTest.tmpMat.clone();
+	function countDominoPips (matIn,rectIn) {
+		
+		let wrkMat = matIn.clone();
 		let canvas = document.getElementById('showVid2');
 		canvas.width = wrkMat.size().width;
 		canvas.height = wrkMat.size().height;
@@ -177,12 +181,12 @@
 	
 
 		let kptTbl = [];
-		matTest.rectArray.forEach((dominoDetected) => {
+		rectIn.forEach((dominoDetected) => {
 			/**
 			 * @type{cv.KeyPoint}
 			 */
 			// we are going after the rectangle bounding rects captured from wrkMat using the ROI
-			let pips = simpleBlobDetector(wrkMat.roi(dominoDetected), params);
+			let pips = simpleBlobDetector(wrkMat.roi(dominoDetected), paramsAndroid);
 			if (pips.length > 0) {
 				let tempArr = [];   // convert pips keyPoint to an array
 				pips.forEach(keyP => {
@@ -190,7 +194,7 @@
 					if (keyP.size < 25) tempArr.push(keyP)
 				});
 				kptTbl.push({ rect: dominoDetected, kPtArray: tempArr });
-
+				tempArr.delete;
 				//console.log('Domino  at x/y ' + kptTbl[kptTbl.length-1].rect.x + '/' + kptTbl[kptTbl.length-1].rect.y +
 				// ' has ' + kptTbl[kptTbl.length-1].kPtArray.length +  ' pips ' )
 	
@@ -208,8 +212,8 @@
 		totalofAllDominos = 0;
 		kptTbl.forEach((dominoRect, num) => {
 			// put in the dots on the domino
-			dominoRect.kPtArray.forEach((pipCoord, xNum) => {
-				let r = Math.round(pipCoord.size *0.25);
+			dominoRect.kPtArray.forEach((pipCoord) => {
+				let r = Math.round(pipCoord.size * 0.33);
 				//console.log('Rect ' + (num+1) + ' Pip Size  ' + Math.round(pipCoord.size))
 				//relative to bounding rectangle
 				cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
@@ -240,7 +244,6 @@
 		cv.imshow('showVid2', wrkMat);
 		wrkMat.delete;
 		buildInfo = dominoStr;
-		return;
 	}
 	function updatePlayerTable(){
         // update and get out
@@ -266,7 +269,7 @@
 <div>
 		<br>
 		<button
-			type="button" id="countButton" on:click={countDominoPips}
+			type="button" id="countButton" on:click={() => countDominoPips(matTest.tmpMat,matTest.rectArray)}
 			class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
          			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
        				  focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0

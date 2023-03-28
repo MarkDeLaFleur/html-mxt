@@ -8,7 +8,7 @@ let canvasEle;
 let context;
 onMount(async () =>{
     canvasEle = document.getElementById(canvasId);
-    context = canvasEle.getContext('2d')
+    //context = canvasEle.getContext('2d')
    
 });
 
