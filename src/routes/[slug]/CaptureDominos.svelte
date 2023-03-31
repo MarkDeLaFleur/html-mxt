@@ -18,7 +18,7 @@
 	let tmpPts;
 	let totalofAllDominos = 0;
 	let cl = 0;
-	
+	let src;
 
 	/**
 	 * @type {HTMLVideoElement}
@@ -26,7 +26,6 @@
 	let streaming = false;
 	let stream;
 	let cap;
-	let time0 = setTimeout(loadOpencv, 1000);
 	let videO;
 	let imageCapture;
 	let matTest; 
@@ -60,9 +59,9 @@
 
 	let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 							width: { ideal: 800 },  height: {ideal: 600}  }};
+	setTimeout(loadOpencv,0);
 	async function loadOpencv() {
 		try {
-			clearTimeout(time0);
 			window.cv = cv;
 			buildInfo = cv.getBuildInformation();
 			if (buildInfo.length > 0) {
@@ -77,14 +76,14 @@
 					White: new cv.Scalar(0.0, 0.0, 0.0, 255.0)
 				};
 				Initvideo();
+				src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
                 cap = new cv.VideoCapture(videO);
 				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
 
 				setTimeout(processVideo,0);
 			} //build info length
 		} catch (err) {
-			clearTimeout(time0);
-			time0 = setTimeout(loadOpencv, 1000); // try opencv again.
+			setTimeout(loadOpencv, 1000); // try opencv again.
 		}
 	}
  
@@ -119,56 +118,66 @@
 	}
 	function processVideo() {
 		try {
-			let src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
 			cap.read(src);
 			let begin = Date.now();
-			matTest = putRects(src.roi(new cv.Rect(0,0,parseInt(canvasWidth),parseInt(canvasHeight))));
-			if (document.getElementById("showVid1") === null)  {  // home button clicked
-					src.delete,matTest.delete;
-					window.localStream.getVideoTracks().forEach(track => track.stop());
+			let wrkRoi = src.roi(new cv.Rect(0,0,parseInt(canvasWidth),parseInt(canvasHeight)));
+			let matTmp = putRects(wrkRoi);
+			if (matTmp.tmpMat != null){
+				matTest.tmpMat = matTmp.tmpMat;
+				cv.imshow("showVid1",matTest.tmpMat);
+				if (matTmp.rectArray.length > 0 ){
+						matTest.rectArray = matTmp.rectArray
+					}
+				else{ matTest.rectArray = []}
+				
+			}
+			let delay = 1000 / FPS - (Date.now() - begin);
+			setTimeout(processVideo, delay);
+					
+		} catch (err) {
+			let errStr = ' ' + err;
+			console.log(errStr.indexOf('valid canvas element'))
+			if (errStr.indexOf('valid canvas element') > 0)  {  // home button clicked
+				window.localStream.getVideoTracks().forEach(track => track.stop());
 					// stops the webcam but it seems you have to refresh the home screen to turn off the 
 					// indicator light
-					goto('/');
+				goto('/');
 			}
-			else {
-				cv.imshow("showVid1",matTest.tmpMat);
-				src.delete, matTest.delete;
-				let delay = 1000 / FPS - (Date.now() - begin);
-				setTimeout(processVideo, delay);
-			};
-			
-		} catch (err) {
+
 			console.log(err + ' in process video callback "ShowVid1" ' );
 		}
 	}
-	function putRects(matIn){
-		let contours = new cv.MatVector();
-		let wrkGray = new cv.Mat(matIn.size().height, matIn.size().width, cv.CV_8UC1);
-		cv.cvtColor(matIn, wrkGray, cv.COLOR_RGBA2GRAY, 0);
-		let startThresh = 160;
-		cv.threshold(wrkGray, wrkGray, startThresh, 255, cv.THRESH_BINARY);
-		cv.findContours(wrkGray, contours, new cv.Mat(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE);
-		let rectArray = [];
-		for (let j = 0; j < contours.size(); j++) {
-			const rect = cv.boundingRect(contours.get(j));
-			if (Math.round(rect.width / rect.height) == 2 && Math.round(rect.width*rect.height) > 1000){
-				rectArray.push(rect); 
-				cv.rectangle(
-					matIn,
-					new cv.Point(rect.x, rect.y),
-					new cv.Point(rect.x + rect.width, rect.y + rect.height),
-					clr.Green,
-					2,
-					0
-				);
+	function putRects(matIn){ 
+			let contours = new cv.MatVector();
+			let heirs    = new cv.Mat()
+			let wrkGray = new cv.Mat(matIn.size().height, matIn.size().width, cv.CV_8UC1);
+			cv.cvtColor(matIn, wrkGray, cv.COLOR_RGBA2GRAY, 0);
+			let startThresh = 160;
+			cv.threshold(wrkGray, wrkGray, startThresh, 255, cv.THRESH_BINARY);
+			cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE);
+			let rectArray = [];
+			for (let j = 0; j < contours.size(); j++) {
+				const rect = cv.boundingRect(contours.get(j));
+				if (Math.round(rect.width / rect.height) == 2 && Math.round(rect.width*rect.height) > 1000){
+					rectArray.push(rect);
+				}
+			}
 
-			};
-		}
-		contours.delete;wrkGray.delete;
-		
-		return {tmpMat: matIn, rectArray: rectArray};
+			rectArray.forEach(rect =>{
+				let wkPtStrt = new cv.Point(rect.x, rect.y);
+				let wkRectStrt =  new cv.Point(rect.x + rect.width, rect.y + rect.height);
+				cv.rectangle(matIn,wkPtStrt,wkRectStrt,clr.Green,2,0);
+
+			});
+			contours.delete;wrkGray.delete;heirs.delete;		
+			return {tmpMat: matIn, rectArray: rectArray}
+
 	}
 	function countDominoPips (matIn,rectIn) {
+		if (rectIn.length < 1){
+			buildInfo = 'There were no Dominos detected';
+			return;
+		} 
 		
 		let wrkMat = matIn.clone();
 		let canvas = document.getElementById('showVid2');
@@ -204,7 +213,7 @@
 			kptTbl.delete;
 			canvas.getContext('2d', { alpha: true , desynchronized: false , colorSpace: 'srgb' , willReadFrequently: true} ).clearRect(0, 0, canvas.width, canvas.height);	
 			cv.imshow('showVid2', wrkMat);
-			wrkMat.delete;
+			wrkMat.delete;canvas.delete
 			buildInfo = 'There were no Dominos detected';
 			return;
 		}
@@ -222,17 +231,11 @@
 		
 			let domX = dominoRect.rect.x + dominoRect.rect.width;
 			let domY = dominoRect.rect.y + dominoRect.rect.height;
+			let wkPt = new cv.Point(domX,domY);
 			cv.putText(
 				wrkMat,
-				'(' + (num + 1).toString() + ')',
-				new cv.Point(domX, domY),
-				cv.FONT_HERSHEY_SIMPLEX,
-				0.5,
-				clr.Blue,
-				2,
-				cv.LINE_AA,
-				false
-			);
+				'(' + (num + 1).toString() + ')',wkPt,cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Blue,
+				2,cv.LINE_AA,false);
 			dominoStr +=  (num + 1) + '==>' + dominoRect.kPtArray.length + ', ';
 			totalofAllDominos += dominoRect.kPtArray.length;
 		});
@@ -242,7 +245,7 @@
 		kptTbl.delete;
 		canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 		cv.imshow('showVid2', wrkMat);
-		wrkMat.delete;
+		wrkMat.delete;canvas.delete;
 		buildInfo = dominoStr;
 	}
 	function updatePlayerTable(){
@@ -250,12 +253,10 @@
 		//using dominoRound, selected (index) and adding total of all dominos to table.
 		//show it first:
 		$playerScore[selected].pScore[dominoRound]  =   totalofAllDominos ;
-		if (videO.play()) videO.paused;
 		window.localStream.getVideoTracks().forEach(track => track.stop());
 					// stops the webcam but it seems you have to refresh the home screen to turn off the 
 					// indicator light
 		goto('/');
-
     }
 	
 </script>
@@ -277,7 +278,7 @@
 		Count Dominos
 		</button>
 		<button
-			type="button" id="UpdatePlayerScore" on:click={updatePlayerTable}
+			type="button" id="UpdatePlayerScore" on:click={() => updatePlayerTable()}
 			class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
          			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
         			 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
