@@ -12,7 +12,7 @@
 	const FPS = 6;
 	let clr = {};
 	export let selected=0;
-	$: {console.log($playerScore[selected].playerName + ' ' + $playerScore[selected].pScore[dominoRound])}; 
+//$: {console.log($playerScore[selected].playerName + ' ' + $playerScore[selected].pScore[dominoRound])}; 
 	let startPosition = {col: 0, row: 0};
 	let endPosition = {col: 0, row: 0};
 	let tmpPts;
@@ -58,7 +58,7 @@
 
 
 	let mediaConstraint = {video: { facingMode: {ideal: "environment"},
-							width: { ideal: 800 },  height: {ideal: 600}  }};
+							width: { ideal: 1080 },  height: {ideal: 720}  }};
 	setTimeout(loadOpencv,0);
 	async function loadOpencv() {
 		try {
@@ -114,6 +114,8 @@
 			})
 			.catch((err) => {
 				console.log('Video streaming error -- something went wrong ' + err);
+				setTimeout(loadOpencv, 1000); // try opencv again.
+
 			});
 	}
 	function processVideo() {
@@ -135,12 +137,9 @@
 			setTimeout(processVideo, delay);
 					
 		} catch (err) {
-			let errStr = ' ' + err;
-			console.log(errStr.indexOf('valid canvas element'))
+			let errStr = err+"x";
 			if (errStr.indexOf('valid canvas element') > 0)  {  // home button clicked
 				window.localStream.getVideoTracks().forEach(track => track.stop());
-					// stops the webcam but it seems you have to refresh the home screen to turn off the 
-					// indicator light
 				goto('/');
 			}
 
@@ -253,10 +252,7 @@
 		//using dominoRound, selected (index) and adding total of all dominos to table.
 		//show it first:
 		$playerScore[selected].pScore[dominoRound]  =   totalofAllDominos ;
-		window.localStream.getVideoTracks().forEach(track => track.stop());
-					// stops the webcam but it seems you have to refresh the home screen to turn off the 
-					// indicator light
-		goto('/');
+		buildInfo = $playerScore[selected].playerName + " score has been updated"
     }
 	
 </script>
