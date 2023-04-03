@@ -32,7 +32,7 @@
 	let paramsAndroid = {
 			filterByInertia: true,
 			filterByCircularity: false,
-			filterbyColor: true,
+			filterbyColor: false,
 			filterByConvexity: true,
 			filterByArea: true,
 			maxConvexity: 3.4028234663852886,
@@ -58,7 +58,7 @@
 
 
 	let mediaConstraint = {video: { facingMode: {ideal: "environment"},
-							width: { ideal: 1080 },  height: {ideal: 720}  }};
+							width: { ideal: 720 },  height: {ideal: 480}  }};
 	setTimeout(loadOpencv,0);
 	async function loadOpencv() {
 		try {
@@ -194,12 +194,12 @@
 			 * @type{cv.KeyPoint}
 			 */
 			// we are going after the rectangle bounding rects captured from wrkMat using the ROI
-			let pips = simpleBlobDetector(wrkMat.roi(dominoDetected), paramsAndroid);
+			let pips = simpleBlobDetector(wrkMat.roi(dominoDetected), params);
 			if (pips.length > 0) {
 				let tempArr = [];   // convert pips keyPoint to an array
 				pips.forEach(keyP => {
-					//console.log('key size is ' + keyP.size)
-					if (keyP.size < 25) tempArr.push(keyP)
+	
+					if (keyP.size < 20) tempArr.push(keyP)
 				});
 				kptTbl.push({ rect: dominoDetected, kPtArray: tempArr });
 				tempArr.delete;
@@ -221,11 +221,11 @@
 		kptTbl.forEach((dominoRect, num) => {
 			// put in the dots on the domino
 			dominoRect.kPtArray.forEach((pipCoord) => {
-				let r = Math.round(pipCoord.size * 0.33);
+				let r = Math.round(pipCoord.size);
 				//console.log('Rect ' + (num+1) + ' Pip Size  ' + Math.round(pipCoord.size))
 				//relative to bounding rectangle
 				cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
-				dominoRect.rect.y), r, clr.Green, 2);
+				dominoRect.rect.y), (r*.15), clr.Green,-1);
 			});
 		
 			let domX = dominoRect.rect.x + dominoRect.rect.width;
@@ -258,10 +258,10 @@
 </script>
 
 <!-- svelte-ignore a11y-missing-content -->
+<p class="text-gray-700 text-justify ml-10">	Information Section <br></p>
+	
 <div class="block overflow-auto border text-gray-700 border-red-400 ml-10 px-4  w-3/4 h-24 build-info">	
-		<p >	Information Section <br>
 		{@html buildInfo.replace(/\n/g, '<br />')}  
-		</p>
 </div>
 <div>
 		<br>
