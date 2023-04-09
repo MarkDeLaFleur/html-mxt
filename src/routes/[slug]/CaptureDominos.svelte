@@ -6,10 +6,11 @@
 	let buildInfo = 'loading...';
 	import { playerScore } from '$lib/myFunctions/TableStore'
 	import Canvasresize from './Canvasresize.svelte';
-	export let canvasWidth = 0;
-	export let canvasHeight = 0;
+	export let canvasId="showVid1";
+	export let canvasWidth;
+	export let canvasHeight;
 	export let dominoRound=0;
-	const FPS = 6;
+	export let FPS = 30;
 	let clr = {};
 	export let selected=0;
 //$: {console.log($playerScore[selected].playerName + ' ' + $playerScore[selected].pScore[dominoRound])}; 
@@ -18,7 +19,6 @@
 	let tmpPts;
 	let totalofAllDominos = 0;
 	let cl = 0;
-	let src;
 
 	/**
 	 * @type {HTMLVideoElement}
@@ -27,8 +27,9 @@
 	let stream;
 	let cap;
 	let videO;
-	let imageCapture;
+	//let imageCapture;
 	let matTest; 
+/*
 	let paramsAndroid = {
 			filterByInertia: true,
 			filterByCircularity: false,
@@ -55,10 +56,14 @@
 			minDistBetweenBlobs: 10,
 			filterByColor: false
 		};
-
-
-	let mediaConstraint = {video: { facingMode: {ideal: "environment"},
-							width: { ideal: 720 },  height: {ideal: 480}  }};
+*/
+	let noConstraint = {video:  true};
+/*	let mediaConstraint = {video: { facingMode: {ideal: "environment"},
+							width: { min: 640, max: 1920 }, 
+							height: {min: 480, max: 1080},
+						    frameRate: { ideal: 10, max: 30 }  }};
+*/
+	let src;
 	setTimeout(loadOpencv,0);
 	async function loadOpencv() {
 		try {
@@ -75,11 +80,10 @@
 					Yellow: new cv.Scalar(255.0, 160.0, 0.0, 255.0),
 					White: new cv.Scalar(0.0, 0.0, 0.0, 255.0)
 				};
-				Initvideo();
-				src = new cv.Mat(videO.height, videO.width, cv.CV_8UC4);
+				initVideo();
                 cap = new cv.VideoCapture(videO);
 				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
-
+				src = new cv.Mat(canvasHeight, canvasWidth, cv.CV_8UC4);
 				setTimeout(processVideo,0);
 			} //build info length
 		} catch (err) {
@@ -89,25 +93,23 @@
  
 
 
-	async function Initvideo() {
+	async function initVideo() {
 		stream = await navigator.mediaDevices
-			.getUserMedia(mediaConstraint)
+			.getUserMedia (noConstraint)  //(mediaConstraint)
 			.then((stream) => {
-				const track = stream.getVideoTracks()[0];
+				//const track = stream.getVideoTracks()[0];
 				videO = document.getElementById('videO');
-				window.localStream = stream;
+				//window.localStream = stream;
 				videO.srcObject = stream;
+				//videO.width = track.getSettings().width;
+				//videO.height = track.getSettings().height;
+				//videO.width = 640; videO.height = 480;
+				//FPS = track.getSettings().frameRate;
 				streaming = true;
-				imageCapture = new ImageCapture(track);
-				if (track.getSettings().width < track.getSettings().height) {
-					videO.width = track.getSettings().height;
-					videO.height = track.getSettings().width;
-				} else {
-					videO.width = track.getSettings().width;
-					videO.height = track.getSettings().height;
-				}
-				canvasWidth = videO.width;
-				canvasHeight = videO.height;
+				//imageCapture = new ImageCapture(videO);
+				//canvasWidth = videO.width;
+				//canvasHeight = videO.height;
+
 				if (videO.paused) {
 					videO.play();
 				}
@@ -119,19 +121,22 @@
 			});
 	}
 	function processVideo() {
+
 		try {
-			cap.read(src);
 			let begin = Date.now();
-			let wrkRoi = src.roi(new cv.Rect(0,0,parseInt(canvasWidth),parseInt(canvasHeight)));
-			let matTmp = putRects(wrkRoi);
-			if (matTmp.tmpMat != null){
-				matTest.tmpMat = matTmp.tmpMat;
-				cv.imshow("showVid1",matTest.tmpMat);
-				if (matTmp.rectArray.length > 0 ){
-						matTest.rectArray = matTmp.rectArray
+			if(document.getElementById('countButton').innerText == 'COUNT DOMINOS'){
+				cap.read(src);
+				let matTmp = putRects(src);
+				if (matTmp.tmpMat != null){
+					matTest.tmpMat = matTmp.tmpMat;
+					cv.imshow("showVid1",matTest.tmpMat);
+					if (matTmp.rectArray.length > 0 ){
+						matTest.rectArray = matTmp.rectArray;
 					}
-				else{ matTest.rectArray = []}
+					else{ matTest.rectArray = [];
+					}
 				
+				}
 			}
 			let delay = 1000 / FPS - (Date.now() - begin);
 			setTimeout(processVideo, delay);
@@ -142,7 +147,6 @@
 				window.localStream.getVideoTracks().forEach(track => track.stop());
 				goto('/');
 			}
-
 			console.log(err + ' in process video callback "ShowVid1" ' );
 		}
 	}
@@ -161,7 +165,6 @@
 					rectArray.push(rect);
 				}
 			}
-
 			rectArray.forEach(rect =>{
 				let wkPtStrt = new cv.Point(rect.x, rect.y);
 				let wkRectStrt =  new cv.Point(rect.x + rect.width, rect.y + rect.height);
@@ -173,47 +176,51 @@
 
 	}
 	function countDominoPips (matIn,rectIn) {
+		if (document.getElementById('countButton').innerText == 'COUNT DOMINOS'){
+			document.getElementById('countButton').innerText = 'TRY AGAIN';
+		}
+		else{
+			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
+			return;
+		}
 		if (rectIn.length < 1){
 			buildInfo = 'There were no Dominos detected';
+			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
 			return;
 		} 
 		
 		let wrkMat = matIn.clone();
-		let canvas = document.getElementById('showVid2');
+		let kptTbl = [];
+		let canvas = document.getElementById('showVid1');
 		canvas.width = wrkMat.size().width;
 		canvas.height = wrkMat.size().height;
 		canvas.getContext('2d', { alpha: true , 
 								desynchronized: false ,
 								colorSpace: 'srgb' ,
-								willReadFrequently: true} ).clearRect(0, 0, canvas.width, canvas.height);	
-	
+								willReadFrequently: true
+								}
+						 ).clearRect(0, 0, canvas.width, canvas.height);	
 
-		let kptTbl = [];
 		rectIn.forEach((dominoDetected) => {
 			/**
 			 * @type{cv.KeyPoint}
 			 */
 			// we are going after the rectangle bounding rects captured from wrkMat using the ROI
-			let pips = simpleBlobDetector(wrkMat.roi(dominoDetected), params);
+			let pips = simpleBlobDetector(wrkMat.roi(dominoDetected));
 			if (pips.length > 0) {
 				let tempArr = [];   // convert pips keyPoint to an array
-				pips.forEach(keyP => {
-	
-					if (keyP.size < 20) tempArr.push(keyP)
-				});
+				pips.forEach(keyP => {	if (keyP.size < 20) tempArr.push(keyP)	});
 				kptTbl.push({ rect: dominoDetected, kPtArray: tempArr });
 				tempArr.delete;
 				//console.log('Domino  at x/y ' + kptTbl[kptTbl.length-1].rect.x + '/' + kptTbl[kptTbl.length-1].rect.y +
 				// ' has ' + kptTbl[kptTbl.length-1].kPtArray.length +  ' pips ' )
-	
 			}
 		});
 		if (kptTbl.length == 0) {
 			kptTbl.delete;
-			canvas.getContext('2d', { alpha: true , desynchronized: false , colorSpace: 'srgb' , willReadFrequently: true} ).clearRect(0, 0, canvas.width, canvas.height);	
-			cv.imshow('showVid2', wrkMat);
 			wrkMat.delete;canvas.delete
 			buildInfo = 'There were no Dominos detected';
+			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
 			return;
 		}
 		let dominoStr = '';
@@ -243,16 +250,18 @@
 		dominoStr.substring(0,dominoStr.lastIndexOf(','));
 		kptTbl.delete;
 		canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-		cv.imshow('showVid2', wrkMat);
+		cv.imshow('showVid1', wrkMat);
 		wrkMat.delete;canvas.delete;
 		buildInfo = dominoStr;
+		return;
 	}
+	
 	function updatePlayerTable(){
         // update and get out
 		//using dominoRound, selected (index) and adding total of all dominos to table.
 		//show it first:
 		$playerScore[selected].pScore[dominoRound]  =   totalofAllDominos ;
-		buildInfo = $playerScore[selected].playerName + " score has been updated"
+		buildInfo = $playerScore[selected].playerName + " score has been updated to " +totalofAllDominos;
     }
 	
 </script>
@@ -264,40 +273,28 @@
 		{@html buildInfo.replace(/\n/g, '<br />')}  
 </div>
 <div>
-		<br>
-		<button
-			type="button" id="countButton" on:click={() => countDominoPips(matTest.tmpMat,matTest.rectArray)}
-			class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
-         			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
-       				  focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
-        			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
+	<br>
+	<button
+		type="button" id="countButton" on:click={() => countDominoPips(matTest.tmpMat,matTest.rectArray)}
+		class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
+       			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
+			  focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
+   			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
 		Count Dominos
-		</button>
-		<button
-			type="button" id="UpdatePlayerScore" on:click={() => updatePlayerTable()}
-			class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
-         			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
-        			 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
-        			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
+	</button>
+	<button
+		type="button" id="UpdatePlayerScore" on:click={() => updatePlayerTable()}
+		class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
+    			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
+   			 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
+   			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
 		Update Player's Score
 		</button>
 		
 </div>
-	
-		<div class="block text-gray-700 text-left border-gray-400  px-4 py-2 pt-3">
-			<Canvasresize canvasId="showVid1" bind:canvasWidth bind:canvasHeight />
-			<canvas id="showVid2" class="ml-5 lg:ml-10 border" title="Big Domino {canvasWidth} / {canvasHeight}">
-			</canvas>
-			<canvas id="showGray"  class="ml-5 lg:ml-10 border " title="Gray Boy {canvasWidth} / {canvasHeight}">
-			</canvas> 
-		</div>
-
-		<div class="text-gray-700 text-left border-gray-400  px-4 py-2 ">
-			<video hidden id="videO"> howdy <track kind="captions" /> </video>
-		</div>
-	
-
-
-	
-
-
+<div class="block text-gray-700 text-left border-gray-400  px-4 py-2 pt-3">
+		<Canvasresize bind:canvasId bind:canvasWidth bind:canvasHeight bind:FPS />
+</div>
+<div class="text-gray-700 text-left border-gray-400  px-4 py-2 ">
+		<video hidden width={canvasWidth} height={canvasHeight} id="videO"> howdy <track kind="captions" /> </video>
+</div>
