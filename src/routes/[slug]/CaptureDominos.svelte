@@ -57,7 +57,7 @@
 			filterByColor: false
 		};
 */
-	let noConstraint = {video:  true};
+	let noConstraint = {video:  true,  facingMode: {ideal: "environment"}};
 /*	let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 							width: { min: 640, max: 1920 }, 
 							height: {min: 480, max: 1080},
