@@ -58,11 +58,10 @@
 		};
 */
 	let noConstraint = {video:true,  facingMode: {ideal: "environment"}};
-/*	let mediaConstraint = {video: { facingMode: {ideal: "environment"},
+let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 							width: { min: 640, max: 1920 }, 
 							height: {min: 480, max: 1080},
 						    frameRate: { ideal: 10, max: 30 }  }};
-*/
 	let src;
 	setTimeout(loadOpencv,0);
 	async function loadOpencv() {
@@ -95,7 +94,7 @@
 
 	async function initVideo() {
 		stream = await navigator.mediaDevices
-			.getUserMedia (noConstraint)  //(mediaConstraint)
+			.getUserMedia (mediaConstraint)  //(mediaConstraint)
 			.then((stream) => {
 				//const track = stream.getVideoTracks()[0];
 				videO = document.getElementById('videO');
