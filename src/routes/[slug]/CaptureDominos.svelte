@@ -10,7 +10,7 @@
 	export let canvasWidth;
 	export let canvasHeight;
 	export let dominoRound=0;
-	export let FPS = 30;
+	export let FPS = 10;
 	let clr = {};
 	export let selected=0;
 //$: {console.log($playerScore[selected].playerName + ' ' + $playerScore[selected].pScore[dominoRound])}; 
@@ -80,9 +80,6 @@ let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 					White: new cv.Scalar(0.0, 0.0, 0.0, 255.0)
 				};
 				initVideo();
-				ScreenOrientation.onorientationchange(e =>{
-					alert('orientation change');
-				});
 			    cap = new cv.VideoCapture(videO);
 				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
 				src = new cv.Mat(canvasHeight, canvasWidth, cv.CV_8UC4);
@@ -128,17 +125,23 @@ let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 			let begin = Date.now();
 			if(document.getElementById('countButton').innerText == 'COUNT DOMINOS'){
 				cap.read(src);
-				let matTmp = putRects(src);
-				if (matTmp.tmpMat != null){
-					matTest.tmpMat = matTmp.tmpMat;
-					cv.imshow("showVid1",matTest.tmpMat);
-					if (matTmp.rectArray.length > 0 ){
-						matTest.rectArray = matTmp.rectArray;
-					}
-					else{ matTest.rectArray = [];
-					}
+				cv.rectangle(src,new cv.Point(75,150),
+								   new cv.Point(500,450),
+								   clr.Green,2,0);
+
+				//let matTmp = putRects(src);
+				//if (matTmp.tmpMat != null){
+//					matTest.tmpMat = matTmp.tmpMat;
+					cv.imshow("showVid1",src);
+//					if (matTmp.rectArray.length > 0 ){
+//						matTest.rectArray = matTmp.rectArray;
+//					}
+//					else{ matTest.rectArray = [];
+//					}
 				
-				}
+				//}
+				//matTmp.delete;
+				//src.delete;
 			}
 			let delay = 1000 / FPS - (Date.now() - begin);
 			setTimeout(processVideo, delay);
@@ -152,6 +155,31 @@ let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 			console.log(err + ' in process video callback "ShowVid1" ' );
 		}
 	}
+	function doTheDeed(){
+		try {
+			//rectangle drawn is top left to bottom right roi is x,y,w,h
+			let ooo = new cv.Mat()
+			ooo = cv.imread('showVid1');
+			console.log(ooo.size().width + 'x'+ooo.size().height)
+			let toodoo = new cv.Mat();
+			let x = new cv.Rect(75,150,400,300)
+			console.log(x);
+			toodoo = ooo.roi(x);
+			console.log('next up matTmp');
+			let matTmp = putRects(ooo);
+			if (matTmp.tmpMat != null){
+				countDominoPips(matTmp.tmpMat,matTmp.rectArray);
+
+			}
+	}
+		catch (err) {
+			console.log(err);
+		}
+	
+
+		
+
+	}
 	function putRects(matIn){ 
 			let contours = new cv.MatVector();
 			let heirs    = new cv.Mat()
@@ -163,16 +191,17 @@ let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 			let rectArray = [];
 			for (let j = 0; j < contours.size(); j++) {
 				const rect = cv.boundingRect(contours.get(j));
-				if (Math.round(rect.width / rect.height) == 2 && Math.round(rect.width*rect.height) > 1000){
-					rectArray.push(rect);
-				}
+				if (Math.round(rect.width / rect.height) == 2 &&
+				    Math.round(rect.width*rect.height) > 1000){	rectArray.push(rect);}
 			}
 			rectArray.forEach(rect =>{
-				let wkPtStrt = new cv.Point(rect.x, rect.y);
-				let wkRectStrt =  new cv.Point(rect.x + rect.width, rect.y + rect.height);
-				cv.rectangle(matIn,wkPtStrt,wkRectStrt,clr.Green,2,0);
+				
+				cv.rectangle(matIn,new cv.Point(rect.x, rect.y),
+								   new cv.Point(rect.x + rect.width, rect.y + rect.height),
+								   clr.Green,2,0);
 
 			});
+			
 			contours.delete;wrkGray.delete;heirs.delete;		
 			return {tmpMat: matIn, rectArray: rectArray}
 
@@ -277,7 +306,7 @@ let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 <div>
 	<br>
 	<button
-		type="button" id="countButton" on:click={() => countDominoPips(matTest.tmpMat,matTest.rectArray)}
+		type="button" id="countButton" on:click={() => doTheDeed()}
 		class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
        			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
 			  focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
