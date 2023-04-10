@@ -80,7 +80,10 @@ let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 					White: new cv.Scalar(0.0, 0.0, 0.0, 255.0)
 				};
 				initVideo();
-                cap = new cv.VideoCapture(videO);
+				ScreenOrientation.onorientationchange(e =>{
+					alert('orientation change');
+				});
+			    cap = new cv.VideoCapture(videO);
 				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
 				src = new cv.Mat(canvasHeight, canvasWidth, cv.CV_8UC4);
 				setTimeout(processVideo,0);
