@@ -10,7 +10,7 @@
 	export let canvasWidth;
 	export let canvasHeight;
 	export let dominoRound=0;
-	export let FPS = 10;
+	export let FPS = 15;
 	let clr = {};
 	export let selected=0;
 //$: {console.log($playerScore[selected].playerName + ' ' + $playerScore[selected].pScore[dominoRound])}; 
@@ -58,7 +58,7 @@
 		};
 */
 	let noConstraint = {video:true,  facingMode: {ideal: "environment"}};
-let mediaConstraint = {video: { facingMode: {ideal: "environment"},
+	let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 							width: { min: 640, max: 1920 }, 
 							height: {min: 480, max: 1080},
 						    frameRate: { ideal: 10, max: 30 }  }};
@@ -84,6 +84,7 @@ let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
 				src = new cv.Mat(canvasHeight, canvasWidth, cv.CV_8UC4);
 				setTimeout(processVideo,0);
+				debugger;
 			} //build info length
 		} catch (err) {
 			setTimeout(loadOpencv, 1000); // try opencv again.
@@ -125,23 +126,22 @@ let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 			let begin = Date.now();
 			if(document.getElementById('countButton').innerText == 'COUNT DOMINOS'){
 				cap.read(src);
-				cv.rectangle(src,new cv.Point(75,150),
-								   new cv.Point(500,450),
-								   clr.Green,2,0);
+				let canvas = document.getElementById('showVid1');
+				canvas.width = canvasWidth //src.size().width;
+				canvas.height = canvasHeight //src.size().height;
+				canvas.getContext('2d', { alpha: true , 
+								desynchronized: false ,
+								colorSpace: 'srgb' ,
+								willReadFrequently: true
+								}
+						 );	
 
-				//let matTmp = putRects(src);
-				//if (matTmp.tmpMat != null){
-//					matTest.tmpMat = matTmp.tmpMat;
-					cv.imshow("showVid1",src);
-//					if (matTmp.rectArray.length > 0 ){
-//						matTest.rectArray = matTmp.rectArray;
-//					}
-//					else{ matTest.rectArray = [];
-//					}
-				
-				//}
-				//matTmp.delete;
-				//src.delete;
+				/*cv.rectangle(src,new cv.Point(75,150),
+								   new cv.Point(600,450),
+								   clr.Green,2,0);
+*/
+				cv.imshow("showVid1",src);
+//				//src.delete;
 			}
 			let delay = 1000 / FPS - (Date.now() - begin);
 			setTimeout(processVideo, delay);
@@ -156,30 +156,43 @@ let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 		}
 	}
 	function doTheDeed(){
-		try {
-			//rectangle drawn is top left to bottom right roi is x,y,w,h
-			let ooo = new cv.Mat()
-			ooo = cv.imread('showVid1');
-			console.log(ooo.size().width + 'x'+ooo.size().height)
+		debugger;
+		// something is going through a second time and getting caught, need to turn on debugger
+		/*debugger;
+			let ooo = new cv.Mat(videO.height,videO.width,cv.CV_8UC4);
+			let oooo = new cv.Mat(videO.height,videO.width,cv.CV_8UC1);
+			cap.read(ooo);
+			cv.cvtColor(ooo,oooo,cv.COLOR_BGR2BGRA);
 			let toodoo = new cv.Mat();
-			let x = new cv.Rect(75,150,400,300)
-			console.log(x);
+			let x = new cv.Rect(75,150,450,300)
 			toodoo = ooo.roi(x);
-			console.log('next up matTmp');
-			let matTmp = putRects(ooo);
+		*/
+		if (document.getElementById('countButton').innerText != 'COUNT DOMINOS'){
+			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
+			document.getElementById('countButton').innerText = document.getElementById('countButton').innerText;
+			
+			let canvas = document.getElementById('showVid1');
+
+			canvas.getContext('2d', { alpha: true , 
+								desynchronized: false ,
+								colorSpace: 'srgb' ,
+								willReadFrequently: true
+								}
+						 ).clearRect(0, 0, canvasWidth, canvasHeight);	
+			buildInfo = "Ready to Count!";
+			setTimeout(processVideo,0);
+		}
+		else{
+			let matTmp = putRects(src);
 			if (matTmp.tmpMat != null){
 				countDominoPips(matTmp.tmpMat,matTmp.rectArray);
-
+				matTmp.delete;
 			}
-	}
-		catch (err) {
-			console.log(err);
+			setTimeout(processVideo,0);
+
 		}
-	
-
 		
-
-	}
+		}
 	function putRects(matIn){ 
 			let contours = new cv.MatVector();
 			let heirs    = new cv.Mat()
@@ -201,24 +214,12 @@ let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 								   clr.Green,2,0);
 
 			});
-			
 			contours.delete;wrkGray.delete;heirs.delete;		
 			return {tmpMat: matIn, rectArray: rectArray}
 
 	}
 	function countDominoPips (matIn,rectIn) {
-		if (document.getElementById('countButton').innerText == 'COUNT DOMINOS'){
-			document.getElementById('countButton').innerText = 'TRY AGAIN';
-		}
-		else{
-			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
-			return;
-		}
-		if (rectIn.length < 1){
-			buildInfo = 'There were no Dominos detected';
-			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
-			return;
-		} 
+		
 		
 		let wrkMat = matIn.clone();
 		let kptTbl = [];
@@ -231,7 +232,11 @@ let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 								willReadFrequently: true
 								}
 						 ).clearRect(0, 0, canvas.width, canvas.height);	
-
+		if (rectIn.length < 1){
+			buildInfo = 'There were no Dominos detected';
+			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
+			return;
+		} 
 		rectIn.forEach((dominoDetected) => {
 			/**
 			 * @type{cv.KeyPoint}
@@ -280,10 +285,10 @@ let mediaConstraint = {video: { facingMode: {ideal: "environment"},
 		dominoStr = ' \n total of All Dominos ==> ' + totalofAllDominos + '\n' +
 		dominoStr.substring(0,dominoStr.lastIndexOf(','));
 		kptTbl.delete;
-		canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 		cv.imshow('showVid1', wrkMat);
 		wrkMat.delete;canvas.delete;
 		buildInfo = dominoStr;
+		document.getElementById('countButton').innerText = 'TRY AGAIN';
 		return;
 	}
 	

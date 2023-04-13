@@ -2,7 +2,7 @@
 <script >
 import {onMount } from "svelte";
 export let canvasId;
-export let canvasWidth = 640;
+export let canvasWidth;
 export let canvasHeight;
 let camRes = 1;
 $: if(camRes == 1){canvasHeight = 480;canvasWidth = 640};
