@@ -84,7 +84,6 @@
 				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
 				src = new cv.Mat(canvasHeight, canvasWidth, cv.CV_8UC4);
 				setTimeout(processVideo,0);
-				debugger;
 			} //build info length
 		} catch (err) {
 			setTimeout(loadOpencv, 1000); // try opencv again.
@@ -97,7 +96,10 @@
 		stream = await navigator.mediaDevices
 			.getUserMedia (mediaConstraint)  //(mediaConstraint)
 			.then((stream) => {
-				//const track = stream.getVideoTracks()[0];
+				//debugger;
+				//const track = stream.getVideoTracks();
+			//	canvasHeight = track[0].getCapabilities().height.min;
+			//	canvasWidth = track[0].getCapabilities().width.min;
 				videO = document.getElementById('videO');
 				//window.localStream = stream;
 				videO.srcObject = stream;
@@ -156,7 +158,7 @@
 		}
 	}
 	function doTheDeed(){
-		debugger;
+		
 		// something is going through a second time and getting caught, need to turn on debugger
 		/*debugger;
 			let ooo = new cv.Mat(videO.height,videO.width,cv.CV_8UC4);
@@ -200,12 +202,13 @@
 			cv.cvtColor(matIn, wrkGray, cv.COLOR_RGBA2GRAY, 0);
 			let startThresh = 160;
 			cv.threshold(wrkGray, wrkGray, startThresh, 255, cv.THRESH_BINARY);
-			cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE);
+			cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 			let rectArray = [];
 			for (let j = 0; j < contours.size(); j++) {
 				const rect = cv.boundingRect(contours.get(j));
-				if (Math.round(rect.width / rect.height) == 2 &&
-				    Math.round(rect.width*rect.height) > 1000){	rectArray.push(rect);}
+				if (Math.round(rect.width * rect.height) > 1000 &&
+				    Math.round(rect.width * rect.height) < 12000)
+					{rectArray.push(rect);}
 			}
 			rectArray.forEach(rect =>{
 				
@@ -278,7 +281,8 @@
 				wrkMat,
 				'(' + (num + 1).toString() + ')',wkPt,cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Blue,
 				2,cv.LINE_AA,false);
-			dominoStr +=  (num + 1) + '==>' + dominoRect.kPtArray.length + ', ';
+			dominoStr +=  (num + 1) + '==>' + dominoRect.kPtArray.length + ' size(' +
+			Math.round(dominoRect.rect.width * dominoRect.rect.height) + '), ';
 			totalofAllDominos += dominoRect.kPtArray.length;
 		});
 
