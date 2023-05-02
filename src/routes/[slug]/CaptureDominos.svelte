@@ -52,8 +52,31 @@
 */
 	let constraintFromVideoSettings = {video: {deviceId: "" , width: 640, height: 480,	frameRate: 15}};
 	let src;
+	initVideo();
 	setTimeout(loadOpencv,0);
+	async function initVideo() {
+
+		constraintFromVideoSettings.video.deviceId =  $videoSettings.deviceId;
+		constraintFromVideoSettings.video.width = 640;
+		constraintFromVideoSettings.video.width = $videoSettings.canvasWidth;
+		constraintFromVideoSettings.video.frameRate = $videoSettings.FPS;
+		constraintFromVideoSettings.video.height = Math.round($videoSettings.canvasWidth/1.3333);
+		buildInfo = ('video setting device Id / Label ' + constraintFromVideoSettings.video.deviceId + '/' +
+	 				$videoSettings.label + ' and width ' + '(' + constraintFromVideoSettings.video.width   +')'  +
+	  				' and height ' + constraintFromVideoSettings.video.height);
+		// importanto!! make sure you leave await on this or you get no video stream;	  
+ 		await navigator.mediaDevices.getUserMedia(constraintFromVideoSettings)
+		.then((streamIn) =>  {
+			videO = document.getElementById('videO');// setting this outside of the callback - bad news.
+			videO.srcObject = streamIn;
+			videO.paused ? videO.play() : null;  //autoplay didnt work.
+		})
+		.catch((err) => {
+			console.log('Video streaming error -- something went wrong ' + err + videO.paused);
+		});
+	}
 	async function loadOpencv() {
+
 		try {
 			window.cv = cv;
 			buildInfo = cv.getBuildInformation();
@@ -68,8 +91,6 @@
 					White: new cv.Scalar(0.0, 0.0, 0.0, 255.0)
 				};
 				canvas = document.getElementById(canvasId);
-				initVideo();
-				console.log('video SrcObject.. ' + videO.srcObject);
 				src = new cv.Mat(constraintFromVideoSettings.video.height, constraintFromVideoSettings.video.width, cv.CV_8UC4);
 				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
 				cap = new cv.VideoCapture(videO);
@@ -79,33 +100,11 @@
 
 			} //build info length
 		} catch (err) {
-			buildInfo = 'setting up opencv and initvideo ... ' + err;
+			buildInfo = 'setting up opencv ... ' + err;
 			setTimeout(loadOpencv, 1000); // try opencv again.
 		}
 	}
- 	async function initVideo() {
 
-		constraintFromVideoSettings.video.deviceId =  $videoSettings.deviceId;
-		constraintFromVideoSettings.video.width = 640;
-		constraintFromVideoSettings.video.width = $videoSettings.canvasWidth;
-		constraintFromVideoSettings.video.frameRate = $videoSettings.FPS;
-		constraintFromVideoSettings.video.height = Math.round($videoSettings.canvasWidth/1.3333);
-		buildInfo = ('video setting device Id / Label ' + constraintFromVideoSettings.video.deviceId + '/' +
-			 $videoSettings.label + ' and width ' + '(' + constraintFromVideoSettings.video.width   +')'  +
-			  ' and height ' + constraintFromVideoSettings.video.height);
-		 await navigator.mediaDevices.getUserMedia(constraintFromVideoSettings)
-		.then((streamIn) =>  {
-			videO =document.getElementById('videO');
-			videO.srcObject = streamIn;
-			videO.paused ? videO.play() : null;
-		})
-		.catch((err) => {
-			console.log('Video streaming error -- something went wrong ' + err + videO.paused);
-			setTimeout(loadOpencv,1000);
-		});
-	
-		
-	}
 
 
 	function processVideo() {
@@ -130,8 +129,8 @@
 			if (errStr.indexOf('valid canvas element') > 0  ||
 			    errStr.indexOf( 'innerText') > 0   )  {  // home button clicked
 				videO.srcObject = null;
-				console.log('back to home');	
-				goto('/');
+				console.log('back to home');
+				return;	// you most likely selected another link.
 			}
 			else{
 				console.log(err + ' in process video callback "ShowVid1" ' );
@@ -139,6 +138,7 @@
 			}
 		}
 	}
+	
 	function tryCountingDots() {
 		if (document.getElementById('countButton').innerText != 'COUNT DOMINOS'){
 			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
@@ -163,6 +163,7 @@
 		}
 	  
 	}
+	
 	function putRects(matIn) { 
 			let contours = new cv.MatVector();
 			let heirs    = new cv.Mat()
@@ -189,6 +190,7 @@
 			return {tmpMat: matIn, rectArray: rectArray}
 
 	}
+	
 	function countDominoPips (matIn,rectIn) {
 		let wrkMat = matIn.clone();
 		let kptTbl = [];
@@ -264,6 +266,7 @@
 		$playerScore[selected].pScore[dominoRound]  =   totalofAllDominos ;
 		buildInfo = $playerScore[selected].playerName + " score has been updated to " + totalofAllDominos;
     }
+
 </script>
 
 <!-- svelte-ignore a11y-missing-content -->
@@ -300,11 +303,9 @@
 		  {constraintFromVideoSettings.video.width} by  {constraintFromVideoSettings.video.height} 
 		  FPS {$videoSettings.FPS} using Camera {$videoSettings.label} " >
 	</canvas>
-</div>
-	
-<div class="text-gray-700 text-left border-gray-400  px-4 py-2 pt-3">
-	<video width={constraintFromVideoSettings.video.width} title='pukefucker'
-			height={constraintFromVideoSettings.video.height} id="videO"> howdy 
-	<track kind="captions" /> 
-	</video>
+	<video width={constraintFromVideoSettings.video.width} title='Hidden Video' hidden
+	height={constraintFromVideoSettings.video.height} id="videO"> howdy 
+<track kind="captions" /> 
+</video>
+
 </div>
