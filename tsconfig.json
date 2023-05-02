@@ -2,9 +2,10 @@
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"display": "Svelte",
 	"_version": "4.0.0",
+	/*
 	"extends": "@tsconfig/svelte/tsconfig.json",
-
-  
+	*/
+	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
 	  "moduleResolution": "node",
 	  "target": "es2017",

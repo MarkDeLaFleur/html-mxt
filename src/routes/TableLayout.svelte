@@ -2,7 +2,7 @@
 
 import Footer from './Footer.svelte';
 import {roundTableData } from '$lib/myFunctions/IconSvg';
-import {playerScore} from '$lib/myFunctions/TableStore'
+import {playerScore} from '$lib/myFunctions/TableStore';
 $: {playerScore};
 </script>
 <body>

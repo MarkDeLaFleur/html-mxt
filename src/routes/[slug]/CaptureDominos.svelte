@@ -2,31 +2,24 @@
 	// @ts-nocheck
 	import cv from '@techstark/opencv-js';
 	import simpleBlobDetector from '@markdelafleur/simpleblobdetector';
+	import { videoSettings } from '../../lib/myFunctions/VideoStore';
 	import {goto} from '$app/navigation'
-	let buildInfo = 'loading...';
-	import { playerScore } from '$lib/myFunctions/TableStore'
-	import Canvasresize from './Canvasresize.svelte';
+	import { playerScore } from '$lib/myFunctions/TableStore';
 	export let canvasId="showVid1";
-	export let canvasWidth;
-	export let canvasHeight;
 	export let dominoRound=0;
-	export let FPS = 15;
 	let clr = {};
 	export let selected=0;
-//$: {console.log($playerScore[selected].playerName + ' ' + $playerScore[selected].pScore[dominoRound])}; 
-	let startPosition = {col: 0, row: 0};
-	let endPosition = {col: 0, row: 0};
-	let tmpPts;
 	let totalofAllDominos = 0;
 	let cl = 0;
-
+	let buildInfo = 'loading...';
+	
 	/**
 	 * @type {HTMLVideoElement}
 	 */
-	let streaming = false;
-	let stream;
-	let cap;
 	let videO;
+	let cap;
+	let	canvas;
+	
 	//let imageCapture;
 	let matTest; 
 /*
@@ -57,11 +50,7 @@
 			filterByColor: false
 		};
 */
-	let noConstraint = {video:true,  facingMode: {ideal: "environment"}};
-	let mediaConstraint = {video: { facingMode: {ideal: "environment"},
-							width: { min: 640, max: 1920 }, 
-							height: {min: 480, max: 1080},
-						    frameRate: { ideal: 10, max: 30 }  }};
+	let constraintFromVideoSettings = {video: {deviceId: "" , width: 640, height: 480,	frameRate: 15}};
 	let src;
 	setTimeout(loadOpencv,0);
 	async function loadOpencv() {
@@ -69,7 +58,6 @@
 			window.cv = cv;
 			buildInfo = cv.getBuildInformation();
 			if (buildInfo.length > 0) {
-				buildInfo = 'Ready to Count!';
 				clr = {
 					Red: new cv.Scalar(255.0, 0.0, 0.0, 255.0),
 					Blue: new cv.Scalar(0.0, 0.0, 255.0, 255.0),
@@ -79,112 +67,92 @@
 					Yellow: new cv.Scalar(255.0, 160.0, 0.0, 255.0),
 					White: new cv.Scalar(0.0, 0.0, 0.0, 255.0)
 				};
+				canvas = document.getElementById(canvasId);
 				initVideo();
-			    cap = new cv.VideoCapture(videO);
+				console.log('video SrcObject.. ' + videO.srcObject);
+				src = new cv.Mat(constraintFromVideoSettings.video.height, constraintFromVideoSettings.video.width, cv.CV_8UC4);
 				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
-				src = new cv.Mat(canvasHeight, canvasWidth, cv.CV_8UC4);
+				cap = new cv.VideoCapture(videO);
+				buildInfo = 'Ready to Count!';
+
 				setTimeout(processVideo,0);
+
 			} //build info length
 		} catch (err) {
+			buildInfo = 'setting up opencv and initvideo ... ' + err;
 			setTimeout(loadOpencv, 1000); // try opencv again.
 		}
 	}
- 
+ 	async function initVideo() {
 
-
-	async function initVideo() {
-		stream = await navigator.mediaDevices
-			.getUserMedia (mediaConstraint)  //(mediaConstraint)
-			.then((stream) => {
-				//debugger;
-				//const track = stream.getVideoTracks();
-			//	canvasHeight = track[0].getCapabilities().height.min;
-			//	canvasWidth = track[0].getCapabilities().width.min;
-				videO = document.getElementById('videO');
-				//window.localStream = stream;
-				videO.srcObject = stream;
-				//videO.width = track.getSettings().width;
-				//videO.height = track.getSettings().height;
-				//videO.width = 640; videO.height = 480;
-				//FPS = track.getSettings().frameRate;
-				streaming = true;
-				//imageCapture = new ImageCapture(videO);
-				//canvasWidth = videO.width;
-				//canvasHeight = videO.height;
-
-				if (videO.paused) {
-					videO.play();
-				}
-			})
-			.catch((err) => {
-				console.log('Video streaming error -- something went wrong ' + err);
-				setTimeout(loadOpencv, 1000); // try opencv again.
-
-			});
+		constraintFromVideoSettings.video.deviceId =  $videoSettings.deviceId;
+		constraintFromVideoSettings.video.width = 640;
+		constraintFromVideoSettings.video.width = $videoSettings.canvasWidth;
+		constraintFromVideoSettings.video.frameRate = $videoSettings.FPS;
+		constraintFromVideoSettings.video.height = Math.round($videoSettings.canvasWidth/1.3333);
+		buildInfo = ('video setting device Id / Label ' + constraintFromVideoSettings.video.deviceId + '/' +
+			 $videoSettings.label + ' and width ' + '(' + constraintFromVideoSettings.video.width   +')'  +
+			  ' and height ' + constraintFromVideoSettings.video.height);
+		 await navigator.mediaDevices.getUserMedia(constraintFromVideoSettings)
+		.then((streamIn) =>  {
+			videO =document.getElementById('videO');
+			videO.srcObject = streamIn;
+			videO.paused ? videO.play() : null;
+		})
+		.catch((err) => {
+			console.log('Video streaming error -- something went wrong ' + err + videO.paused);
+			setTimeout(loadOpencv,1000);
+		});
+	
+		
 	}
+
+
 	function processVideo() {
 
 		try {
 			let begin = Date.now();
 			if(document.getElementById('countButton').innerText == 'COUNT DOMINOS'){
 				cap.read(src);
-				let canvas = document.getElementById('showVid1');
-				canvas.width = canvasWidth //src.size().width;
-				canvas.height = canvasHeight //src.size().height;
 				canvas.getContext('2d', { alpha: true , 
 								desynchronized: false ,
 								colorSpace: 'srgb' ,
 								willReadFrequently: true
 								}
 						 );	
-
-				/*cv.rectangle(src,new cv.Point(75,150),
-								   new cv.Point(600,450),
-								   clr.Green,2,0);
-*/
-				cv.imshow("showVid1",src);
-//				//src.delete;
+				cv.imshow(canvasId,src);
 			}
-			let delay = 1000 / FPS - (Date.now() - begin);
+			let delay = 1000 / constraintFromVideoSettings.video.frameRate - (Date.now() - begin);
 			setTimeout(processVideo, delay);
 					
 		} catch (err) {
-			let errStr = err+"x";
-			if (errStr.indexOf('valid canvas element') > 0)  {  // home button clicked
-				window.localStream.getVideoTracks().forEach(track => track.stop());
+			let errStr = err + " ";
+			if (errStr.indexOf('valid canvas element') > 0  ||
+			    errStr.indexOf( 'innerText') > 0   )  {  // home button clicked
+				videO.srcObject = null;
+				console.log('back to home');	
 				goto('/');
 			}
-			console.log(err + ' in process video callback "ShowVid1" ' );
+			else{
+				console.log(err + ' in process video callback "ShowVid1" ' );
+	
+			}
 		}
 	}
-	function doTheDeed(){
-		
-		// something is going through a second time and getting caught, need to turn on debugger
-		/*debugger;
-			let ooo = new cv.Mat(videO.height,videO.width,cv.CV_8UC4);
-			let oooo = new cv.Mat(videO.height,videO.width,cv.CV_8UC1);
-			cap.read(ooo);
-			cv.cvtColor(ooo,oooo,cv.COLOR_BGR2BGRA);
-			let toodoo = new cv.Mat();
-			let x = new cv.Rect(75,150,450,300)
-			toodoo = ooo.roi(x);
-		*/
+	function tryCountingDots() {
 		if (document.getElementById('countButton').innerText != 'COUNT DOMINOS'){
 			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
 			document.getElementById('countButton').innerText = document.getElementById('countButton').innerText;
-			
-			let canvas = document.getElementById('showVid1');
-
 			canvas.getContext('2d', { alpha: true , 
 								desynchronized: false ,
 								colorSpace: 'srgb' ,
 								willReadFrequently: true
 								}
-						 ).clearRect(0, 0, canvasWidth, canvasHeight);	
+						 ).clearRect(0, 0, constraintFromVideoSettings.video.width, constraintFromVideoSettings.video.height);	
 			buildInfo = "Ready to Count!";
 			setTimeout(processVideo,0);
 		}
-		else{
+		else {
 			let matTmp = putRects(src);
 			if (matTmp.tmpMat != null){
 				countDominoPips(matTmp.tmpMat,matTmp.rectArray);
@@ -193,9 +161,9 @@
 			setTimeout(processVideo,0);
 
 		}
-		
-		}
-	function putRects(matIn){ 
+	  
+	}
+	function putRects(matIn) { 
 			let contours = new cv.MatVector();
 			let heirs    = new cv.Mat()
 			let wrkGray = new cv.Mat(matIn.size().height, matIn.size().width, cv.CV_8UC1);
@@ -222,19 +190,13 @@
 
 	}
 	function countDominoPips (matIn,rectIn) {
-		
-		
 		let wrkMat = matIn.clone();
 		let kptTbl = [];
-		let canvas = document.getElementById('showVid1');
-		canvas.width = wrkMat.size().width;
-		canvas.height = wrkMat.size().height;
 		canvas.getContext('2d', { alpha: true , 
 								desynchronized: false ,
 								colorSpace: 'srgb' ,
 								willReadFrequently: true
-								}
-						 ).clearRect(0, 0, canvas.width, canvas.height);	
+								}).clearRect(0, 0, canvas.width, canvas.height);	
 		if (rectIn.length < 1){
 			buildInfo = 'There were no Dominos detected';
 			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
@@ -277,10 +239,9 @@
 			let domX = dominoRect.rect.x + dominoRect.rect.width;
 			let domY = dominoRect.rect.y + dominoRect.rect.height;
 			let wkPt = new cv.Point(domX,domY);
-			cv.putText(
-				wrkMat,
-				'(' + (num + 1).toString() + ')',wkPt,cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Blue,
-				2,cv.LINE_AA,false);
+			cv.putText(wrkMat,
+				'(' + (num + 1).toString() + ')',
+				wkPt,cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Blue,2,cv.LINE_AA,false);
 			dominoStr +=  (num + 1) + '==>' + dominoRect.kPtArray.length + ' size(' +
 			Math.round(dominoRect.rect.width * dominoRect.rect.height) + '), ';
 			totalofAllDominos += dominoRect.kPtArray.length;
@@ -289,7 +250,7 @@
 		dominoStr = ' \n total of All Dominos ==> ' + totalofAllDominos + '\n' +
 		dominoStr.substring(0,dominoStr.lastIndexOf(','));
 		kptTbl.delete;
-		cv.imshow('showVid1', wrkMat);
+		cv.imshow(canvasId, wrkMat);
 		wrkMat.delete;canvas.delete;
 		buildInfo = dominoStr;
 		document.getElementById('countButton').innerText = 'TRY AGAIN';
@@ -301,9 +262,8 @@
 		//using dominoRound, selected (index) and adding total of all dominos to table.
 		//show it first:
 		$playerScore[selected].pScore[dominoRound]  =   totalofAllDominos ;
-		buildInfo = $playerScore[selected].playerName + " score has been updated to " +totalofAllDominos;
+		buildInfo = $playerScore[selected].playerName + " score has been updated to " + totalofAllDominos;
     }
-	
 </script>
 
 <!-- svelte-ignore a11y-missing-content -->
@@ -315,7 +275,7 @@
 <div>
 	<br>
 	<button
-		type="button" id="countButton" on:click={() => doTheDeed()}
+		type="button" id="countButton" on:click={() => tryCountingDots()}
 		class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
        			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
 			  focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
@@ -333,8 +293,18 @@
 		
 </div>
 <div class="block text-gray-700 text-left border-gray-400  px-4 py-2 pt-3">
-		<Canvasresize bind:canvasId bind:canvasWidth bind:canvasHeight bind:FPS />
+
+	<canvas id={canvasId}  class="ml-5 lg:ml-10 border " width={constraintFromVideoSettings.video.width} 
+	     height={constraintFromVideoSettings.video.height}
+		 title="Big Daddy
+		  {constraintFromVideoSettings.video.width} by  {constraintFromVideoSettings.video.height} 
+		  FPS {$videoSettings.FPS} using Camera {$videoSettings.label} " >
+	</canvas>
 </div>
-<div class="text-gray-700 text-left border-gray-400  px-4 py-2 ">
-		<video hidden width={canvasWidth} height={canvasHeight} id="videO"> howdy <track kind="captions" /> </video>
+	
+<div class="text-gray-700 text-left border-gray-400  px-4 py-2 pt-3">
+	<video width={constraintFromVideoSettings.video.width} title='pukefucker'
+			height={constraintFromVideoSettings.video.height} id="videO"> howdy 
+	<track kind="captions" /> 
+	</video>
 </div>
