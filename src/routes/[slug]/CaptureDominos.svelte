@@ -153,7 +153,7 @@
 			setTimeout(processVideo,0);
 		}
 		else {
-			let matTmp = putRects(src);
+			let matTmp = getRects(src);
 			if (matTmp.tmpMat != null){
 				countDominoPips(matTmp.tmpMat,matTmp.rectArray);
 				matTmp.delete;
@@ -164,7 +164,7 @@
 	  
 	}
 	
-	function putRects(matIn) { 
+	function getRects(matIn) { 
 			let contours = new cv.MatVector();
 			let heirs    = new cv.Mat()
 			let wrkGray = new cv.Mat(matIn.size().height, matIn.size().width, cv.CV_8UC1);
@@ -179,13 +179,7 @@
 				    Math.round(rect.width * rect.height) < 12000)
 					{rectArray.push(rect);}
 			}
-			rectArray.forEach(rect =>{
-				
-				cv.rectangle(matIn,new cv.Point(rect.x, rect.y),
-								   new cv.Point(rect.x + rect.width, rect.y + rect.height),
-								   clr.Green,2,0);
-
-			});
+			
 			contours.delete;wrkGray.delete;heirs.delete;		
 			return {tmpMat: matIn, rectArray: rectArray}
 
@@ -213,8 +207,17 @@
 			if (pips.length > 0) {
 				let tempArr = [];   // convert pips keyPoint to an array
 				pips.forEach(keyP => {	if (keyP.size < 20) tempArr.push(keyP)	});
-				kptTbl.push({ rect: dominoDetected, kPtArray: tempArr });
-				tempArr.delete;
+				if (tempArr.length > 1){
+					kptTbl.push({ rect: dominoDetected, kPtArray: tempArr });
+					
+					cv.rectangle(wrkMat,new cv.Point(dominoDetected.x, dominoDetected.y),
+								   new cv.Point(dominoDetected.x + dominoDetected.width,
+								   dominoDetected.y + dominoDetected.height),
+								   clr.Green,2,0);
+				}
+
+	
+			tempArr.delete;
 				//console.log('Domino  at x/y ' + kptTbl[kptTbl.length-1].rect.x + '/' + kptTbl[kptTbl.length-1].rect.y +
 				// ' has ' + kptTbl[kptTbl.length-1].kPtArray.length +  ' pips ' )
 			}
@@ -226,35 +229,49 @@
 			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
 			return;
 		}
-		let dominoStr = '';
+
+		const htmlDispDiv = '<div class="flex flex-row w-1/2 ">';
+		const htmlDispVar =  '<div class="basis-1/5 text-end">';
+		const htmlDispFix =  '</div>';
+		let dominoStr = htmlDispDiv + htmlDispVar + 'Number' + htmlDispFix;
+		dominoStr += htmlDispVar + 'Count' + htmlDispFix;
+		dominoStr += htmlDispVar + 'Size' + htmlDispFix;
+		dominoStr += htmlDispVar + 'Max Radius' + htmlDispFix;
+		dominoStr += htmlDispVar + 'Min Radius' + htmlDispFix + htmlDispFix;
+				
+			
 		totalofAllDominos = 0;
 		kptTbl.forEach((dominoRect, num) => {
 			// put in the dots on the domino
+			let radArray = [];
 			dominoRect.kPtArray.forEach((pipCoord) => {
-				let r = Math.round(pipCoord.size);
 				//console.log('Rect ' + (num+1) + ' Pip Size  ' + Math.round(pipCoord.size))
 				//relative to bounding rectangle
+				radArray.push(Math.round(pipCoord.size));
 				cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
-				dominoRect.rect.y), (r*.15), clr.Green,-1);
+				dominoRect.rect.y), (Math.round(pipCoord.size)*.15), clr.Green,-1);
 			});
-		
 			let domX = dominoRect.rect.x + dominoRect.rect.width;
 			let domY = dominoRect.rect.y + dominoRect.rect.height;
 			let wkPt = new cv.Point(domX,domY);
 			cv.putText(wrkMat,
 				'(' + (num + 1).toString() + ')',
 				wkPt,cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Blue,2,cv.LINE_AA,false);
-			dominoStr +=  (num + 1) + '==>' + dominoRect.kPtArray.length + ' size(' +
-			Math.round(dominoRect.rect.width * dominoRect.rect.height) + '), ';
+
+	
+  			dominoStr +=  htmlDispDiv +   htmlDispVar + (num + 1) +  htmlDispFix;
+			dominoStr +=  htmlDispVar + (dominoRect.kPtArray.length) +  htmlDispFix;
+			dominoStr +=  htmlDispVar +  (Math.round(dominoRect.rect.width * dominoRect.rect.height)) +  htmlDispFix;
+			dominoStr +=  htmlDispVar + (Math.max.apply(Math,radArray)) +  htmlDispFix;
+			dominoStr +=  htmlDispVar + (Math.min.apply(Math,radArray)) +  htmlDispFix;
+			dominoStr +=  htmlDispFix ;
 			totalofAllDominos += dominoRect.kPtArray.length;
 		});
 
-		dominoStr = ' \n total of All Dominos ==> ' + totalofAllDominos + '\n' +
-		dominoStr.substring(0,dominoStr.lastIndexOf(','));
 		kptTbl.delete;
 		cv.imshow(canvasId, wrkMat);
 		wrkMat.delete;canvas.delete;
-		buildInfo = dominoStr;
+		buildInfo = 'Total of All Dominos ==> ' + totalofAllDominos + '\n' + dominoStr;
 		document.getElementById('countButton').innerText = 'TRY AGAIN';
 		return;
 	}
@@ -273,7 +290,7 @@
 <p class="text-gray-700 text-justify ml-10">	Information Section <br></p>
 	
 <div class="block overflow-auto border text-gray-700 border-red-400 ml-10 px-4  w-3/4 h-24 build-info">	
-		{@html buildInfo.replace(/\n/g, '<br />')}  
+		{@html buildInfo.replace(/\n/g, '<br/>')}  
 </div>
 <div>
 	<br>
