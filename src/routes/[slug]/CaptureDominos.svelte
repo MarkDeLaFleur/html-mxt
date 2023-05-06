@@ -230,7 +230,7 @@
 			return;
 		}
 
-		const htmlDispDiv = '<div class="flex flex-row w-1/2 ">';
+		const htmlDispDiv = '<div class="flex flex-row ">';
 		const htmlDispVar =  '<div class="basis-1/5 text-end">';
 		const htmlDispFix =  '</div>';
 		let dominoStr = htmlDispDiv + htmlDispVar + 'Number' + htmlDispFix;
@@ -287,11 +287,6 @@
 </script>
 
 <!-- svelte-ignore a11y-missing-content -->
-<p class="text-gray-700 text-justify ml-10">	Information Section <br></p>
-	
-<div class="block overflow-auto border text-gray-700 border-red-400 ml-10 px-4  w-3/4 h-24 build-info">	
-		{@html buildInfo.replace(/\n/g, '<br/>')}  
-</div>
 <div>
 	<br>
 	<button
@@ -312,17 +307,32 @@
 		</button>
 		
 </div>
-<div class="block text-gray-700 text-left border-gray-400  px-4 py-2 pt-3">
+<div class="grid grid-flow-row sm:grid-flow-col px-2 gap-1 w-full">
+	<div class="border border-green-800 w-full">
+		<canvas class="w-full border-green-800" id={canvasId}   width={constraintFromVideoSettings.video.width} 
+		height={constraintFromVideoSettings.video.height}
+		title="Big Daddy
+		 {constraintFromVideoSettings.video.width} by  {constraintFromVideoSettings.video.height} 
+		 FPS {$videoSettings.FPS} using Camera {$videoSettings.label} " >
+  		 </canvas>
 
-	<canvas id={canvasId}  class="ml-5 lg:ml-10 border " width={constraintFromVideoSettings.video.width} 
-	     height={constraintFromVideoSettings.video.height}
-		 title="Big Daddy
-		  {constraintFromVideoSettings.video.width} by  {constraintFromVideoSettings.video.height} 
-		  FPS {$videoSettings.FPS} using Camera {$videoSettings.label} " >
-	</canvas>
+	</div>
+
+	
+	<div class="border text-gray-700 border-red-400  w-full h-full build-info">	
+		<p class="text-gray-700 text-center">	Information Section <br></p>
+		<div class="text-gray-900 text-start">
+			{@html buildInfo.replace(/\n/g, '<br/>')}  	
+	
+		</div>
+
+	</div>
+</div>
+<div>
+
 	<video width={constraintFromVideoSettings.video.width} title='Hidden Video' hidden
 	height={constraintFromVideoSettings.video.height} id="videO"> howdy 
-<track kind="captions" /> 
-</video>
+	<track kind="captions" /> 
+	</video>
 
 </div>
