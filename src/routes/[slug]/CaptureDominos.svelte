@@ -1,7 +1,6 @@
 <script Lang ts>
 	// @ts-nocheck
 	import cv from '@techstark/opencv-js';
-	import simpleBlobDetector from '@markdelafleur/simpleblobdetector';
 	import { videoSettings } from '../../lib/myFunctions/VideoStore';
 	import {goto} from '$app/navigation'
 	import { playerScore } from '$lib/myFunctions/TableStore';
@@ -22,34 +21,6 @@
 	
 	//let imageCapture;
 	let matTest; 
-/*
-	let paramsAndroid = {
-			filterByInertia: true,
-			filterByCircularity: false,
-			filterbyColor: false,
-			filterByConvexity: true,
-			filterByArea: true,
-			maxConvexity: 3.4028234663852886,
-			maxInertiaRatio: 3.4028234663852886,
-			minCircularity: 0.800000011920929,
-			minArea: 70,
-			maxArea: 300,
-			minConvexity: 0.800000011920929,
-			minInertiaRatio: 0.10000000149011612,
-			minDistBetweenBlobs: 10,
-			minRepeatability: 2
-		};
-
-	let params = {
-			faster: true,
-			filterByInertia: false,
-			filterByCircularity: true,
-			minThreshold: 100,
-			maxThreshold: 200,
-			minDistBetweenBlobs: 10,
-			filterByColor: false
-		};
-*/
 	let constraintFromVideoSettings = {video: {deviceId: "" , width: 640, height: 480,	frameRate: 15}};
 	let src;
 	initVideo();
@@ -169,18 +140,19 @@
 			let heirs    = new cv.Mat()
 			let wrkGray = new cv.Mat(matIn.size().height, matIn.size().width, cv.CV_8UC1);
 			cv.cvtColor(matIn, wrkGray, cv.COLOR_RGBA2GRAY, 0);
-			let startThresh = 160;
+			let startThresh = 165;
 			cv.threshold(wrkGray, wrkGray, startThresh, 255, cv.THRESH_BINARY);
 			cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 			let rectArray = [];
 			for (let j = 0; j < contours.size(); j++) {
 				const rect = cv.boundingRect(contours.get(j));
 				if (Math.round(rect.width * rect.height) > 1000 &&
-				    Math.round(rect.width * rect.height) < 12000)
+				    Math.round(rect.width * rect.height) < 20000)
 					{rectArray.push(rect);}
 			}
 			
-			contours.delete;wrkGray.delete;heirs.delete;		
+			contours.delete;wrkGray.delete;heirs.delete;	
+
 			return {tmpMat: matIn, rectArray: rectArray}
 
 	}
@@ -198,12 +170,8 @@
 			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
 			return;
 		} 
-		rectIn.forEach((dominoDetected) => {
-			/**
-			 * @type{cv.KeyPoint}
-			 */
-			// we are going after the rectangle bounding rects captured from wrkMat using the ROI
-			let pips = simpleBlobDetector(wrkMat.roi(dominoDetected));
+		rectIn.forEach((dominoDetected,counter) => {
+			let pips = contoursApprox(wrkMat.roi(dominoDetected));
 			if (pips.length > 0) {
 				let tempArr = [];   // convert pips keyPoint to an array
 				pips.forEach(keyP => {	if (keyP.size < 20) tempArr.push(keyP)	});
@@ -218,8 +186,6 @@
 
 	
 			tempArr.delete;
-				//console.log('Domino  at x/y ' + kptTbl[kptTbl.length-1].rect.x + '/' + kptTbl[kptTbl.length-1].rect.y +
-				// ' has ' + kptTbl[kptTbl.length-1].kPtArray.length +  ' pips ' )
 			}
 		});
 		if (kptTbl.length == 0) {
@@ -249,7 +215,7 @@
 				//relative to bounding rectangle
 				radArray.push(Math.round(pipCoord.size));
 				cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
-				dominoRect.rect.y), (Math.round(pipCoord.size)*.15), clr.Green,-1);
+				dominoRect.rect.y), (Math.round(pipCoord.size)*.15), clr.Green,2);
 			});
 			let domX = dominoRect.rect.x + dominoRect.rect.width;
 			let domY = dominoRect.rect.y + dominoRect.rect.height;
@@ -275,7 +241,27 @@
 		document.getElementById('countButton').innerText = 'TRY AGAIN';
 		return;
 	}
-	
+	function contoursApprox(roiIn){ 
+		let xyz = roiIn.clone()
+		cv.cvtColor(xyz, xyz, cv.COLOR_RGBA2GRAY, 0);
+		cv.threshold(xyz,xyz, 165, 254, cv.THRESH_BINARY);
+		let cons = new cv.MatVector();
+		let hier = new cv.Mat();
+		cv.findContours(xyz, cons, hier, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+		// we have all the contours for this domino
+		let areaArray = [];
+		for (let i = 0; i < cons.size(); i++) {
+    		let tmp = new cv.Mat();
+    		let cnt = cons.get(i);
+    		cv.approxPolyDP(cnt, tmp, 2, true);
+			const [x,y] = tmp.intPtr(0);
+			areaArray.push({pt: {x: x+2,y: y+3} ,size: Math.round(Math.sqrt(4 * cv.contourArea(tmp)/Math.PI)),});
+    		cnt.delete(); tmp.delete();
+		}
+		xyz.delete(); hier.delete(); cons.delete(); 
+		return areaArray;
+
+	}
 	function updatePlayerTable(){
         // update and get out
 		//using dominoRound, selected (index) and adding total of all dominos to table.
@@ -307,19 +293,19 @@
 		</button>
 		
 </div>
-<div class="grid grid-flow-row sm:grid-flow-col px-2 gap-1 w-full">
-	<div class="border border-green-800 w-full">
-		<canvas class="w-full border-green-800" id={canvasId}   width={constraintFromVideoSettings.video.width} 
-		height={constraintFromVideoSettings.video.height}
-		title="Big Daddy
-		 {constraintFromVideoSettings.video.width} by  {constraintFromVideoSettings.video.height} 
-		 FPS {$videoSettings.FPS} using Camera {$videoSettings.label} " >
-  		 </canvas>
+<div class="grid grid-flow-row sm:grid-flow-col px-2 gap-3">
+	<div class="border rounded border-green-800 w-px">
+		<canvas id={canvasId}   width={constraintFromVideoSettings.video.width} 
+			    height={constraintFromVideoSettings.video.height}
+				title="Big Daddy {constraintFromVideoSettings.video.width} by
+						  {constraintFromVideoSettings.video.height} FPS 
+						  {$videoSettings.FPS} Using {$videoSettings.label}" >
+  		</canvas>
 
 	</div>
 
 	
-	<div class="border text-gray-700 border-red-400  w-full h-full build-info">	
+	<div class="border text-gray-700 border-red-400  w-1/2 h-auto build-info">	
 		<p class="text-gray-700 text-center">	Information Section <br></p>
 		<div class="text-gray-900 text-start">
 			{@html buildInfo.replace(/\n/g, '<br/>')}  	
@@ -331,7 +317,7 @@
 <div>
 
 	<video width={constraintFromVideoSettings.video.width} title='Hidden Video' hidden
-	height={constraintFromVideoSettings.video.height} id="videO"> howdy 
+	height={constraintFromVideoSettings.video.height} id="videO"> Nothing to See Here 
 	<track kind="captions" /> 
 	</video>
 
