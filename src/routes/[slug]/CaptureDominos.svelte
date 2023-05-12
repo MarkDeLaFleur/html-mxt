@@ -1,5 +1,6 @@
 <script Lang ts>
 	// @ts-nocheck
+	//  scalar,getbuildinfo,mat
 	import cv from '@techstark/opencv-js';
 	import { videoSettings } from '../../lib/myFunctions/VideoStore';
 	import {goto} from '$app/navigation'
@@ -115,20 +116,17 @@
 			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
 			document.getElementById('countButton').innerText = document.getElementById('countButton').innerText;
 			canvas.getContext('2d', { alpha: true , 
-								desynchronized: false ,
-								colorSpace: 'srgb' ,
-								willReadFrequently: true
-								}
-						 ).clearRect(0, 0, constraintFromVideoSettings.video.width, constraintFromVideoSettings.video.height);	
+					desynchronized: false ,
+					colorSpace: 'srgb' ,
+					willReadFrequently: true
+					}
+					 ).clearRect(0, 0, constraintFromVideoSettings.video.width,
+					  constraintFromVideoSettings.video.height);	
 			buildInfo = "Ready to Count!";
 			setTimeout(processVideo,0);
 		}
 		else {
-			let matTmp = getRects(src);
-			if (matTmp.tmpMat != null){
-				countDominoPips(matTmp.tmpMat,matTmp.rectArray);
-				matTmp.delete;
-			}
+			getRects(src);
 			setTimeout(processVideo,0);
 
 		}
@@ -145,15 +143,22 @@
 			cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 			let rectArray = [];
 			for (let j = 0; j < contours.size(); j++) {
+
 				const rect = cv.boundingRect(contours.get(j));
-				if (Math.round(rect.width * rect.height) > 1000 &&
+				if (Math.round(rect.width * rect.height) > 5000 &&
 				    Math.round(rect.width * rect.height) < 20000)
 					{rectArray.push(rect);}
 			}
-			
-			contours.delete;wrkGray.delete;heirs.delete;	
+			if (rectArray.length < 1){
+				buildInfo = 'There were no Dominos that meet the width and height requirement detected';
+				document.getElementById('countButton').innerText = 'COUNT DOMINOS';
+			return;
+			} 
 
-			return {tmpMat: matIn, rectArray: rectArray}
+			countDominoPips(matIn,rectArray);
+			contours.delete;wrkGray.delete;heirs.delete;	
+			matIn.delete;rectArray.delete;
+			return
 
 	}
 	
@@ -161,27 +166,28 @@
 		let wrkMat = matIn.clone();
 		let kptTbl = [];
 		canvas.getContext('2d', { alpha: true , 
-								desynchronized: false ,
-								colorSpace: 'srgb' ,
-								willReadFrequently: true
-								}).clearRect(0, 0, canvas.width, canvas.height);	
-		if (rectIn.length < 1){
-			buildInfo = 'There were no Dominos detected';
-			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
-			return;
-		} 
+				desynchronized: false ,
+				colorSpace: 'srgb' ,
+				willReadFrequently: true
+				}
+				).clearRect(0, 0, constraintFromVideoSettings.video.width, 
+								  constraintFromVideoSettings.video.height);	
 		rectIn.forEach((dominoDetected,counter) => {
 			let pips = contoursApprox(wrkMat.roi(dominoDetected));
 			if (pips.length > 0) {
 				let tempArr = [];   // convert pips keyPoint to an array
-				pips.forEach(keyP => {	if (keyP.size < 20) tempArr.push(keyP)	});
+//				pips.forEach(keyP => {	if (keyP.size < 20) tempArr.push(keyP)	});
+
+				pips.forEach(keyP => { 
+					tempArr.push(keyP);
+				});
 				if (tempArr.length > 1){
 					kptTbl.push({ rect: dominoDetected, kPtArray: tempArr });
-					
-					cv.rectangle(wrkMat,new cv.Point(dominoDetected.x, dominoDetected.y),
-								   new cv.Point(dominoDetected.x + dominoDetected.width,
-								   dominoDetected.y + dominoDetected.height),
-								   clr.Green,2,0);
+					//could take this out and just output ROI's and pips without the detected offset
+				//	cv.rectangle(wrkMat,new cv.Point(dominoDetected.x, dominoDetected.y),
+				//				   new cv.Point(dominoDetected.x + dominoDetected.width,
+				//				   dominoDetected.y + dominoDetected.height),
+				//				   clr.Green,2,0);
 				}
 
 	
@@ -191,7 +197,7 @@
 		if (kptTbl.length == 0) {
 			kptTbl.delete;
 			wrkMat.delete;canvas.delete
-			buildInfo = 'There were no Dominos detected';
+			buildInfo = 'There were no pips on Dominos detected';
 			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
 			return;
 		}
@@ -210,10 +216,15 @@
 		kptTbl.forEach((dominoRect, num) => {
 			// put in the dots on the domino
 			let radArray = [];
+			cv.rectangle(wrkMat,new cv.Point(dominoRect.rect.x, dominoRect.rect.y),
+				   new cv.Point(dominoRect.rect.x + dominoRect.rect.width,
+				   dominoRect.rect.y + dominoRect.rect.height),
+				   clr.Green,2,0);
+
 			dominoRect.kPtArray.forEach((pipCoord) => {
 				//console.log('Rect ' + (num+1) + ' Pip Size  ' + Math.round(pipCoord.size))
 				//relative to bounding rectangle
-				radArray.push(Math.round(pipCoord.size));
+				radArray.push(Math.round(pipCoord.size)); // to display radius
 				cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
 				dominoRect.rect.y), (Math.round(pipCoord.size)*.15), clr.Green,2);
 			});
@@ -251,12 +262,27 @@
 		// we have all the contours for this domino
 		let areaArray = [];
 		for (let i = 0; i < cons.size(); i++) {
-    		let tmp = new cv.Mat();
+    		let poly = new cv.Mat();
     		let cnt = cons.get(i);
-    		cv.approxPolyDP(cnt, tmp, 2, true);
-			const [x,y] = tmp.intPtr(0);
-			areaArray.push({pt: {x: x+2,y: y+3} ,size: Math.round(Math.sqrt(4 * cv.contourArea(tmp)/Math.PI)),});
-    		cnt.delete(); tmp.delete();
+    		cv.approxPolyDP(cnt, poly, .02 * cv.arcLength(cnt,true), true);
+			// note python approxPolyDP returns a mat and check the poly with len(poly)
+			// in javascript we get the same thing by checking poly.size.height ( width is always 1)
+			// here we check anything that has a heigh > 4 as being a circle
+			
+			const [x,y] = poly.intPtr(0);
+			const polyRad = Math.round(Math.sqrt(4 * cv.contourArea(poly)/Math.PI));
+		//	if (poly.size().height < 8){
+		    if (polyRad < 23){
+				//hopefully just contours that are circles.
+				console.log('Domino Pts Size vertices ' + i + '===> '+ 
+					x + '/' + y +',' + polyRad + 
+					',' + poly.size().height);	
+				
+				areaArray.push({pt: {x: x,y: y} ,size: polyRad});
+
+			}
+			
+			cnt.delete(); poly.delete();
 		}
 		xyz.delete(); hier.delete(); cons.delete(); 
 		return areaArray;
