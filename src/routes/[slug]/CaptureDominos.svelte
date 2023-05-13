@@ -142,9 +142,11 @@
 			cv.threshold(wrkGray, wrkGray, startThresh, 255, cv.THRESH_BINARY);
 			cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 			let rectArray = [];
+			//debugger;
 			for (let j = 0; j < contours.size(); j++) {
 
-				const rect = cv.boundingRect(contours.get(j));
+			  	const rect = cv.boundingRect(contours.get(j));
+
 				if (Math.round(rect.width * rect.height) > 5000 &&
 				    Math.round(rect.width * rect.height) < 20000)
 					{rectArray.push(rect);}
@@ -175,12 +177,15 @@
 		rectIn.forEach((dominoDetected,counter) => {
 			let pips = contoursApprox(wrkMat.roi(dominoDetected));
 			if (pips.length > 0) {
+
 				let tempArr = [];   // convert pips keyPoint to an array
 //				pips.forEach(keyP => {	if (keyP.size < 20) tempArr.push(keyP)	});
 
 				pips.forEach(keyP => { 
 					tempArr.push(keyP);
 				});
+				// let's get rid of any pips in temparr if they are size 0 or max size is not 
+				//  close to average of the size.
 				if (tempArr.length > 1){
 					kptTbl.push({ rect: dominoDetected, kPtArray: tempArr });
 					//could take this out and just output ROI's and pips without the detected offset
@@ -258,33 +263,25 @@
 		cv.threshold(xyz,xyz, 165, 254, cv.THRESH_BINARY);
 		let cons = new cv.MatVector();
 		let hier = new cv.Mat();
-		cv.findContours(xyz, cons, hier, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+		cv.findContours(xyz, cons, hier, cv.RETR_CCOMP,  cv.CHAIN_APPROX_SIMPLE);
 		// we have all the contours for this domino
 		let areaArray = [];
-		for (let i = 0; i < cons.size(); i++) {
-    		let poly = new cv.Mat();
+		for (let i = 1; i < cons.size(); i++) {
     		let cnt = cons.get(i);
-    		cv.approxPolyDP(cnt, poly, .02 * cv.arcLength(cnt,true), true);
+			let minCirc = cv.minEnclosingCircle(cnt); //returns minCirc.radius and minCirc.center.x minCirc.center.y
+			//cv.approxPolyDP(cnt, poly, .01 * cv.arcLength(cnt,true), true);
 			// note python approxPolyDP returns a mat and check the poly with len(poly)
 			// in javascript we get the same thing by checking poly.size.height ( width is always 1)
-			// here we check anything that has a heigh > 4 as being a circle
-			
-			const [x,y] = poly.intPtr(0);
-			const polyRad = Math.round(Math.sqrt(4 * cv.contourArea(poly)/Math.PI));
-		//	if (poly.size().height < 8){
-		    if (polyRad < 23){
-				//hopefully just contours that are circles.
-				console.log('Domino Pts Size vertices ' + i + '===> '+ 
-					x + '/' + y +',' + polyRad + 
-					',' + poly.size().height);	
-				
-				areaArray.push({pt: {x: x,y: y} ,size: polyRad});
+			// here we check anything that has a height > 4 as being a circle	
+			if (minCirc.radius > 2 && minCirc.radius < 25){
+			areaArray.push({pt: {x: minCirc.center.x,y: minCirc.center.y} ,size: minCirc.radius});
 
 			}
-			
-			cnt.delete(); poly.delete();
+			cnt.delete();
 		}
 		xyz.delete(); hier.delete(); cons.delete(); 
+		//what's the maxmin
+		const maxSize = Math.max.apply(Math,areaArray.map((size) => size.size ));
 		return areaArray;
 
 	}
