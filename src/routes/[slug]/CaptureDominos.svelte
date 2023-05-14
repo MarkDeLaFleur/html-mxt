@@ -175,7 +175,7 @@
 				).clearRect(0, 0, constraintFromVideoSettings.video.width, 
 								  constraintFromVideoSettings.video.height);	
 		rectIn.forEach((dominoDetected,counter) => {
-			let pips = contoursApprox(wrkMat.roi(dominoDetected));
+			let pips = processMinEncCirc(wrkMat.roi(dominoDetected));
 			if (pips.length > 0) {
 
 				let tempArr = [];   // convert pips keyPoint to an array
@@ -257,7 +257,7 @@
 		document.getElementById('countButton').innerText = 'TRY AGAIN';
 		return;
 	}
-	function contoursApprox(roiIn){ 
+	function processMinEncCirc(roiIn){ 
 		let xyz = roiIn.clone()
 		cv.cvtColor(xyz, xyz, cv.COLOR_RGBA2GRAY, 0);
 		cv.threshold(xyz,xyz, 165, 254, cv.THRESH_BINARY);
@@ -269,19 +269,30 @@
 		for (let i = 1; i < cons.size(); i++) {
     		let cnt = cons.get(i);
 			let minCirc = cv.minEnclosingCircle(cnt); //returns minCirc.radius and minCirc.center.x minCirc.center.y
+			// tried approxPolyDP but minEnclosingCircle is better 
 			//cv.approxPolyDP(cnt, poly, .01 * cv.arcLength(cnt,true), true);
 			// note python approxPolyDP returns a mat and check the poly with len(poly)
 			// in javascript we get the same thing by checking poly.size.height ( width is always 1)
 			// here we check anything that has a height > 4 as being a circle	
-			if (minCirc.radius > 2 && minCirc.radius < 25){
-			areaArray.push({pt: {x: minCirc.center.x,y: minCirc.center.y} ,size: minCirc.radius});
+			if (Math.round(minCirc.radius) > 2){
+     			areaArray.push({pt: {x: minCirc.center.x,y: minCirc.center.y} ,size: minCirc.radius});
 
 			}
 			cnt.delete();
 		}
 		xyz.delete(); hier.delete(); cons.delete(); 
-		//what's the maxmin
-		const maxSize = Math.max.apply(Math,areaArray.map((size) => size.size ));
+		const maxSize = Math.round(Math.max.apply(Math,areaArray.map((size) => size.size )));
+		const minSize = Math.round(Math.min.apply(Math,areaArray.map((size) => size.size )));
+		const sum = Math.round(areaArray.reduce((acc,curr) => acc + curr.size,0 ));
+		const avg = Math.round(sum/areaArray.length)
+
+		console.log('min/max/sum/avg  is ' + minSize + '/' + maxSize + '/' + sum + '/' + avg);
+		areaArray.forEach( (val,num) => {if (Math.round(val.size) == maxSize){
+				areaArray.splice(num,1)
+				console.log('took out ' + num);
+		}});
+		const maxSize2 = Math.round(Math.max.apply(Math,areaArray.map((size) => size.size )));
+		console.log ('after maxSize removed next maxSize(2) ' + maxSize2);
 		return areaArray;
 
 	}
@@ -316,21 +327,20 @@
 		</button>
 		
 </div>
-<div class="grid grid-flow-row sm:grid-flow-col px-2 gap-3">
-	<div class="border rounded border-green-800 w-px">
+<div class="grid grid-flow-row md:grid-flow-col px-2" >
+	<div class="w-fit rounded border">
 		<canvas id={canvasId}   width={constraintFromVideoSettings.video.width} 
 			    height={constraintFromVideoSettings.video.height}
-				title="Big Daddy {constraintFromVideoSettings.video.width} by
-						  {constraintFromVideoSettings.video.height} FPS 
-						  {$videoSettings.FPS} Using {$videoSettings.label}" >
+				title="Big Daddy {constraintFromVideoSettings.video.width} by {constraintFromVideoSettings.video.height} FPS {$videoSettings.FPS}
+				 Using {$videoSettings.label}" >
   		</canvas>
 
 	</div>
 
 	
-	<div class="border text-gray-700 border-red-400  w-1/2 h-auto build-info">	
-		<p class="text-gray-700 text-center">	Information Section <br></p>
-		<div class="text-gray-900 text-start">
+	<div class="build-info  border rounded-md bg-gray-200 w-  ">	
+		<p >	Information Section <br></p>
+		<div >
 			{@html buildInfo.replace(/\n/g, '<br/>')}  	
 	
 		</div>
