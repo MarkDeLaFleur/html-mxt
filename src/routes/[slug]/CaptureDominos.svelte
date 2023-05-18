@@ -12,7 +12,8 @@
 	let totalofAllDominos = 0;
 	let cl = 0;
 	let buildInfo = 'loading...';
-	
+	let drawDominos = [];
+	// start at  x,y to x+ height y+ width ie (10,10) (10+64,10+128)
 	/**
 	 * @type {HTMLVideoElement}
 	 */
@@ -65,7 +66,7 @@
 				canvas = document.getElementById(canvasId);
 				src = new cv.Mat(constraintFromVideoSettings.video.height, constraintFromVideoSettings.video.width, cv.CV_8UC4);
 				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
-				cap = new cv.VideoCapture(videO);
+				cap = new cv.VideoCapture(videO);                
 				buildInfo = 'Ready to Count!';
 
 				setTimeout(processVideo,0);
@@ -85,12 +86,23 @@
 			let begin = Date.now();
 			if(document.getElementById('countButton').innerText == 'COUNT DOMINOS'){
 				cap.read(src);
+	
 				canvas.getContext('2d', { alpha: true , 
 								desynchronized: false ,
 								colorSpace: 'srgb' ,
 								willReadFrequently: true
 								}
-						 );	
+						 );
+				
+				if (drawDominos.length > 1){
+					drawDominos.forEach( doms => {
+					cv.rectangle(src,new cv.Point(doms.x,doms.y),new cv.Point(
+						doms.x+doms.w,doms.y+doms.h),clr.Green,1);				
+
+					});
+				
+				}
+				 
 				cv.imshow(canvasId,src);
 			}
 			let delay = 1000 / constraintFromVideoSettings.video.frameRate - (Date.now() - begin);
@@ -149,14 +161,25 @@
 
 				if (Math.round(rect.width * rect.height) > 5000 &&
 				    Math.round(rect.width * rect.height) < 20000)
+
 					{rectArray.push(rect);}
 			}
 			if (rectArray.length < 1){
 				buildInfo = 'There were no Dominos that meet the width and height requirement detected';
 				document.getElementById('countButton').innerText = 'COUNT DOMINOS';
 			return;
-			} 
-
+			}
+			//rectArray.sort( (a) => a.width *  a.height  );				
+			//rectArray.forEach((wh,num) =>{
+			//	rectArray[num].width = rectArray[rectArray.length-1].width;
+			//	rectArray[num].height = rectArray[rectArray.length-1].height;
+			//})
+			// sorting the array on x then y
+			rectArray.sort( (a,b) => {
+				a.y < b.y ? -1 : 0;
+				a.x > b.x ? 1 : 0;
+			
+			});
 			countDominoPips(matIn,rectArray);
 			contours.delete;wrkGray.delete;heirs.delete;	
 			matIn.delete;rectArray.delete;
@@ -175,7 +198,7 @@
 				).clearRect(0, 0, constraintFromVideoSettings.video.width, 
 								  constraintFromVideoSettings.video.height);	
 		rectIn.forEach((dominoDetected,counter) => {
-			let pips = processMinEncCirc(wrkMat.roi(dominoDetected));
+			let pips = processMinEncCirc(wrkMat.roi(dominoDetected),counter);
 			if (pips.length > 0) {
 
 				let tempArr = [];   // convert pips keyPoint to an array
@@ -218,14 +241,15 @@
 				
 			
 		totalofAllDominos = 0;
+		drawDominos = [];
 		kptTbl.forEach((dominoRect, num) => {
 			// put in the dots on the domino
 			let radArray = [];
 			cv.rectangle(wrkMat,new cv.Point(dominoRect.rect.x, dominoRect.rect.y),
 				   new cv.Point(dominoRect.rect.x + dominoRect.rect.width,
 				   dominoRect.rect.y + dominoRect.rect.height),
-				   clr.Green,2,0);
-
+				   clr.Green,1,0);
+			//drawDominos.push({x: dominoRect.rect.x,y: dominoRect.rect.y, w: dominoRect.rect.width, h: dominoRect.rect.height});
 			dominoRect.kPtArray.forEach((pipCoord) => {
 				//console.log('Rect ' + (num+1) + ' Pip Size  ' + Math.round(pipCoord.size))
 				//relative to bounding rectangle
@@ -257,10 +281,10 @@
 		document.getElementById('countButton').innerText = 'TRY AGAIN';
 		return;
 	}
-	function processMinEncCirc(roiIn){ 
+	function processMinEncCirc(roiIn,dominoCounter){ 
 		let xyz = roiIn.clone()
 		cv.cvtColor(xyz, xyz, cv.COLOR_RGBA2GRAY, 0);
-		cv.threshold(xyz,xyz, 165, 254, cv.THRESH_BINARY);
+		cv.threshold(xyz,xyz, 160, 254, cv.THRESH_BINARY);
 		let cons = new cv.MatVector();
 		let hier = new cv.Mat();
 		cv.findContours(xyz, cons, hier, cv.RETR_CCOMP,  cv.CHAIN_APPROX_SIMPLE);
@@ -281,18 +305,18 @@
 			cnt.delete();
 		}
 		xyz.delete(); hier.delete(); cons.delete(); 
+		// once we have all the coordinates check for min max  radius. 
 		const maxSize = Math.round(Math.max.apply(Math,areaArray.map((size) => size.size )));
 		const minSize = Math.round(Math.min.apply(Math,areaArray.map((size) => size.size )));
 		const sum = Math.round(areaArray.reduce((acc,curr) => acc + curr.size,0 ));
 		const avg = Math.round(sum/areaArray.length)
 
-		console.log('min/max/sum/avg  is ' + minSize + '/' + maxSize + '/' + sum + '/' + avg);
-		areaArray.forEach( (val,num) => {if (Math.round(val.size) == maxSize){
+		console.log('min/max/sum/avg  is (' + (dominoCounter+1) +  ') ' + minSize + '/' + maxSize + '/' + sum + '/' + avg);
+		areaArray.forEach( (val,num) => {if ( val.size  > minSize+5 ){
 				areaArray.splice(num,1)
-				console.log('took out ' + num);
+				console.log('took out '  + num  + '  val size ' + val.size);
 		}});
-		const maxSize2 = Math.round(Math.max.apply(Math,areaArray.map((size) => size.size )));
-		console.log ('after maxSize removed next maxSize(2) ' + maxSize2);
+		
 		return areaArray;
 
 	}
