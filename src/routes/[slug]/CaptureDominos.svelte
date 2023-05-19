@@ -12,7 +12,6 @@
 	let totalofAllDominos = 0;
 	let cl = 0;
 	let buildInfo = 'loading...';
-	let drawDominos = [];
 	// start at  x,y to x+ height y+ width ie (10,10) (10+64,10+128)
 	/**
 	 * @type {HTMLVideoElement}
@@ -30,10 +29,9 @@
 	async function initVideo() {
 
 		constraintFromVideoSettings.video.deviceId =  $videoSettings.deviceId;
-		constraintFromVideoSettings.video.width = 640;
 		constraintFromVideoSettings.video.width = $videoSettings.canvasWidth;
 		constraintFromVideoSettings.video.frameRate = $videoSettings.FPS;
-		constraintFromVideoSettings.video.height = Math.round($videoSettings.canvasWidth/1.3333);
+		constraintFromVideoSettings.video.height = Math.round($videoSettings.canvasWidth*3/4);
 		buildInfo = ('video setting device Id / Label ' + constraintFromVideoSettings.video.deviceId + '/' +
 	 				$videoSettings.label + ' and width ' + '(' + constraintFromVideoSettings.video.width   +')'  +
 	  				' and height ' + constraintFromVideoSettings.video.height);
@@ -93,16 +91,6 @@
 								willReadFrequently: true
 								}
 						 );
-				
-				if (drawDominos.length > 1){
-					drawDominos.forEach( doms => {
-					cv.rectangle(src,new cv.Point(doms.x,doms.y),new cv.Point(
-						doms.x+doms.w,doms.y+doms.h),clr.Green,1);				
-
-					});
-				
-				}
-				 
 				cv.imshow(canvasId,src);
 			}
 			let delay = 1000 / constraintFromVideoSettings.video.frameRate - (Date.now() - begin);
@@ -150,8 +138,8 @@
 			let heirs    = new cv.Mat()
 			let wrkGray = new cv.Mat(matIn.size().height, matIn.size().width, cv.CV_8UC1);
 			cv.cvtColor(matIn, wrkGray, cv.COLOR_RGBA2GRAY, 0);
-			let startThresh = 165;
-			cv.threshold(wrkGray, wrkGray, startThresh, 255, cv.THRESH_BINARY);
+			let startThresh = 150;
+			cv.threshold(wrkGray, wrkGray, startThresh, 255,cv.THRESH_BINARY);
 			cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 			let rectArray = [];
 			//debugger;
@@ -159,10 +147,10 @@
 
 			  	const rect = cv.boundingRect(contours.get(j));
 
-				if (Math.round(rect.width * rect.height) > 5000 &&
-				    Math.round(rect.width * rect.height) < 20000)
+				//if (Math.round(rect.width * rect.height) > 5000 &&
+				//    Math.round(rect.width * rect.height) < 20000)
 
-					{rectArray.push(rect);}
+				rectArray.push(rect);
 			}
 			if (rectArray.length < 1){
 				buildInfo = 'There were no Dominos that meet the width and height requirement detected';
@@ -211,14 +199,7 @@
 				//  close to average of the size.
 				if (tempArr.length > 1){
 					kptTbl.push({ rect: dominoDetected, kPtArray: tempArr });
-					//could take this out and just output ROI's and pips without the detected offset
-				//	cv.rectangle(wrkMat,new cv.Point(dominoDetected.x, dominoDetected.y),
-				//				   new cv.Point(dominoDetected.x + dominoDetected.width,
-				//				   dominoDetected.y + dominoDetected.height),
-				//				   clr.Green,2,0);
 				}
-
-	
 			tempArr.delete;
 			}
 		});
@@ -241,31 +222,26 @@
 				
 			
 		totalofAllDominos = 0;
-		drawDominos = [];
 		kptTbl.forEach((dominoRect, num) => {
 			// put in the dots on the domino
 			let radArray = [];
+			let domX = dominoRect.rect.x 
+			let domY = dominoRect.rect.y 	
+			let wkPt = new cv.Point(domX,domY);
+			cv.putText(wrkMat,
+				'<' + (num + 1).toString() + '>',
+				wkPt,cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Yellow,1,cv.LINE_AA,false);
+  		
 			cv.rectangle(wrkMat,new cv.Point(dominoRect.rect.x, dominoRect.rect.y),
 				   new cv.Point(dominoRect.rect.x + dominoRect.rect.width,
 				   dominoRect.rect.y + dominoRect.rect.height),
 				   clr.Green,1,0);
-			//drawDominos.push({x: dominoRect.rect.x,y: dominoRect.rect.y, w: dominoRect.rect.width, h: dominoRect.rect.height});
 			dominoRect.kPtArray.forEach((pipCoord) => {
-				//console.log('Rect ' + (num+1) + ' Pip Size  ' + Math.round(pipCoord.size))
-				//relative to bounding rectangle
 				radArray.push(Math.round(pipCoord.size)); // to display radius
 				cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
-				dominoRect.rect.y), (Math.round(pipCoord.size)*.15), clr.Green,2);
+				dominoRect.rect.y), (Math.round(pipCoord.size)), clr.Blue,1);
 			});
-			let domX = dominoRect.rect.x + dominoRect.rect.width;
-			let domY = dominoRect.rect.y + dominoRect.rect.height;
-			let wkPt = new cv.Point(domX,domY);
-			cv.putText(wrkMat,
-				'(' + (num + 1).toString() + ')',
-				wkPt,cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Blue,2,cv.LINE_AA,false);
-
-	
-  			dominoStr +=  htmlDispDiv +   htmlDispVar + (num + 1) +  htmlDispFix;
+			dominoStr +=  htmlDispDiv +   htmlDispVar + (num + 1) +  htmlDispFix;
 			dominoStr +=  htmlDispVar + (dominoRect.kPtArray.length) +  htmlDispFix;
 			dominoStr +=  htmlDispVar +  (Math.round(dominoRect.rect.width * dominoRect.rect.height)) +  htmlDispFix;
 			dominoStr +=  htmlDispVar + (Math.max.apply(Math,radArray)) +  htmlDispFix;
@@ -298,7 +274,7 @@
 			// note python approxPolyDP returns a mat and check the poly with len(poly)
 			// in javascript we get the same thing by checking poly.size.height ( width is always 1)
 			// here we check anything that has a height > 4 as being a circle	
-			if (Math.round(minCirc.radius) > 2){
+			if (Math.round(minCirc.radius) > 1){
      			areaArray.push({pt: {x: minCirc.center.x,y: minCirc.center.y} ,size: minCirc.radius});
 
 			}

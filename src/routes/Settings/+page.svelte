@@ -6,7 +6,7 @@
   export let selectedDevice = {deviceId: "",label: ""};
   export let display_func = a => a + '   ';
   export let cameras = new UserMediaDetector();
-  let canvasWidth = [480,640,720,1280,1920]  ;
+  let canvasWidth = [320,480,640,720]  ;
   let fPs = [5,15,30,60];
   canvasWidth.forEach((item,i) => {if (item == $videoSettings.canvasWidth ) {selected = i} });
   fPs.forEach((item,i) => {if (item == $videoSettings.FPS ) {selectedFPS = i} });
