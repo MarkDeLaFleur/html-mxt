@@ -10,6 +10,7 @@
 	let clr = {};
 	export let selected=0;
 	let totalofAllDominos = 0;
+	let countState = "COUNT DOMINOS";
 	let cl = 0;
 	let buildInfo = 'loading...';
 	// start at  x,y to x+ height y+ width ie (10,10) (10+64,10+128)
@@ -82,7 +83,8 @@
 
 		try {
 			let begin = Date.now();
-			if(document.getElementById('countButton').innerText == 'COUNT DOMINOS'){
+			if (countState == "COUNT DOMINOS"){
+			
 				cap.read(src);
 	
 				canvas.getContext('2d', { alpha: true , 
@@ -112,9 +114,9 @@
 	}
 	
 	function tryCountingDots() {
-		if (document.getElementById('countButton').innerText != 'COUNT DOMINOS'){
-			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
-			document.getElementById('countButton').innerText = document.getElementById('countButton').innerText;
+	
+		if (countState == "TRY AGAIN"){
+			countState = "COUNT DOMINOS";
 			canvas.getContext('2d', { alpha: true , 
 					desynchronized: false ,
 					colorSpace: 'srgb' ,
@@ -142,7 +144,6 @@
 			cv.threshold(wrkGray, wrkGray, startThresh, 255,cv.THRESH_BINARY);
 			cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 			let rectArray = [];
-			//debugger;
 			for (let j = 0; j < contours.size(); j++) {
 
 			  	const rect = cv.boundingRect(contours.get(j));
@@ -154,15 +155,10 @@
 			}
 			if (rectArray.length < 1){
 				buildInfo = 'There were no Dominos that meet the width and height requirement detected';
-				document.getElementById('countButton').innerText = 'COUNT DOMINOS';
+				countState = "COUNT DOMINOS";
+				//document.getElementById('countButton').innerText = 'COUNT DOMINOS';
 			return;
 			}
-			//rectArray.sort( (a) => a.width *  a.height  );				
-			//rectArray.forEach((wh,num) =>{
-			//	rectArray[num].width = rectArray[rectArray.length-1].width;
-			//	rectArray[num].height = rectArray[rectArray.length-1].height;
-			//})
-			// sorting the array on x then y
 			rectArray.sort( (a,b) => {
 				a.y < b.y ? -1 : 0;
 				a.x > b.x ? 1 : 0;
@@ -207,7 +203,7 @@
 			kptTbl.delete;
 			wrkMat.delete;canvas.delete
 			buildInfo = 'There were no pips on Dominos detected';
-			document.getElementById('countButton').innerText = 'COUNT DOMINOS';
+			countState = "COUNT DOMINOS";
 			return;
 		}
 
@@ -254,7 +250,7 @@
 		cv.imshow(canvasId, wrkMat);
 		wrkMat.delete;canvas.delete;
 		buildInfo = 'Total of All Dominos ==> ' + totalofAllDominos + '\n' + dominoStr;
-		document.getElementById('countButton').innerText = 'TRY AGAIN';
+		countState = "TRY AGAIN";
 		return;
 	}
 	function processMinEncCirc(roiIn,dominoCounter){ 
@@ -315,7 +311,7 @@
        			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
 			  focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
    			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
-		Count Dominos
+		{countState}
 	</button>
 	<button
 		type="button" id="UpdatePlayerScore" on:click={() => updatePlayerTable()}
@@ -327,7 +323,7 @@
 		</button>
 		
 </div>
-<div class="grid grid-flow-row md:grid-flow-col px-2" >
+<div class="grid grid-flow-row sm:grid-flow-col px-2 gap-5" >
 	<div class="w-fit rounded border">
 		<canvas id={canvasId}   width={constraintFromVideoSettings.video.width} 
 			    height={constraintFromVideoSettings.video.height}
@@ -338,7 +334,7 @@
 	</div>
 
 	
-	<div class="build-info  border rounded-md bg-gray-200 w-  ">	
+	<div class="build-info  border rounded-md bg-gray-200 w-3/5  ">	
 		<p >	Information Section <br></p>
 		<div >
 			{@html buildInfo.replace(/\n/g, '<br/>')}  	

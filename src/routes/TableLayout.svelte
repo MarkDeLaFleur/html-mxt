@@ -1,9 +1,19 @@
 <script>
-
+import { onMount } from 'svelte';
 import Footer from './Footer.svelte';
 import {roundTableData } from '$lib/myFunctions/IconSvg';
 import {playerScore} from '$lib/myFunctions/TableStore';
 $: {playerScore};
+onMount(async () => $playerScore.forEach((player,ptr) =>{
+	if(player.playerName== "") {
+		document.getElementById("name"+ptr).hidden = true;
+	    player.pScore.forEach((score,ptr1 ) => {
+			document.getElementById("score"+ptr1+ptr).hidden = true;
+		})
+	}})
+
+
+)
 </script>
 <body>
 	<p class="font-semibold text-center text-xl  w-full">Mexican Train Score Keeper and Pip Counter</p>
@@ -18,9 +28,9 @@ $: {playerScore};
 					</th>
 					{#each $playerScore as players,playerIndex}
 					<th  class="border-2 border-black empty:before:content-[attr(placeHolder)]" 
-					contenteditable="true" placeHolder="Player Name Here"
+					contenteditable="true" placeHolder="Player Name Here" id="name{playerIndex}"
 					bind:innerHTML={$playerScore[playerIndex].playerName}>
-						{players.playerName}       
+						
 					</th>
 					{/each}
 				<tr/>

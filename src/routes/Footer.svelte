@@ -1,5 +1,12 @@
 <script>
        import { playerScore } from "$lib/myFunctions/TableStore";
+       import { onMount } from "svelte";
+       onMount(async () => $playerScore.forEach((player,ptr) =>{
+	       if(player.playerName== "") {
+		document.getElementById("tot"+ptr).hidden = true;
+	
+	}}));
+
  
        function calcScore(pScorearr){
               let sum = 0;
@@ -19,8 +26,8 @@
                        TOTAL
                </td>
 
-              {#each $playerScore as players}
-              <td	class="py-0 text-right border-2 border-black" >  
+              {#each $playerScore as players,ptr}
+              <td	id="tot{ptr}" class="py-0 text-right border-2 border-black" >  
                     {calcScore(players.pScore) }
               </td>
               {/each}

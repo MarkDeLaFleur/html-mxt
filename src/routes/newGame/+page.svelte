@@ -7,7 +7,7 @@ export let display_func = a => a + '   ';
 let newPlayers = [];
 let numPlayers = [2,3,4,5,6,7,8];
 let selected;
-$: {selected}
+$: {selected;newPlayers;}
 export function setNames(){
   newPlayers = [];
  for (let n = 0; n < selected;n++){
@@ -39,24 +39,23 @@ function initTable(){
 <h1 title="Start a New Game" > </h1>
 <p class="text-lg text-center">Reset Player Score Table for a New Game </p>
  
-<div class="block w-3/4 text-left  px-2 py-2 ">
-  <label> Select Number of Players:    
+<div class="block w-52 text-left  px-2 py-2 ">
+  <!-- svelte-ignore a11y-label-has-associated-control -->
+  <label> Select Number of Players: </label>   
     {#each numPlayers as option, i}
-  
-        <input type=radio bind:group={selected}  on:click={setNames} name="NumberOfPlayers" value={option} >
-          {display_func(option + ' Players')}  
-      
+      <input type=radio bind:group={selected}  on:click={setNames} name="NumberOfPlayers" value={option} >
+        {@html display_func(option + ' Players') + '<br/>'}  
     {/each}
     <br>
-  </label>
-  {#each newPlayers  as x,i}
-<div class="flex-auto w-full border "> 
+  </div>
+  <div class="block w-100  "> 
 
-  <input bind:value= {newPlayers[i]}>
-  
-</div>
-{/each}
-</div>
+  {#each newPlayers  as x,i}
+  <label for="player{i}"> Player Name {i+1}: </label>
+    <input class="border bg-slate-200" id="player{i}" name="player{i}" type=text bind:value= {newPlayers[i]}><br/>
+  {/each}
+  </div>
+
 
 
 <h1>
