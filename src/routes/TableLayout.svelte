@@ -16,15 +16,15 @@ onMount(async () => $playerScore.forEach((player,ptr) =>{
 )
 </script>
 <body>
-	<p class="font-semibold text-center text-xl  w-full">Mexican Train Score Keeper and Pip Counter</p>
+	<p class="font-semibold text-center text-xl  w-3/4">Mexican Train Score Keeper and Pip Counter</p>
 <div class="container ">
 
-  <table  class=" table-fixed w-full border-2 border-black ml-5 mx-auto" >
+  <table  class=" table-auto w-3/4 border-2 border-black ml-5 mx-auto text-left" >
 	
 		<thead class="sticky top-0 border-black text-red-900  w-5">
 				<tr >
-					<th class="border-2 border-black text-red-900  flex-none w-11 h-8"> 
-						#       
+					<th class="border-2 border-black text-red-900  flex-none w-1/8 h-8"> 
+						Round      
 					</th>
 					{#each $playerScore as players,playerIndex}
 					<th  class="border-2 border-black empty:before:content-[attr(placeHolder)]" 
@@ -39,14 +39,14 @@ onMount(async () => $playerScore.forEach((player,ptr) =>{
 		<tbody >
    		{#each roundTableData as {icon},rowptr}
 		    <tr class=" border-2 border-black text-right bg-white">
-			    <td class="border-2 border-black" >
+			    <td class="border-2 border-black " >
 					 <!-- Using slug to pass which round is being processed by the domino capture page -->
 					<a  href="/{rowptr}" >{@html icon}
 					</a>
 				</td>
 				
 			    	{#each $playerScore as rndScore,colptr}
-			    	<td class="border-2  border-black align-bottom " contenteditable="true"
+			    	<td class="border-2  border-black align-bottom  " contenteditable="true"
 						 id='score{rowptr}{colptr}'
 						bind:innerHTML={$playerScore[colptr].pScore[rowptr]} >
                 		{rndScore.pScore[rowptr]}
@@ -57,5 +57,13 @@ onMount(async () => $playerScore.forEach((player,ptr) =>{
 	        {/each}	
 		</tbody>
     </table>
+	<p class="mx-auto ml-5"><br>
+		Change the player's name by moving the pointer to the field and overtyping. <br/>
+		Click on one of the domino Icons to use the camera to count the dominos.<br/>
+		Manually enter a score by moving the pointer to the appropriate cell.
+
+	</p>
+	
 </div>
+
 </body>

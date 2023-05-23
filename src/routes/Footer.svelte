@@ -27,12 +27,11 @@
                </td>
 
               {#each $playerScore as players,ptr}
-              <td	id="tot{ptr}" class="py-0 text-right border-2 border-black" >  
+              <td	id="tot{ptr}" class="py-0 text-right border-2 border-black underline font-black" >  
                     {calcScore(players.pScore) }
               </td>
               {/each}
        </tr>
-
        
 </tfoot>
 

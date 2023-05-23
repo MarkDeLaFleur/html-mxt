@@ -323,8 +323,9 @@
 		</button>
 		
 </div>
-<div class="grid grid-flow-row sm:grid-flow-col px-2 gap-5" >
-	<div class="w-fit rounded border">
+<div class="ml-5 h-56 grid grid-cols-2 gap-4 content-normal w-fit ">
+
+	<div class="w-fit rounded-md border">
 		<canvas id={canvasId}   width={constraintFromVideoSettings.video.width} 
 			    height={constraintFromVideoSettings.video.height}
 				title="Big Daddy {constraintFromVideoSettings.video.width} by {constraintFromVideoSettings.video.height} FPS {$videoSettings.FPS}

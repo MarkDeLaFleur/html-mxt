@@ -9,10 +9,10 @@
       }
   }
 </script>
-<div>
+<div class="block w-full px-2 ">
 
   <br><br>
-  <label> Choose which player to apply points to:    
+  <label> Choose which player to apply points to: <br>   
   {#each options as option, i}
 
       <input type=radio bind:group={selected} name="playerIndex" value={i} >

@@ -24,10 +24,7 @@
     {@html roundTableData[data.content].icon} 
   </div>
 </div>
-<div class="block w-full px-2 ">
-    <SavePoints bind:selected={playerIndex} />
-</div>
-
+<SavePoints bind:selected={playerIndex} />
 <CaptureDominos bind:selected={playerIndex}   dominoRound={data.content} />
 
    
