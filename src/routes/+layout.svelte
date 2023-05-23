@@ -43,6 +43,8 @@ function toggleNavbar() {
       <a class="text-gray-800 hover:text-white" href="/newGame" data-sveltekit-preload-data="tap" >New Game</a>
       <a class="text-gray-800 hover:text-white" href="/Settings">Settings</a>
       <a class="text-gray-800 hover:text-white" href="/About" data-sveltekit-preload-data="tap">About MxT</a>
+      <a class="text-gray-800 hover:text-white" href="/Summary" data-sveltekit-preload-data="tap">Summary Page</a>
+     
     </div>
   </nav>
 </div>
