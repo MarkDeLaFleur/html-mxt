@@ -321,21 +321,22 @@
    			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
 		Update Player's Score
 		</button>
+
 		
 </div>
-<div class="ml-5 h-56 grid grid-cols-2 gap-4 content-normal w-fit ">
+<div class="ml-5 lg:ml-2 grid grid-cols-2 gap-4 content-normal w-3/4">
 
-	<div class="w-fit rounded-md border">
-		<canvas id={canvasId}   width={constraintFromVideoSettings.video.width} 
+	<div >
+		<canvas  id={canvasId}   width={constraintFromVideoSettings.video.width} 
 			    height={constraintFromVideoSettings.video.height}
-				title="Big Daddy {constraintFromVideoSettings.video.width} by {constraintFromVideoSettings.video.height} FPS {$videoSettings.FPS}
+				title="Video Canvas {constraintFromVideoSettings.video.width} by {constraintFromVideoSettings.video.height} FPS {$videoSettings.FPS}
 				 Using {$videoSettings.label}" >
   		</canvas>
 
 	</div>
 
 	
-	<div class="build-info  border rounded-md bg-gray-200 w-3/5  ">	
+	<div class="build-info  border rounded-md bg-gray-200 ">	
 		<p >	Information Section <br></p>
 		<div >
 			{@html buildInfo.replace(/\n/g, '<br/>')}  	

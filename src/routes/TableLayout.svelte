@@ -16,14 +16,14 @@ onMount(async () => $playerScore.forEach((player,ptr) =>{
 )
 </script>
 <body>
-	<p class="font-semibold text-center text-xl  w-3/4">Mexican Train Score Keeper and Pip Counter</p>
-<div class="container ">
+	<p class="font-semibold text-align text-xl  ">Mexican Train Score Keeper and Pip Counter</p>
+<div class="container w-full">
 
-  <table  class=" table-auto w-3/4 border-2 border-black ml-5 mx-auto text-left" >
+  <table  class=" table-fixed border-2 border-black ml-5 mx-auto text-left" >
 	
-		<thead class="sticky top-0 border-black text-red-900  w-5">
+		<thead class="sticky top-1 border-black text-red-900" >
 				<tr >
-					<th class="border-2 border-black text-red-900  flex-none w-1/8 h-8"> 
+					<th class="border-2 border-black text-red-900"> 
 						Round      
 					</th>
 					{#each $playerScore as players,playerIndex}

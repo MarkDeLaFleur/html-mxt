@@ -1,8 +1,8 @@
 <script>
     import { onMount } from 'svelte';
-    import Footer from '../Footer.svelte';
     import {roundTableData } from '$lib/myFunctions/IconSvg';
     import {playerScore} from '$lib/myFunctions/TableStore';
+	import { to_number } from 'svelte/internal';
     $: {playerScore};
     onMount(async () => $playerScore.forEach((player,ptr) =>{
         if(player.playerName== "") {
@@ -18,9 +18,13 @@
 	
             <thead class="sticky top-1 border-black ">
                     <tr >
-                        <th class="border-2 border-black text-red-900"> 
+                        <th class="border-2 border-black text-red-900 align-bottom"> 
                             Round      
                         </th>
+                        <th class="border-2 border-black text-green-900 align-bottom"> 
+                            Total      
+                        </th>
+                     
                         {#each roundTableData as {icon},iconIndex}
                         <th  class="border-2 border-black align-bottom" 
                          id="round{iconIndex}"
@@ -32,14 +36,19 @@
                         {/each}
                     <tr/>
             </thead>
+    
             <tbody >
                 {#each $playerScore as player,rowptr}
                  <tr class=" border-2 border-black  text-left bg-white" id="playRow{rowptr}">
-                        <td class="border">
+                        <td class="border-2 border-indigo-700 align-baseline">
                             {player.playerName}
                         </td>
+                        <td class="border-2 border-indigo-600 align-baseline text-right bg-lime-300 ">
+                            {player.pScore.map(  elt => {
+                               return  /^\d+$/.test(elt) ? parseInt(elt) : 0;  }).reduce( (a,b) => a+b,0)}
+                        </td>
                         {#each player.pScore as score}
-                        <td class="w-10 border-black border-2">
+                        <td class="w-10 border-black border-2 text-right">
                             {score}
                         </td>
                        
@@ -48,7 +57,6 @@
                  </tr>
                  {/each}	
              </tbody>
-     
     
     </div>  
     </body>  
