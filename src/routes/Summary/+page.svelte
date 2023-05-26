@@ -1,14 +1,9 @@
 <script lang="ts">
-	import AltTableLayout from "./AltTableLayout.svelte";
+	import AltTableLayout from '$lib/mySveltes/AltTableLayout.svelte';
 
 </script>
   <h1>
-    <p>Summary Page</p>
   </h1>
 <AltTableLayout/>
-
-
-
-
 
  

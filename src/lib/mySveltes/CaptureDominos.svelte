@@ -2,7 +2,7 @@
 	// @ts-nocheck
 	//  scalar,getbuildinfo,mat
 	import cv from '@techstark/opencv-js';
-	import { videoSettings } from '../../lib/myFunctions/VideoStore';
+	import { videoSettings } from '../myFunctions/VideoStore';
 	import {goto} from '$app/navigation'
 	import { playerScore } from '$lib/myFunctions/TableStore';
 	export let canvasId="showVid1";

@@ -1,5 +1,5 @@
 <script>
-import TableLayout from './TableLayout.svelte';
+import TableLayout from '../lib/mySveltes/TableLayout.svelte';
 import { playerScore } from '$lib/myFunctions/TableStore';
 import { goto } from '$app/navigation';
 import { onMount } from 'svelte';

@@ -1,8 +1,8 @@
 <script>
 	/** @type {import('./$types').PageData} */
  
-import CaptureDominos from '../[slug]/CaptureDominos.svelte';
-import SavePoints from './SavePoints.svelte';
+import CaptureDominos from '../../lib/mySveltes/CaptureDominos.svelte';
+import SavePoints from '../../lib/mySveltes/SavePoints2.svelte';
 
     /**
 	 * @type {{ content: number; }}

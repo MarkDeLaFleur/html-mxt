@@ -1,8 +1,8 @@
 <script>
 	/** @type {import('./$types').PageData} */
   import {roundTableData } from '$lib/myFunctions/IconSvg' 
-	import CaptureDominos from './CaptureDominos.svelte'; 
-	import SavePoints from './SavePoints.svelte';
+	import CaptureDominos from '../../lib/mySveltes/CaptureDominos.svelte'; 
+	import SavePoints from '../../lib/mySveltes/SavePoints.svelte';
   export let  playerIndex = 0;
     /**
 	 * @type {{ content: number; }}
