@@ -84,9 +84,11 @@ function downloadFile() {
 }
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1"  />
-<h1 title="Start a New Game" > </h1>
-<p class="text-lg text-center">Reset Player Score Table for a New Game </p>
+<h1 title="New Game" > </h1>
+<p class="text-lg text-align ml-5">Add or Remove Players, Save Score table to a File or Reset Player Score Table </p>
+
 <div class="ml-5 h-56 grid grid-cols-2 gap-4 content-normal w-fit ">
+
   <div class="border rounded bg-gray-200">
      <!-- svelte-ignore a11y-label-has-associated-control -->
       <label> Select Number of Players: <br> </label>   
@@ -126,6 +128,13 @@ Save Game to CSV File
            active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
 Start New Game
 </button>
+<div>
+  <p class="text-lg text-align ml-5">Press Start New Game Button to Reset the MxT Score Table  </p>
+  <p class="text-lg text-align ml-5">Select the Players Button to Add or Remove Players</p>
+  <p class="text-lg text-align ml-5">Press Save Game to CSV File Button to Copy the Player Score Table as a Comma Separated Values File</p>
+
+
+</div>
 
 
 

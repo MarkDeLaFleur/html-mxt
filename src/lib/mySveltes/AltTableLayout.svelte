@@ -13,15 +13,15 @@
     </script>
     <body>
         <p class="font-semibold text-align text-xl ml-5">Mexican Train Score Keeper and Pip Counter Summary Page</p>
-    <div class="container w-full">
-        <table  class="table-fixed border-1 border-black ml-5 mx-auto " >
+    <div class="container w-full flex overflow-auto">
+        <table  class="table-fixed  flex-shrink-0 border-1 border-black ml-auto mx-auto " >
 	
-            <thead class="sticky top-1 border-black ">
+            <thead class=" top-1 border-black ">
                     <tr >
-                        <th class="border-2 border-black text-red-900 align-bottom"> 
+                        <th class="border-2 border-black bg-gray-400 sticky left-0 text-red-900 align-bottom "> 
                             Round      
                         </th>
-                        <th class="border-2 border-black text-green-900 align-bottom"> 
+                        <th class="border-2 border-black bg-gray-300 text-green-900 align-bottom sticky left-0 "> 
                             Total      
                         </th>
                      
@@ -39,11 +39,11 @@
     
             <tbody >
                 {#each $playerScore as player,rowptr}
-                 <tr class=" border-2 border-black  text-left bg-white" id="playRow{rowptr}">
-                        <td class="border-2 border-indigo-700 align-baseline">
+                 <tr class=" border-2 border-black  text-left" id="playRow{rowptr}">
+                        <td class="border-2 border-black bg-indigo-400 align-baseline sticky left-0 ">
                             {player.playerName}
                         </td>
-                        <td class="border-2 border-indigo-600 align-baseline text-right bg-lime-300 ">
+                        <td class="border-2 border-indigo-600 align-baseline sticky left-0 text-right bg-lime-300 ">
                             {player.pScore.map(  elt => {
                                return  /^\d+$/.test(elt) ? parseInt(elt) : 0;  }).reduce( (a,b) => a+b,0)}
                         </td>

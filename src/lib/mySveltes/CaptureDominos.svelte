@@ -324,7 +324,7 @@
 
 		
 </div>
-<div class="ml-5 lg:ml-2 grid grid-cols-2 gap-4 content-normal w-3/4">
+<div class="w-full ml-5 lg:ml-2 grid grid-cols-1  md:grid-cols-2 gap-4 content-normal lg:w-3/4">
 
 	<div >
 		<canvas  id={canvasId}   width={constraintFromVideoSettings.video.width} 
