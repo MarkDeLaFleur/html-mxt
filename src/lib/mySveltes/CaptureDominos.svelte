@@ -6,7 +6,7 @@
 	import {goto} from '$app/navigation'
 	import { playerScore } from '$lib/myFunctions/TableStore';
 	export let canvasId="showVid1";
-	export let dominoRound=0;
+	export let roundSelected=0;
 	let clr = {};
 	export let selected=0;
 	let totalofAllDominos = 0;
@@ -294,9 +294,9 @@
 	}
 	function updatePlayerTable(){
         // update and get out
-		//using dominoRound, selected (index) and adding total of all dominos to table.
+		//using roundSelected, selected (index) and adding total of all dominos to table.
 		//show it first:
-		$playerScore[selected].pScore[dominoRound]  =   totalofAllDominos ;
+		$playerScore[selected].pScore[roundSelected]  =   totalofAllDominos ;
 		buildInfo = $playerScore[selected].playerName + " score has been updated to " + totalofAllDominos;
     }
 

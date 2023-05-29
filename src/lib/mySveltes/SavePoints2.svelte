@@ -4,18 +4,20 @@
   export let options = [];
   export let display_func = a => a + '   ';
   export let selected = 0;
+  let buttonSelection = 'no button clicked yet!';
+  export let roundSelected = 0;
+ 
   let score = 0;
   for (let x = 0; x< $playerScore.length;x++){
       if( $playerScore[x].playerName.length > 1){
         options.push({"playerName": $playerScore[x].playerName})
       }
   }
-  let buttonSelection = 'no button clicked yet!';
-  let roundSelected = 0;
   $:{buttonSelection;
      if (document.getElementById("score") != null){
-        console.log('pScore is ' + $playerScore[selected].pScore[roundSelected] );
-        document.getElementById("score").value = $playerScore[selected].pScore[roundSelected];
+         const v = parseInt($playerScore[selected].pScore[roundSelected]);
+          console.log('pScore is ' + (isNaN(v) ? 0 : v ) );
+        document.getElementById("score").value = (isNaN(v) ? 0 : v);
         console.log('selected ' + selected); 
         console.log('options playername ' + options[selected].playerName);
         console.log($playerScore[selected].playerName);
