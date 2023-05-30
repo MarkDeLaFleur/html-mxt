@@ -1,69 +1,67 @@
 <script>
-import { onMount } from 'svelte';
-import Footer from './Footer.svelte';
-import {roundTableData } from '$lib/myFunctions/IconSvg';
-import {playerScore} from '$lib/myFunctions/TableStore';
-$: {playerScore};
-onMount(async () => $playerScore.forEach((player,ptr) =>{
-	if(player.playerName== "") {
-		document.getElementById("name"+ptr).hidden = true;
-	    player.pScore.forEach((score,ptr1 ) => {
-			document.getElementById("score"+ptr1+ptr).hidden = true;
-		})
-	}})
-
-
-)
-</script>
-<body>
-	<p class="font-semibold text-align text-xl  ">Mexican Train Score Keeper and Pip Counter</p>
-<div class="container w-full">
-
-  <table  class=" table-fixed border-2 border-black ml-5 mx-auto text-left" >
+    import { onMount } from 'svelte';
+    import {roundTableData } from '$lib/myFunctions/IconSvg';
+    import {playerScore} from '$lib/myFunctions/TableStore';
+	import { to_number } from 'svelte/internal';
+    $: {playerScore};
+    onMount(async () => $playerScore.forEach((player,ptr) =>{
+        if(player.playerName== "") {
+            document.getElementById("playRow"+ptr).hidden = true;
+        }
+    })  
+    )
+    </script>
+    <body>
+        <p class="font-semibold text-align-bottom md:text-xl ml-5">Mexican Train Score Keeper and Pip Counter Summary Page</p>
+    <div class="container w-full ">
+        <table  class="md:table-fixed border-1 border-black ml-3 mx-auto " >
 	
-		<thead class="sticky top-1 border-black text-red-900" >
-				<tr >
-					<th class="border-2 border-black text-red-900"> 
-						Round      
-					</th>
-					{#each $playerScore as players,playerIndex}
-					<th  class="border-2 border-black empty:before:content-[attr(placeHolder)]" 
-					contenteditable="true" placeHolder="Player Name Here" id="name{playerIndex}"
-					bind:innerHTML={$playerScore[playerIndex].playerName}>
-						
-					</th>
-					{/each}
-				<tr/>
-		</thead>
-		<Footer/>
-		<tbody >
-   		{#each roundTableData as {icon},rowptr}
-		    <tr class=" border-2 border-black text-right bg-white">
-			    <td class="border-2 border-black " >
-					 <!-- Using slug to pass which round is being processed by the domino capture page -->
-					<a  href="/{rowptr}" >{@html icon}
-					</a>
-				</td>
-				
-			    	{#each $playerScore as rndScore,colptr}
-			    	<td class="border-2  border-black align-bottom  " contenteditable="true"
-						 id='score{rowptr}{colptr}'
-						bind:innerHTML={$playerScore[colptr].pScore[rowptr]} >
-                		{rndScore.pScore[rowptr]}
-					</td>
-			    	{/each}
-				
-		    </tr>
-	        {/each}	
-		</tbody>
-    </table>
-	<p class="mx-auto ml-5"><br>
-		Change the player's name by moving the pointer to the field and overtyping. <br/>
-		Click on one of the domino Icons to use the camera to count the dominos.<br/>
-		Manually enter a score by moving the pointer to the appropriate cell.
-
-	</p>
-	
-</div>
-
-</body>
+            <thead class=" top-1 border-black ">
+                    <tr >
+                        <th class="sm:w-9 border-2 border-black bg-gray-400 text-red-900 "> 
+                            Round      
+                        </th>
+                        <th class="sm:w-9 border-2 border-black bg-gray-300 text-green-900 "> 
+                            Total      
+                        </th>
+                     
+                        {#each roundTableData as {icon},iconIndex}
+                        <th  class=" sm:w-9 border-2 border-black align-bottom" 
+                         id="round{iconIndex}"
+                        >
+                        <div class="w-8 sticky  "> 
+                                {@html icon}
+                        </div> 
+                           
+                      
+                        </th>
+                        {/each}
+                    <tr/>
+            </thead>
+    
+            <tbody >
+                {#each $playerScore as player,rowptr}
+                 <tr class=" border-2 border-black text-left" id="playRow{rowptr}">
+                        <td class="border-2 border-black bg-indigo-400 text-sm align-text-left ">
+                            {player.playerName}
+                        </td>
+                        <td class="border-2 border-indigo-600 align-bottom text-sm bg-lime-300 ">
+                            {player.pScore.map(  elt => {
+                               return  /^\d+$/.test(elt) ? parseInt(elt) : 0;  }).reduce( (a,b) => a+b,0)}
+                        </td>
+        
+                        {#each player.pScore as score}
+                        <td class="w-10 md:w-9 border-black border-2 text-sm">
+                            <div class="w-10" >
+                                {score}
+                            </div>
+                            
+                        </td>
+                       
+                        {/each}
+                         </tr>
+                 {/each}	
+             </tbody>
+    
+    </div>  
+    </body>  

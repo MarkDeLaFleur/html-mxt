@@ -1,9 +1,9 @@
 <script lang="ts">
-	import AltTableLayout from '$lib/mySveltes/AltTableLayout.svelte';
+	import TableLayout from '$lib/mySveltes/TableLayout.svelte';
 
 </script>
   <h1>
   </h1>
-<AltTableLayout/>
+<TableLayout/>
 
  

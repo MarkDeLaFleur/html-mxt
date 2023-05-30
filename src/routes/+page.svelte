@@ -1,5 +1,5 @@
 <script>
-import AltTableLayout from '../lib/mySveltes/AltTableLayout.svelte';
+import TableLayout from '../lib/mySveltes/TableLayout.svelte';
 import { playerScore } from '$lib/myFunctions/TableStore';
 import { goto } from '$app/navigation';
 import { onMount } from 'svelte';
@@ -10,6 +10,6 @@ onMount(  () => {
     if (checkIt != true) {goto("/newGame")};
     });
 </script>
-  <AltTableLayout  />
+  <TableLayout  />
 
  
