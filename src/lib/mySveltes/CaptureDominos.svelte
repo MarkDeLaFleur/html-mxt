@@ -223,11 +223,8 @@
 			let radArray = [];
 			let domX = dominoRect.rect.x 
 			let domY = dominoRect.rect.y 	
-			let wkPt = new cv.Point(domX,domY);
-			cv.putText(wrkMat,
-				'<' + (num + 1).toString() + '>',
-				wkPt,cv.FONT_HERSHEY_SIMPLEX,0.5,clr.Yellow,1,cv.LINE_AA,false);
-  		
+			let wkPt = new cv.Point(domX,domY+20);
+			
 			cv.rectangle(wrkMat,new cv.Point(dominoRect.rect.x, dominoRect.rect.y),
 				   new cv.Point(dominoRect.rect.x + dominoRect.rect.width,
 				   dominoRect.rect.y + dominoRect.rect.height),
@@ -237,6 +234,10 @@
 				cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
 				dominoRect.rect.y), (Math.round(pipCoord.size)), clr.Blue,1);
 			});
+			cv.putText(wrkMat,
+				 (num + 1).toString() ,
+				wkPt,cv.FONT_HERSHEY_SIMPLEX,0.3,clr.Blue2,0.6,cv.LINE_AA,false);
+  		
 			dominoStr +=  htmlDispDiv +   htmlDispVar + (num + 1) +  htmlDispFix;
 			dominoStr +=  htmlDispVar + (dominoRect.kPtArray.length) +  htmlDispFix;
 			dominoStr +=  htmlDispVar +  (Math.round(dominoRect.rect.width * dominoRect.rect.height)) +  htmlDispFix;
