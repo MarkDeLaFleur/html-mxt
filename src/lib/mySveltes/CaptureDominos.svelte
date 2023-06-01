@@ -208,13 +208,14 @@
 		}
 
 		const htmlDispDiv = '<div class="flex flex-row ">';
-		const htmlDispVar =  '<div class="basis-1/5 text-end">';
+		const htmlDispVar =  '<div class="basis-1/2 text-start">';
 		const htmlDispFix =  '</div>';
 		let dominoStr = htmlDispDiv + htmlDispVar + 'Number' + htmlDispFix;
 		dominoStr += htmlDispVar + 'Count' + htmlDispFix;
-		dominoStr += htmlDispVar + 'Size' + htmlDispFix;
-		dominoStr += htmlDispVar + 'Max Radius' + htmlDispFix;
-		dominoStr += htmlDispVar + 'Min Radius' + htmlDispFix + htmlDispFix;
+		//dominoStr += htmlDispVar + 'Size' + htmlDispFix;
+		//dominoStr += htmlDispVar + 'Max Radius' + htmlDispFix;
+		//dominoStr += htmlDispVar + 'Min Radius' + htmlDispFix; 
+		dominoStr  += htmlDispFix;
 				
 			
 		totalofAllDominos = 0;
@@ -232,7 +233,7 @@
 			dominoRect.kPtArray.forEach((pipCoord) => {
 				radArray.push(Math.round(pipCoord.size)); // to display radius
 				cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
-				dominoRect.rect.y), (Math.round(pipCoord.size)), clr.Blue,1);
+				dominoRect.rect.y), (Math.round(pipCoord.size)), clr.Blue,-1);
 			});
 			cv.putText(wrkMat,
 				 (num + 1).toString() ,
@@ -240,9 +241,9 @@
   		
 			dominoStr +=  htmlDispDiv +   htmlDispVar + (num + 1) +  htmlDispFix;
 			dominoStr +=  htmlDispVar + (dominoRect.kPtArray.length) +  htmlDispFix;
-			dominoStr +=  htmlDispVar +  (Math.round(dominoRect.rect.width * dominoRect.rect.height)) +  htmlDispFix;
-			dominoStr +=  htmlDispVar + (Math.max.apply(Math,radArray)) +  htmlDispFix;
-			dominoStr +=  htmlDispVar + (Math.min.apply(Math,radArray)) +  htmlDispFix;
+			//dominoStr +=  htmlDispVar +  (Math.round(dominoRect.rect.width * dominoRect.rect.height)) +  htmlDispFix;
+			//dominoStr +=  htmlDispVar + (Math.max.apply(Math,radArray)) +  htmlDispFix;
+			//dominoStr +=  htmlDispVar + (Math.min.apply(Math,radArray)) +  htmlDispFix;
 			dominoStr +=  htmlDispFix ;
 			totalofAllDominos += dominoRect.kPtArray.length;
 		});
@@ -270,10 +271,16 @@
 			//cv.approxPolyDP(cnt, poly, .01 * cv.arcLength(cnt,true), true);
 			// note python approxPolyDP returns a mat and check the poly with len(poly)
 			// in javascript we get the same thing by checking poly.size.height ( width is always 1)
-			// here we check anything that has a height > 4 as being a circle	
-			if (Math.round(minCirc.radius) > 1){
+			// finding that using cv.matchShapes comparing all contours to the first gives very good results
+			// compared to trying to figure out any other way of reducing false dots.
+			const resultOfMatch = cv.matchShapes(cnt,cons.get(1),1,0)
+			if ( resultOfMatch < 1){
      			areaArray.push({pt: {x: minCirc.center.x,y: minCirc.center.y} ,size: minCirc.radius});
 
+			}
+			else{
+				
+				console.log('match cnt ' + i + ' to contour 1 is ' + resultOfMatch);
 			}
 			cnt.delete();
 		}
