@@ -42,7 +42,7 @@ export function cameraOpts(things){
     {#each canvasWidth as option, i}
   
         <input class="ml-5" type=radio bind:group={selected} name="CanvaswidthIndex" value={i} >
-          {display_func(option)} 
+          {display_func(option)} <br>
       
     {/each}
     <br>
@@ -51,7 +51,7 @@ export function cameraOpts(things){
       {#each fPs as option, i}
     
           <input class="ml-5" type=radio bind:group={selectedFPS} name="CameraFrameRate" value={i} >
-            {display_func(option)} 
+            {display_func(option)} <br>
         
       {/each}
       <br>
@@ -68,7 +68,7 @@ export function cameraOpts(things){
           <input class="ml-5" type=radio bind:group={selectedCamera} name="CameraIndex" 
             on:click={ ()=> {cameraOpts({deviceId: option.deviceId,x:x,label:option.label})} }
                    value={x}   id={option.deviceId} >
-                     {display_func(option.label)} 
+                     {display_func(option.label)} <br>
       {/each}
       {/if}
       {/await}
