@@ -37,7 +37,7 @@ export function cameraOpts(things){
   
     <p class="ml-5">Change Settings: <br> </p>
   </h1>
-  <div class="ml-5 border-black bg-gray-200 rounded w-1/3">
+  <div class="ml-5 mr-5 border-black bg-gray-200 rounded md:w-1/2 lg:w-1/4">
   <label class="ml-5"> Select Camera Display Width:  <br>  
     {#each canvasWidth as option, i}
   

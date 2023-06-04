@@ -20,6 +20,7 @@
 	let videO;
 	let cap;
 	let	canvas;
+	let ctx;
 	
 	//let imageCapture;
 	let matTest; 
@@ -63,6 +64,13 @@
 					White: new cv.Scalar(0.0, 0.0, 0.0, 255.0)
 				};
 				canvas = document.getElementById(canvasId);
+				ctx    = canvas.getContext('2d', { alpha: true , 
+								desynchronized: false ,
+								colorSpace: 'srgb' ,
+								willReadFrequently: true
+								}
+						 );
+
 				src = new cv.Mat(constraintFromVideoSettings.video.height, constraintFromVideoSettings.video.width, cv.CV_8UC4);
 				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
 				cap = new cv.VideoCapture(videO);                
@@ -87,14 +95,16 @@
 			
 				cap.read(src);
 	
-				canvas.getContext('2d', { alpha: true , 
+/*				canvas.getContext('2d', { alpha: true , 
 								desynchronized: false ,
 								colorSpace: 'srgb' ,
 								willReadFrequently: true
 								}
 						 );
-				cv.imshow(canvasId,src);
+*/
+				 cv.imshow(canvasId,src);
 			}
+
 			let delay = 1000 / constraintFromVideoSettings.video.frameRate - (Date.now() - begin);
 			setTimeout(processVideo, delay);
 					
@@ -117,14 +127,17 @@
 	
 		if (countState == "TRY AGAIN"){
 			countState = "COUNT DOMINOS";
-			canvas.getContext('2d', { alpha: true , 
+			ctx.clearRect(0, 0, constraintFromVideoSettings.video.width,
+					  constraintFromVideoSettings.video.height);	
+/*			canvas.getContext('2d', { alpha: true , 
 					desynchronized: false ,
 					colorSpace: 'srgb' ,
 					willReadFrequently: true
 					}
 					 ).clearRect(0, 0, constraintFromVideoSettings.video.width,
 					  constraintFromVideoSettings.video.height);	
-			buildInfo = "Ready to Count!";
+*/
+		  buildInfo = "Ready to Count!";
 			setTimeout(processVideo,0);
 		}
 		else {
@@ -174,13 +187,8 @@
 	function countDominoPips (matIn,rectIn) {
 		let wrkMat = matIn.clone();
 		let kptTbl = [];
-		canvas.getContext('2d', { alpha: true , 
-				desynchronized: false ,
-				colorSpace: 'srgb' ,
-				willReadFrequently: true
-				}
-				).clearRect(0, 0, constraintFromVideoSettings.video.width, 
-								  constraintFromVideoSettings.video.height);	
+		ctx.clearRect(0, 0, constraintFromVideoSettings.video.width, 
+						    constraintFromVideoSettings.video.height);	
 		rectIn.forEach((dominoDetected,counter) => {
 			let pips = processMinEncCirc(wrkMat.roi(dominoDetected),counter);
 			if (pips.length > 0) {
@@ -225,15 +233,19 @@
 			let domX = dominoRect.rect.x 
 			let domY = dominoRect.rect.y 	
 			let wkPt = new cv.Point(domX,domY+20);
+	
 			
 			cv.rectangle(wrkMat,new cv.Point(dominoRect.rect.x, dominoRect.rect.y),
 				   new cv.Point(dominoRect.rect.x + dominoRect.rect.width,
 				   dominoRect.rect.y + dominoRect.rect.height),
 				   clr.Green,1,0);
 			dominoRect.kPtArray.forEach((pipCoord) => {
-				radArray.push(Math.round(pipCoord.size)); // to display radius
+				radArray.push(Math.round(pipCoord.size));
+				 // to display radius
 				cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
-				dominoRect.rect.y), (Math.round(pipCoord.size)), clr.Blue,-1);
+				dominoRect.rect.y), 2,
+				//(Math.round(pipCoord.size)*0.75),
+				 clr.Blue,-1);
 			});
 			cv.putText(wrkMat,
 				 (num + 1).toString() ,

@@ -3,7 +3,6 @@
     import {roundTableData } from '$lib/myFunctions/IconSvg';
     import {playerScore} from '$lib/myFunctions/TableStore';
 	import { to_number } from 'svelte/internal';
-	import { DIST_HUBER } from '@techstark/opencv-js';
     $: {playerScore};
     onMount(async () => $playerScore.forEach((player,ptr) =>{
         if(player.playerName== "") {
@@ -14,7 +13,7 @@
     </script>
     <body>
         <p class="font-semibold text-align-bottom md:text-xl ml-5">Mexican Train Score Keeper and Pip Counter Summary Page</p>
-    <div class="container w-full overflow-x-scroll overflow-y-visible ml-3">
+    <div class="container w-full  ml-3">
         <table  class="table-fixed border-1 border-black " >
                 <tr >
                 
