@@ -216,7 +216,7 @@
 		}
 
 		const htmlDispDiv = '<div class="flex flex-row ">';
-		const htmlDispVar =  '<div class="basis-1/2 text-start">';
+		const htmlDispVar =  '<div class="basis-1/4 text-end">';
 		const htmlDispFix =  '</div>';
 		let dominoStr = htmlDispDiv + htmlDispVar + 'Number' + htmlDispFix;
 		dominoStr += htmlDispVar + 'Count' + htmlDispFix;

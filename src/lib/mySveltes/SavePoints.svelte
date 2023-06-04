@@ -71,7 +71,11 @@
   </label>
   <label class="ml-2"> Enter Points Here:
     <input class="w-16 bg-indigo-400 px-2 " type=number bind:value={score} id='score'> 
-    <button  on:click="{() => saveScore()}" class="w-12 bg-yellow-100 px-1">
+    <button  on:click="{() => saveScore()}" class="px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
+       			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
+			  focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
+   			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
+
       SAVE
   
     </button>
