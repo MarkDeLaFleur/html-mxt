@@ -3,7 +3,7 @@ Built as an experiment to see if I could create an app similar to one I created 
 Since I didn't want to deploy on my own website I figured out how to deploy it using Vercel, and eventually as an experiment I'll do another
 project with Github pages as the host.
 
-Notes below were of special interest when I ran into problems that I found to be a bit challengins.
+Notes below were of special interest when I ran into problems that I found to be a bit challenging.
 
 ## Built using vercel's svelte template from vercel's website. 
 from VS I ctrl-shift P then Cloned the git repo
