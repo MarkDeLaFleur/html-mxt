@@ -39,11 +39,15 @@ The /source/roots/Table.svelte file now uses '$lib/sveteIcons/svg files
 did the npm run dev and run build and it worked fine so I pushed to git
 after the push vercel built the deployment without errors!
 
+Eventually I figured out that svg files are just html code so I got around the src= issue by importing them as js files and reference via an array Then in the svelte world using #each I displayed them via {@html icon} and it works nicely
+
 Initially when I built this project for android I used opencv for Java / Kotlin and utilize the simpleBlob detector. The javascript versions of opencv don't have simpleblobdetector but I found a gist that was built from opencv or javascript. I created  an npm package.
 
 Later on when I found that the blobdetection function wasn't picking up the domino pips that well, I utilized the cv.minEnclosingCircle function 
 which resulted in better pip detections. I left simpleblobdector in the modules folder though in case someone wanted to test it.
 
-Now I just have to figure out how to add a 'demo' link so someone can see what the project does. 
+There are a lot of good references in here, such as using user media for detecting what cameras are available, and how to use html to select various camera contraints on size, frame rate.
+
+Now I just have to figure out how to add a 'demo' link so someone can see what the project does. For now, there is a link to the vercel deployment. 
 
 
