@@ -7,7 +7,6 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
-    "test": "playwright test",
     "test:unit": "vitest",
     "lint": "prettier --plugin-search-dir . --check . && eslint .",
     "format": "prettier --plugin-search-dir . --write ."
@@ -15,7 +14,6 @@
   "devDependencies": {
     "@fontsource/fira-mono": "^4.5.10",
     "@neoconfetti/svelte": "^1.0.0",
-    "@playwright/test": "^1.32.3",
     "@sveltejs/adapter-vercel": "^1.0.0",
     "@sveltejs/kit": "^1.0.0",
     "@tsconfig/svelte": "^4.0.1",
@@ -45,10 +43,7 @@
     "svelte-slider": "^1.0.1"
   },
   "description": "Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).",
-  "main": "playwright.config.js",
-  "directories": {
-    "test": "tests"
-  },
+  "main": "does not exist __playwright.config.js", 
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MarkDeLaFleur/html-mxt.git"
