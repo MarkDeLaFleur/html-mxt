@@ -224,7 +224,7 @@
 		//dominoStr += htmlDispVar + 'Max Radius' + htmlDispFix;
 		//dominoStr += htmlDispVar + 'Min Radius' + htmlDispFix; 
 		dominoStr  += htmlDispFix;
-				
+	//	debugger;		
 			
 		totalofAllDominos = 0;
 		kptTbl.forEach((dominoRect, num) => {
@@ -241,12 +241,9 @@
 				   clr.Green,1,0);
 			dominoRect.kPtArray.forEach((pipCoord) => {
 				radArray.push(Math.round(pipCoord.size));
-				cv.drawMarker(wrkMat,new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
-				dominoRect.rect.y),clr.Blue,1,2,1,1)
-				//cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
-				//dominoRect.rect.y), 2,
-				//(Math.round(pipCoord.size)*0.75),
-				 //clr.Blue,-1);
+			cv.circle(wrkMat,new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
+			dominoRect.rect.y),(Math.round(pipCoord.size)*0.75),clr.Blue,-1)
+			
 			});
 			cv.putText(wrkMat,
 				 (num + 1).toString() ,
