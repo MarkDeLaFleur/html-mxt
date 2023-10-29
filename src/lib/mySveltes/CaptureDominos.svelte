@@ -242,10 +242,12 @@
 			dominoRect.kPtArray.forEach((pipCoord) => {
 				radArray.push(Math.round(pipCoord.size));
 				 // to display radius
-				cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
-				dominoRect.rect.y), 2,
+				cv.drawMarker(wrkMat,new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
+				dominoRect.rect.y),clr.Blue,1,2,1,1)
+				//cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
+				//dominoRect.rect.y), 2,
 				//(Math.round(pipCoord.size)*0.75),
-				 clr.Blue,-1);
+				 //clr.Blue,-1);
 			});
 			cv.putText(wrkMat,
 				 (num + 1).toString() ,
