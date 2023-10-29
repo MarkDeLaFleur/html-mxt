@@ -242,6 +242,7 @@
 			dominoRect.kPtArray.forEach((pipCoord) => {
 				radArray.push(Math.round(pipCoord.size));
 				 // to display radius
+				 //thought I just added this today 10/28/23
 				cv.drawMarker(wrkMat,new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
 				dominoRect.rect.y),clr.Blue,1,2,1,1)
 				//cv.circle(wrkMat, new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
