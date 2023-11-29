@@ -43,7 +43,7 @@
     "svelte-slider": "^1.0.1"
   },
   "description": "Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).",
-  "main": "does not exist __playwright.config.js", 
+  "main": "does not exist __playwright.config.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MarkDeLaFleur/html-mxt.git"
