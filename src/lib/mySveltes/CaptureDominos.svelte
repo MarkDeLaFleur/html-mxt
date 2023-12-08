@@ -1,7 +1,7 @@
 <script Lang ts>
 	// @ts-nocheck
 	//  scalar,getbuildinfo,mat
-	import cv from '@techstark/opencv-js';
+	import cv from '@markdelafleur/opencv'
 	import { videoSettings } from '../myFunctions/VideoStore';
 	import {goto} from '$app/navigation'
 	import { playerScore } from '$lib/myFunctions/TableStore';
@@ -74,7 +74,7 @@
 				src = new cv.Mat(constraintFromVideoSettings.video.height, constraintFromVideoSettings.video.width, cv.CV_8UC4);
 				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
 				cap = new cv.VideoCapture(videO);                
-				buildInfo = 'Ready to Count!';
+				buildInfo = 'Ready to Count!' ;
 
 				setTimeout(processVideo,0);
 
@@ -241,9 +241,11 @@
 				   clr.Green,1,0);
 			dominoRect.kPtArray.forEach((pipCoord) => {
 				radArray.push(Math.round(pipCoord.size));
-			cv.circle(wrkMat,new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
-			dominoRect.rect.y),(Math.round(pipCoord.size)*0.75),clr.Blue,-1)
-			
+			//cv.circle(wrkMat,new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
+			//	dominoRect.rect.y),(Math.round(pipCoord.size)*0.75),clr.Blue,-1)
+			cv.drawMarker(wrkMat,new cv.Point(pipCoord.pt.x+dominoRect.rect.x,
+				pipCoord.pt.y+dominoRect.rect.y),
+					clr.Green,cv.MARKER_DIAMOND,(Math.round(pipCoord.size)*0.75),1,cv.LINE_AA)
 			});
 			cv.putText(wrkMat,
 				 (num + 1).toString() ,
