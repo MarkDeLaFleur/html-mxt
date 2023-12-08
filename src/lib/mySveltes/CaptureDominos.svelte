@@ -245,7 +245,7 @@
 			//	dominoRect.rect.y),(Math.round(pipCoord.size)*0.75),clr.Blue,-1)
 			cv.drawMarker(wrkMat,new cv.Point(pipCoord.pt.x+dominoRect.rect.x,
 				pipCoord.pt.y+dominoRect.rect.y),
-					clr.Green,cv.,(Math.round(pipCoord.size)*0.75),1,cv.LINE_AA)
+					clr.Green,cv.MARKER_DIAMOND,(Math.round(pipCoord.size)*0.75),1,cv.LINE_AA)
 			});
 			cv.putText(wrkMat,
 				 (num + 1).toString() ,
