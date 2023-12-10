@@ -5,6 +5,10 @@ import { goto } from '$app/navigation';
 import { onMount } from 'svelte';
 export let display_func = a => a + '   ';
 let numPlayers = [2,3,4,5,6,7,8];
+let playerColors = ["border bg-orange-500","border bg-pink-300",
+                    "border bg-purple-500","border bg-yellow-200",
+                    "border bg-blue-400","border bg-red-500",
+                    "border bg-green-400","border bg-yellow-700"];
 let options = 0;
 let mounted = false;
 onMount( () => {console.log("mounted good");mounted=true;});
@@ -104,9 +108,9 @@ function downloadFile() {
       <label> Enter Player Names: <br> </label>
       {#each $playerScore  as pName,i}
       <label hidden id="label{i}" for="player{i}"> Player Name {i+1}: </label>
-      <input hidden class="border bg-blue-200" id="player{i}" name="player{i}" type=text
+      <input hidden class={playerColors[i]} id="player{i}" name="player{i}" type=text
               bind:value= {$playerScore[i].playerName}><br/>
-    {/each}
+      {/each}
   </div>  
  </div>
  <br/>

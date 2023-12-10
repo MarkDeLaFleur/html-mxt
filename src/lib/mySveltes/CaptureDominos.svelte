@@ -92,17 +92,13 @@
 		try {
 			let begin = Date.now();
 			if (countState == "COUNT DOMINOS"){
-			
+				ctx.clearRect(0, 0, constraintFromVideoSettings.video.width,
+					  constraintFromVideoSettings.video.height);
 				cap.read(src);
-	
-/*				canvas.getContext('2d', { alpha: true , 
-								desynchronized: false ,
-								colorSpace: 'srgb' ,
-								willReadFrequently: true
-								}
-						 );
-*/
-				 cv.imshow(canvasId,src);
+				let showCap = src.clone();
+				cv.putText(showCap,"Click to  ",new cv.Point(20,100),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
+				cv.putText(showCap,countState,new cv.Point(20,120),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
+				cv.imshow(canvasId,showCap);
 			}
 
 			let delay = 1000 / constraintFromVideoSettings.video.frameRate - (Date.now() - begin);
@@ -127,9 +123,10 @@
 	
 		if (countState == "TRY AGAIN"){
 			countState = "COUNT DOMINOS";
+/*
 			ctx.clearRect(0, 0, constraintFromVideoSettings.video.width,
-					  constraintFromVideoSettings.video.height);	
-/*			canvas.getContext('2d', { alpha: true , 
+					  constraintFromVideoSettings.video.height);
+			canvas.getContext('2d', { alpha: true , 
 					desynchronized: false ,
 					colorSpace: 'srgb' ,
 					willReadFrequently: true
@@ -187,8 +184,6 @@
 	function countDominoPips (matIn,rectIn) {
 		let wrkMat = matIn.clone();
 		let kptTbl = [];
-		ctx.clearRect(0, 0, constraintFromVideoSettings.video.width, 
-						    constraintFromVideoSettings.video.height);	
 		rectIn.forEach((dominoDetected,counter) => {
 			let pips = processMinEncCirc(wrkMat.roi(dominoDetected),counter);
 			if (pips.length > 0) {
@@ -261,10 +256,14 @@
 		});
 
 		kptTbl.delete;
+		countState = "TRY AGAIN";
+		ctx.clearRect(0, 0, constraintFromVideoSettings.video.width, 
+						    constraintFromVideoSettings.video.height);	
+		cv.putText(wrkMat,"Clickto   ",new cv.Point(20,100),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
+		cv.putText(wrkMat,countState,new cv.Point(20,120),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
 		cv.imshow(canvasId, wrkMat);
 		wrkMat.delete;canvas.delete;
 		buildInfo = 'Total of All Dominos ==> ' + totalofAllDominos + '\n' + dominoStr;
-		countState = "TRY AGAIN";
 		return;
 	}
 	function processMinEncCirc(roiIn,dominoCounter){ 
@@ -325,6 +324,7 @@
 <!-- svelte-ignore a11y-missing-content -->
 <div>
 	<br>
+	<!-- commenting out because I moved the on: click to the canvas element
 	<button
 		type="button" id="countButton" on:click={() => tryCountingDots()}
 		class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
@@ -333,6 +333,7 @@
    			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
 		{countState}
 	</button>
+	-->
 	<button
 		type="button" id="UpdatePlayerScore" on:click={() => updatePlayerTable()}
 		class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
@@ -350,7 +351,8 @@
 		<canvas  id={canvasId}   width={constraintFromVideoSettings.video.width} 
 			    height={constraintFromVideoSettings.video.height}
 				title="Video Canvas {constraintFromVideoSettings.video.width} by {constraintFromVideoSettings.video.height} FPS {$videoSettings.FPS}
-				 Using {$videoSettings.label}" >
+				 Using {$videoSettings.label}" 
+				 on:click={() => tryCountingDots()}>
   		</canvas>
 
 	</div>
