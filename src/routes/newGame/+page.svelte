@@ -3,18 +3,18 @@
 import { playerScore } from '$lib/myFunctions/TableStore';
 import { goto } from '$app/navigation';
 import { onMount } from 'svelte';
-export let display_func = a => a + '   ';
+//export let display_func = a => a + '   ';
 let numPlayers = [2,3,4,5,6,7,8];
 let playerColors = ["border bg-orange-500","border bg-pink-300",
                     "border bg-purple-500","border bg-yellow-200",
                     "border bg-blue-400","border bg-red-500",
                     "border bg-green-400","border bg-yellow-700"];
-let options = 0;
+//let options = 0;
 let mounted = false;
 onMount( () => {console.log("mounted good");mounted=true;});
 $:{  if (mounted) {
-  unHidePlayers();
-  console.log('After the options = ' + options);
+  //unHidePlayers();
+ // console.log('After the options = ' + options);
 }
 }
   
@@ -91,24 +91,27 @@ function downloadFile() {
 <h1 title="New Game" > </h1>
 <p class="text-lg text-align ml-5">Add or Remove Players, Save Score table to a File or Reset Player Score Table </p>
 
-<div class="ml-5 h-56 grid grid-cols-2 gap-4 content-normal w-fit ">
+<div class="ml-5 h-56 grid grid-cols-1 gap-4 content-normal w-fit ">
 
   <div class="border rounded bg-gray-200">
      <!-- svelte-ignore a11y-label-has-associated-control -->
-      <label> Select Number of Players: <br> </label>   
+<!--
+     <label> Select Number of Players: <br> </label>   
       {#each numPlayers as option,i}
         <input type=radio bind:group={options} 
           name="NumberOfPlayers" value={option}  >
           {@html display_func(option + ' Players') + '<br/>'}  
       {/each}
       <br>
-  </div>
+ -->
+    </div>
+ 
   <div class="border rounded bg-gray-200">
       <!-- svelte-ignore a11y-label-has-associated-control -->
       <label> Enter Player Names: <br> </label>
       {#each $playerScore  as pName,i}
-      <label hidden id="label{i}" for="player{i}"> Player Name {i+1}: </label>
-      <input hidden class={playerColors[i]} id="player{i}" name="player{i}" type=text
+      <label  id="label{i}" for="player{i}"> Player Name {i+1}: </label>
+      <input  class={playerColors[i]} id="player{i}" name="player{i}" type=text
               bind:value= {$playerScore[i].playerName}><br/>
       {/each}
   </div>  

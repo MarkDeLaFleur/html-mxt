@@ -5,6 +5,7 @@
 	import { videoSettings } from '../myFunctions/VideoStore';
 	import {goto} from '$app/navigation'
 	import { playerScore } from '$lib/myFunctions/TableStore';
+	import { navigating } from '$app/stores';
 	export let canvasId="showVid1";
 	export let roundSelected=0;
 	let clr = {};
@@ -24,34 +25,36 @@
 	
 	//let imageCapture;
 	let matTest; 
-	let constraintFromVideoSettings = {video: {deviceId: "" , width: 640, height: 480,	frameRate: 15}};
-	let src;
+	let constraintFromVideoSettings = {video: {deviceId: "" , width: 320, height: 180,	frameRate: 30}};
 	initVideo();
 	setTimeout(loadOpencv,0);
 	async function initVideo() {
-
+		console.log("init Video");
 		constraintFromVideoSettings.video.deviceId =  $videoSettings.deviceId;
 		constraintFromVideoSettings.video.width = $videoSettings.canvasWidth;
 		constraintFromVideoSettings.video.frameRate = $videoSettings.FPS;
-		constraintFromVideoSettings.video.height = Math.round($videoSettings.canvasWidth*3/4);
+		constraintFromVideoSettings.video.height = Math.round($videoSettings.canvasWidth*.5625);
 		buildInfo = ('video setting device Id / Label ' + constraintFromVideoSettings.video.deviceId + '/' +
 	 				$videoSettings.label + ' and width ' + '(' + constraintFromVideoSettings.video.width   +')'  +
 	  				' and height ' + constraintFromVideoSettings.video.height);
-		// importanto!! make sure you leave await on this or you get no video stream;	  
- 		await navigator.mediaDevices.getUserMedia(constraintFromVideoSettings)
-		.then((streamIn) =>  {
-			videO = document.getElementById('videO');// setting this outside of the callback - bad news.
-			videO.srcObject = streamIn;
-			videO.paused ? videO.play() : null;  //autoplay didnt work.
-		})
-		.catch((err) => {
+		if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+       		 navigator.mediaDevices.getUserMedia(constraintFromVideoSettings)
+			 .then(function(stream) {
+				videO = document.getElementById('videO');// setting this outside of the callback - bad news.
+	 	       	videO.srcObject = stream;
+	        	videO.play();
+ 	   		})
+			.catch((err) => {
 			console.log('Video streaming error -- something went wrong ' + err + videO.paused);
-		});
+			});
+
+		}  
 	}
+
 	async function loadOpencv() {
 
 		try {
-			window.cv = cv;
+			//window.cv = cv;
 			buildInfo = cv.getBuildInformation();
 			if (buildInfo.length > 0) {
 				clr = {
@@ -71,45 +74,52 @@
 								}
 						 );
 
-				src = new cv.Mat(constraintFromVideoSettings.video.height, constraintFromVideoSettings.video.width, cv.CV_8UC4);
-				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};
-				cap = new cv.VideoCapture(videO);                
+				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};              
 				buildInfo = 'Ready to Count!' ;
 
-				setTimeout(processVideo,0);
+				setTimeout(processVideo,1000);
 
-			} //build info length
+			}   //build info length
 		} catch (err) {
 			buildInfo = 'setting up opencv ... ' + err;
 			setTimeout(loadOpencv, 1000); // try opencv again.
 		}
 	}
 
-
-
 	function processVideo() {
+		let begin = Date.now();
+		let delay = 1000 / constraintFromVideoSettings.video.frameRate - (Date.now() - begin);
+		if (videO.srcObject.active) {
+			try {
+		
+				if (countState == "COUNT DOMINOS"){
+					ctx.clearRect(0,0, constraintFromVideoSettings.video.width,
+						  constraintFromVideoSettings.video.height);
+					ctx.fillStyle = "black";
+					ctx.drawImage(videO,20,20,constraintFromVideoSettings.video.width,
+					constraintFromVideoSettings.video.height);  //16:9
+					ctx.fillStyle = "black";
+      				ctx.font = "bold 18px Arial";
+      				ctx.fillText("Click to Count Pips",10,18);
+    
 
-		try {
-			let begin = Date.now();
-			if (countState == "COUNT DOMINOS"){
-				ctx.clearRect(0, 0, constraintFromVideoSettings.video.width,
-					  constraintFromVideoSettings.video.height);
-				cap.read(src);
-				let showCap = src.clone();
-				cv.putText(showCap,"Click to  ",new cv.Point(20,100),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
-				cv.putText(showCap,countState,new cv.Point(20,120),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
-				cv.imshow(canvasId,showCap);
-			}
+			//	let showCap = cv.matFromImageData(ctx.getImageData(0, 0, canvas.width, canvas.height));
+			//	cv.putText(showCap,"Click to  ",new cv.Point(20,100),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
+			//	cv.putText(showCap,countState,new cv.Point(20,120),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
+			//	cv.imshow(canvasId,showCap);
+			//	showCap.delete();
+					}
 
-			let delay = 1000 / constraintFromVideoSettings.video.frameRate - (Date.now() - begin);
-			setTimeout(processVideo, delay);
 					
 		} catch (err) {
 			let errStr = err + " ";
+			console.log("ok process video is having an issue " + errStr);
 			if (errStr.indexOf('valid canvas element') > 0  ||
-			    errStr.indexOf( 'innerText') > 0   )  {  // home button clicked
-				videO.srcObject = null;
-				console.log('back to home');
+			    errStr.indexOf( 'innerText') > 0  ||
+				errStr.indexOf( "Failed to execute 'drawImage' on") > 0) {  // home button clicked
+				console.log("checking videO src object" + videO.srcObject());
+				;
+				setTimeout(processVideo,delay);
 				return;	// you most likely selected another link.
 			}
 			else{
@@ -118,45 +128,41 @@
 			}
 		}
 	}
+		setTimeout(processVideo, delay);
+		
+	}
 	
 	function tryCountingDots() {
 	
 		if (countState == "TRY AGAIN"){
 			countState = "COUNT DOMINOS";
-/*
-			ctx.clearRect(0, 0, constraintFromVideoSettings.video.width,
-					  constraintFromVideoSettings.video.height);
-			canvas.getContext('2d', { alpha: true , 
-					desynchronized: false ,
-					colorSpace: 'srgb' ,
-					willReadFrequently: true
-					}
-					 ).clearRect(0, 0, constraintFromVideoSettings.video.width,
-					  constraintFromVideoSettings.video.height);	
-*/
-		  buildInfo = "Ready to Count!";
-			setTimeout(processVideo,0);
+			buildInfo = "Ready to Count!";
+			setTimeout(processVideo,1000);
 		}
 		else {
+			ctx.clearRect(0, 0, constraintFromVideoSettings.video.width,
+					  constraintFromVideoSettings.video.height);
+			ctx.drawImage(videO,0,0, constraintFromVideoSettings.video.width,
+					  constraintFromVideoSettings.video.height);
+			let src = cv.matFromImageData(ctx.getImageData(0, 0, canvas.width, canvas.height));
 			getRects(src);
+			src.delete();
 			setTimeout(processVideo,0);
-
 		}
 	  
 	}
 	
 	function getRects(matIn) { 
-			let contours = new cv.MatVector();
-			let heirs    = new cv.Mat()
-			let wrkGray = new cv.Mat(matIn.size().height, matIn.size().width, cv.CV_8UC1);
-			cv.cvtColor(matIn, wrkGray, cv.COLOR_RGBA2GRAY, 0);
-			let startThresh = 150;
-			cv.threshold(wrkGray, wrkGray, startThresh, 255,cv.THRESH_BINARY);
-			cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
-			let rectArray = [];
-			for (let j = 0; j < contours.size(); j++) {
-
-			  	const rect = cv.boundingRect(contours.get(j));
+		let contours = new cv.MatVector();
+		let heirs    = new cv.Mat()
+		let wrkGray = new cv.Mat(matIn.size().height, matIn.size().width, cv.CV_8UC1);
+		cv.cvtColor(matIn, wrkGray, cv.COLOR_RGBA2GRAY, 0);
+		let startThresh = 150;
+		cv.threshold(wrkGray, wrkGray, startThresh, 255,cv.THRESH_BINARY);
+		cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+		let rectArray = [];
+		for (let j = 0; j < contours.size(); j++) {
+		  	const rect = cv.boundingRect(contours.get(j));
 
 				//if (Math.round(rect.width * rect.height) > 5000 &&
 				//    Math.round(rect.width * rect.height) < 20000)
@@ -166,7 +172,6 @@
 			if (rectArray.length < 1){
 				buildInfo = 'There were no Dominos that meet the width and height requirement detected';
 				countState = "COUNT DOMINOS";
-				//document.getElementById('countButton').innerText = 'COUNT DOMINOS';
 			return;
 			}
 			rectArray.sort( (a,b) => {
@@ -257,11 +262,24 @@
 
 		kptTbl.delete;
 		countState = "TRY AGAIN";
+		//cv.putText(wrkMat,"Clickto   ",new cv.Point(20,100),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
+		//cv.putText(wrkMat,countState,new cv.Point(20,120),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
+			// ** Open CV  documentation sucks on ImageData definition leaving out that you need the
+			//    wrkMat,cols, and wrkMat.rows as additional parameters
+		/**
+	 * @type {ImageData}
+	 */
+		let imgX = new ImageData (new Uint8ClampedArray(wrkMat.data, wrkMat.cols, wrkMat.rows),
+					wrkMat.cols,wrkMat.rows);
 		ctx.clearRect(0, 0, constraintFromVideoSettings.video.width, 
 						    constraintFromVideoSettings.video.height);	
-		cv.putText(wrkMat,"Clickto   ",new cv.Point(20,100),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
-		cv.putText(wrkMat,countState,new cv.Point(20,120),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
-		cv.imshow(canvasId, wrkMat);
+	
+		ctx.putImageData(imgX,0,0);
+		ctx.fillStyle = "white";
+      	ctx.font = "bold 18px Arial";
+      	ctx.fillText("Click to Try Again....",10,320 );
+
+//		cv.imshow(canvasId, wrkMat);
 		wrkMat.delete;canvas.delete;
 		buildInfo = 'Total of All Dominos ==> ' + totalofAllDominos + '\n' + dominoStr;
 		return;

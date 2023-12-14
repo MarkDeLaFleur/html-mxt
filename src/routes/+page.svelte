@@ -8,7 +8,8 @@ onMount(  () => {
   let checkIt = false;
     $playerScore.forEach(element => {if(element.playerName.length > 0) checkIt= true})
     if (checkIt != true) {goto("/newGame")};
-    });
+    }
+    );
 </script>
   <TableLayout  />
 

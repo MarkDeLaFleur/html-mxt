@@ -10,9 +10,9 @@
                     "border bg-green-400","border bg-yellow-700"];
 
     onMount(async () => $playerScore.forEach((player,ptr) =>{
-        if(player.playerName== "") {
-            document.getElementById("playRow"+ptr).hidden = true;
-        }
+        //if(player.playerName== "") {
+        //    document.getElementById("playRow"+ptr).hidden = true;
+        //}
     })  
     )
     </script>

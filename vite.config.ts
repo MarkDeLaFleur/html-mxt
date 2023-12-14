@@ -13,7 +13,8 @@ const config: UserConfig = {
 };
 export default defineConfig({
 	server: {
-		https: true
+		https: true,
+		host: true
 	  },
 	  
  
