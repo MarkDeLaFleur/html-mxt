@@ -19,7 +19,6 @@
 	 * @type {HTMLVideoElement}
 	 */
 	let videO;
-	let cap;
 	let	canvas;
 	let ctx;
 	
@@ -31,9 +30,9 @@
 	async function initVideo() {
 		console.log("init Video");
 		constraintFromVideoSettings.video.deviceId =  $videoSettings.deviceId;
-		constraintFromVideoSettings.video.width = $videoSettings.canvasWidth;
+		constraintFromVideoSettings.video.width = $videoSettings.canvasWidth/2;
 		constraintFromVideoSettings.video.frameRate = $videoSettings.FPS;
-		constraintFromVideoSettings.video.height = Math.round($videoSettings.canvasWidth*.5625);
+		constraintFromVideoSettings.video.height = Math.round(constraintFromVideoSettings.video.width*.5625);
 		buildInfo = ('video setting device Id / Label ' + constraintFromVideoSettings.video.deviceId + '/' +
 	 				$videoSettings.label + ' and width ' + '(' + constraintFromVideoSettings.video.width   +')'  +
 	  				' and height ' + constraintFromVideoSettings.video.height);
@@ -74,7 +73,7 @@
 								}
 						 );
 
-				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};              
+				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};            
 				buildInfo = 'Ready to Count!' ;
 
 				setTimeout(processVideo,1000);
@@ -95,41 +94,30 @@
 				if (countState == "COUNT DOMINOS"){
 					ctx.clearRect(0,0, constraintFromVideoSettings.video.width,
 						  constraintFromVideoSettings.video.height);
-					ctx.fillStyle = "black";
 					ctx.drawImage(videO,20,20,constraintFromVideoSettings.video.width,
-					constraintFromVideoSettings.video.height);  //16:9
-					ctx.fillStyle = "black";
+					constraintFromVideoSettings.video.height); 
+
+					ctx.fillStyle = "green";
       				ctx.font = "bold 18px Arial";
       				ctx.fillText("Click to Count Pips",10,18);
-    
-
-			//	let showCap = cv.matFromImageData(ctx.getImageData(0, 0, canvas.width, canvas.height));
-			//	cv.putText(showCap,"Click to  ",new cv.Point(20,100),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
-			//	cv.putText(showCap,countState,new cv.Point(20,120),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
-			//	cv.imshow(canvasId,showCap);
-			//	showCap.delete();
+				}
+			} catch (err) {
+				let errStr = err + " ";
+				console.log("ok process video is having an issue " + errStr);
+				if (	errStr.indexOf('valid canvas element') > 0  ||
+			    		errStr.indexOf( 'innerText') > 0  ||
+						errStr.indexOf( "Failed to execute 'drawImage' on") > 0 ) {  
+					console.log("checking videO src object" + videO.srcObject());
+					setTimeout(processVideo,delay);
+					return;	// you most likely selected another link.
 					}
-
-					
-		} catch (err) {
-			let errStr = err + " ";
-			console.log("ok process video is having an issue " + errStr);
-			if (errStr.indexOf('valid canvas element') > 0  ||
-			    errStr.indexOf( 'innerText') > 0  ||
-				errStr.indexOf( "Failed to execute 'drawImage' on") > 0) {  // home button clicked
-				console.log("checking videO src object" + videO.srcObject());
-				;
-				setTimeout(processVideo,delay);
-				return;	// you most likely selected another link.
-			}
-			else{
+				else{
 				console.log(err + ' in process video callback "ShowVid1" ' );
-	
+				}
 			}
-		}
-	}
 		setTimeout(processVideo, delay);
 		
+		}
 	}
 	
 	function tryCountingDots() {
@@ -140,13 +128,7 @@
 			setTimeout(processVideo,1000);
 		}
 		else {
-			ctx.clearRect(0, 0, constraintFromVideoSettings.video.width,
-					  constraintFromVideoSettings.video.height);
-			ctx.drawImage(videO,0,0, constraintFromVideoSettings.video.width,
-					  constraintFromVideoSettings.video.height);
-			let src = cv.matFromImageData(ctx.getImageData(0, 0, canvas.width, canvas.height));
-			getRects(src);
-			src.delete();
+			getRects(cv.matFromImageData(ctx.getImageData(20,20, canvas.width, canvas.height)));
 			setTimeout(processVideo,0);
 		}
 	  
@@ -172,7 +154,7 @@
 			if (rectArray.length < 1){
 				buildInfo = 'There were no Dominos that meet the width and height requirement detected';
 				countState = "COUNT DOMINOS";
-			return;
+				return;
 			}
 			rectArray.sort( (a,b) => {
 				a.y < b.y ? -1 : 0;
@@ -182,7 +164,7 @@
 			countDominoPips(matIn,rectArray);
 			contours.delete;wrkGray.delete;heirs.delete;	
 			matIn.delete;rectArray.delete;
-			return
+			return;
 
 	}
 	
@@ -211,7 +193,7 @@
 			kptTbl.delete;
 			wrkMat.delete;canvas.delete
 			buildInfo = 'There were no pips on Dominos detected';
-			countState = "COUNT DOMINOS";
+			countState = "TRY AGAIN";
 			return;
 		}
 
@@ -269,15 +251,14 @@
 		/**
 	 * @type {ImageData}
 	 */
-		let imgX = new ImageData (new Uint8ClampedArray(wrkMat.data, wrkMat.cols, wrkMat.rows),
-					wrkMat.cols,wrkMat.rows);
 		ctx.clearRect(0, 0, constraintFromVideoSettings.video.width, 
 						    constraintFromVideoSettings.video.height);	
-	
-		ctx.putImageData(imgX,0,0);
-		ctx.fillStyle = "white";
+		ctx.putImageData(new ImageData (new Uint8ClampedArray(wrkMat.data, wrkMat.cols, wrkMat.rows),
+					wrkMat.cols,wrkMat.rows),20,20);
+		ctx.fillStyle = "red";
       	ctx.font = "bold 18px Arial";
-      	ctx.fillText("Click to Try Again....",10,320 );
+      	ctx.fillText("Click Again to Count Pips",10,18);
+
 
 //		cv.imshow(canvasId, wrkMat);
 		wrkMat.delete;canvas.delete;
@@ -363,7 +344,8 @@
 
 		
 </div>
-<div class="w-full ml-5 lg:ml-2 grid grid-cols-1  md:grid-cols-2 gap-4 content-normal lg:w-3/4">
+<div class="w-full ml-5 lg:ml-2 grid grid-cols-1  md:grid-cols-2 gap-4
+			border-2 border-amber-300 content-normal lg:w-3/4">
 
 	<div >
 		<canvas  id={canvasId}   width={constraintFromVideoSettings.video.width} 
