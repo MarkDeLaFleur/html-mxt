@@ -39,6 +39,7 @@
     "@markdelafleur/opencv": "github:MarkDeLaFleur/opencv-js",
     "@markdelafleur/simpleblobdetector": "github:MarkDeLaFleur/simpleblobdetector",
     "@opencv.js/utils": "^1.1.0",
+    "mirada": "^0.0.15",
     "svelte-range-slider-pips": "^2.1.1",
     "svelte-slider": "^1.0.1"
   },

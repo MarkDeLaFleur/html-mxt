@@ -1,12 +1,13 @@
 <script Lang ts>
 	// @ts-nocheck
 	//  scalar,getbuildinfo,mat
-	import cv from '@markdelafleur/opencv'
+	import cv, { drawMarker } from '@markdelafleur/opencv'
 	import { videoSettings } from '../myFunctions/VideoStore';
 	import {goto} from '$app/navigation'
 	import { playerScore } from '$lib/myFunctions/TableStore';
 	import { navigating } from '$app/stores';
 	export let canvasId="showVid1";
+	export let canvasIdW="showTest";
 	export let roundSelected=0;
 	let clr = {};
 	export let selected=0;
@@ -14,25 +15,41 @@
 	let countState = "COUNT DOMINOS";
 	let cl = 0;
 	let buildInfo = 'loading...';
-	// start at  x,y to x+ height y+ width ie (10,10) (10+64,10+128)
 	/**
 	 * @type {HTMLVideoElement}
-	 */
-	let videO;
+	 */	
+	 let ctx;
+	 let ctxT;
+
+	 let videO;
 	let	canvas;
-	let ctx;
+	let canvasT;
+	let matTest;
+	let aspectR;
+	let constraintFromVideoSettings = {video: {deviceId: "" ,
+			 width: window.screen.availWidth, 
+			 height: window.screen.availHeight,	frameRate: 30}};
+	if (window.screen.availHeight > window.screen.availWidth){
+		// probable  mobile device
+		aspectR = 0.75
+	}
+	else  {
+		 aspectR = window.screen.availHeight / window.screen.availWidth
 	
-	//let imageCapture;
-	let matTest; 
-	let constraintFromVideoSettings = {video: {deviceId: "" , width: 320, height: 180,	frameRate: 30}};
+	}
+	console.log('device screen size ' + window.screen.availWidth + ' / ' + window.screen.availWidth * aspectR +
+	            'aspect ratio ' + aspectR) ;
+	
+	
 	initVideo();
 	setTimeout(loadOpencv,0);
 	async function initVideo() {
 		console.log("init Video");
+		// initialize the Video Settings from the video Store
 		constraintFromVideoSettings.video.deviceId =  $videoSettings.deviceId;
-		constraintFromVideoSettings.video.width = $videoSettings.canvasWidth/2;
+		constraintFromVideoSettings.video.width = $videoSettings.canvasWidth;
+		constraintFromVideoSettings.video.height= $videoSettings.canvasWidth*aspectR;
 		constraintFromVideoSettings.video.frameRate = $videoSettings.FPS;
-		constraintFromVideoSettings.video.height = Math.round(constraintFromVideoSettings.video.width*.5625);
 		buildInfo = ('video setting device Id / Label ' + constraintFromVideoSettings.video.deviceId + '/' +
 	 				$videoSettings.label + ' and width ' + '(' + constraintFromVideoSettings.video.width   +')'  +
 	  				' and height ' + constraintFromVideoSettings.video.height);
@@ -72,6 +89,13 @@
 								willReadFrequently: true
 								}
 						 );
+			    canvasT = document.getElementById(canvasIdW);
+				ctxT    = canvasT.getContext('2d', { alpha: true , 
+								desynchronized: false ,
+								colorSpace: 'srgb' ,
+								willReadFrequently: true
+								}
+						 );
 
 				matTest = {tmpMat: new cv.Mat(), rectArray: [new cv.Rect()]};            
 				buildInfo = 'Ready to Count!' ;
@@ -92,12 +116,18 @@
 			try {
 		
 				if (countState == "COUNT DOMINOS"){
+	
 					ctx.clearRect(0,0, constraintFromVideoSettings.video.width,
 						  constraintFromVideoSettings.video.height);
+						
 					ctx.drawImage(videO,20,20,constraintFromVideoSettings.video.width,
-					constraintFromVideoSettings.video.height); 
-
-					ctx.fillStyle = "green";
+						constraintFromVideoSettings.video.height); 
+ 
+						
+					ctx.strokeStyle = "red"
+    				ctx.strokeRect(50, 40, (constraintFromVideoSettings.video.width -100),
+					     ( constraintFromVideoSettings.video.height-50));
+ 
       				ctx.font = "bold 18px Arial";
       				ctx.fillText("Click to Count Pips",10,18);
 				}
@@ -128,6 +158,7 @@
 			setTimeout(processVideo,1000);
 		}
 		else {
+		
 			getRects(cv.matFromImageData(ctx.getImageData(20,20, canvas.width, canvas.height)));
 			setTimeout(processVideo,0);
 		}
@@ -137,20 +168,19 @@
 	function getRects(matIn) { 
 		let contours = new cv.MatVector();
 		let heirs    = new cv.Mat()
-		let wrkGray = new cv.Mat(matIn.size().height, matIn.size().width, cv.CV_8UC1);
-		cv.cvtColor(matIn, wrkGray, cv.COLOR_RGBA2GRAY, 0);
-		let startThresh = 150;
+		let wrkGray = new cv.Mat(matIn.size().height, matIn.size().width, cv.CV_8UC4);
+		cv.cvtColor(matIn, wrkGray, cv.COLOR_RGBA2GRAY,0);
+		let startThresh = 160;
 		cv.threshold(wrkGray, wrkGray, startThresh, 255,cv.THRESH_BINARY);
-		cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+		cv.findContours(wrkGray, contours, heirs, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE);
 		let rectArray = [];
 		for (let j = 0; j < contours.size(); j++) {
 		  	const rect = cv.boundingRect(contours.get(j));
-
-				//if (Math.round(rect.width * rect.height) > 5000 &&
-				//    Math.round(rect.width * rect.height) < 20000)
-
-				rectArray.push(rect);
+			if(rect.width/rect.height < 3 && rect.width/rect.height > 1.75){
+				rectArray.push(matIn.roi(rect));
 			}
+			
+		}	
 			if (rectArray.length < 1){
 				buildInfo = 'There were no Dominos that meet the width and height requirement detected';
 				countState = "COUNT DOMINOS";
@@ -161,153 +191,139 @@
 				a.x > b.x ? 1 : 0;
 			
 			});
-			countDominoPips(matIn,rectArray);
-			contours.delete;wrkGray.delete;heirs.delete;	
-			matIn.delete;rectArray.delete;
-			return;
 
+		console.log('rectArray has ' + rectArray.length + ' Items');
+			
+		countDominoPips(rectArray);
+		countState = "TRY AGAIN";
+		ctx.clearRect(0, 0, constraintFromVideoSettings.video.width, 
+						    constraintFromVideoSettings.video.height);	
+		/* ** 
+		* @type {ImageData}
+		*/
+		 const imageData = new ImageData(new Uint8ClampedArray(matIn.data),
+				matIn.cols,matIn.rows);
+		ctx.putImageData(imageData,20,20);
+		ctx.fillStyle = "red";
+      	ctx.font = "bold 18px Arial";
+      	ctx.fillText("Click Again to Count Pips",10,18);
+		wrkMat.delete;canvas.delete;contours.delete;wrkGray.delete;heirs.delete;	
+		matIn.delete;rectArray.delete;
+		return;
+		
 	}
 	
-	function countDominoPips (matIn,rectIn) {
-		let wrkMat = matIn.clone();
-		let kptTbl = [];
-		rectIn.forEach((dominoDetected,counter) => {
-			let pips = processMinEncCirc(wrkMat.roi(dominoDetected),counter);
-			if (pips.length > 0) {
-
-				let tempArr = [];   // convert pips keyPoint to an array
-//				pips.forEach(keyP => {	if (keyP.size < 20) tempArr.push(keyP)	});
-
-				pips.forEach(keyP => { 
-					tempArr.push(keyP);
-				});
-				// let's get rid of any pips in temparr if they are size 0 or max size is not 
-				//  close to average of the size.
-				if (tempArr.length > 1){
-					kptTbl.push({ rect: dominoDetected, kPtArray: tempArr });
-				}
-			tempArr.delete;
-			}
-		});
-		if (kptTbl.length == 0) {
-			kptTbl.delete;
-			wrkMat.delete;canvas.delete
+	function countDominoPips (rectInArray) {
+		let domArray = processMinEncCirc(rectInArray);
+		
+		if (domArray.length == 0) {
+			domArray.delete;
 			buildInfo = 'There were no pips on Dominos detected';
 			countState = "TRY AGAIN";
 			return;
 		}
-
+		// put the markers on the dominos
+		showCanvasT(domArray); 
 		const htmlDispDiv = '<div class="flex flex-row ">';
 		const htmlDispVar =  '<div class="basis-1/4 text-end">';
 		const htmlDispFix =  '</div>';
 		let dominoStr = htmlDispDiv + htmlDispVar + 'Number' + htmlDispFix;
 		dominoStr += htmlDispVar + 'Count' + htmlDispFix;
-		//dominoStr += htmlDispVar + 'Size' + htmlDispFix;
-		//dominoStr += htmlDispVar + 'Max Radius' + htmlDispFix;
-		//dominoStr += htmlDispVar + 'Min Radius' + htmlDispFix; 
+		dominoStr += htmlDispVar + 'Size' + htmlDispFix;
+		dominoStr += htmlDispVar + 'Max Radius' + htmlDispFix;
+		dominoStr += htmlDispVar + 'Min Radius' + htmlDispFix; 
 		dominoStr  += htmlDispFix;
-	//	debugger;		
-			
-		totalofAllDominos = 0;
-		kptTbl.forEach((dominoRect, num) => {
-			// put in the dots on the domino
-			let radArray = [];
-			let domX = dominoRect.rect.x 
-			let domY = dominoRect.rect.y 	
-			let wkPt = new cv.Point(domX,domY+20);
-	
-			
-			cv.rectangle(wrkMat,new cv.Point(dominoRect.rect.x, dominoRect.rect.y),
-				   new cv.Point(dominoRect.rect.x + dominoRect.rect.width,
-				   dominoRect.rect.y + dominoRect.rect.height),
-				   clr.Green,1,0);
-			dominoRect.kPtArray.forEach((pipCoord) => {
-				radArray.push(Math.round(pipCoord.size));
-			//cv.circle(wrkMat,new cv.Point(pipCoord.pt.x+dominoRect.rect.x,pipCoord.pt.y+
-			//	dominoRect.rect.y),(Math.round(pipCoord.size)*0.75),clr.Blue,-1)
-			cv.drawMarker(wrkMat,new cv.Point(pipCoord.pt.x+dominoRect.rect.x,
-				pipCoord.pt.y+dominoRect.rect.y),
-					clr.Green,cv.MARKER_DIAMOND,(Math.round(pipCoord.size)*0.75),1,cv.LINE_AA)
-			});
-			cv.putText(wrkMat,
-				 (num + 1).toString() ,
-				wkPt,cv.FONT_HERSHEY_SIMPLEX,0.3,clr.Blue2,0.6,cv.LINE_AA,false);
-  		
+		let totalofAllDominos = 0;
+		domArray.forEach((domino,num) =>{
 			dominoStr +=  htmlDispDiv +   htmlDispVar + (num + 1) +  htmlDispFix;
-			dominoStr +=  htmlDispVar + (dominoRect.kPtArray.length) +  htmlDispFix;
-			//dominoStr +=  htmlDispVar +  (Math.round(dominoRect.rect.width * dominoRect.rect.height)) +  htmlDispFix;
-			//dominoStr +=  htmlDispVar + (Math.max.apply(Math,radArray)) +  htmlDispFix;
-			//dominoStr +=  htmlDispVar + (Math.min.apply(Math,radArray)) +  htmlDispFix;
+			dominoStr +=  htmlDispVar + (domino.pipTotal) +  htmlDispFix;
+			dominoStr +=  htmlDispVar + domino.matDom.size() + htmlDispFix;
+			dominoStr +=  htmlDispVar +  domino.matDom.size().width + '/' +  domino.matDom.size().height +  htmlDispFix;
 			dominoStr +=  htmlDispFix ;
-			totalofAllDominos += dominoRect.kPtArray.length;
+			totalofAllDominos += domino.pipTotal;
 		});
 
-		kptTbl.delete;
-		countState = "TRY AGAIN";
-		//cv.putText(wrkMat,"Clickto   ",new cv.Point(20,100),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
-		//cv.putText(wrkMat,countState,new cv.Point(20,120),cv.FONT_HERSHEY_SIMPLEX,1,clr.White,.5,cv.LINE_AA,false);
-			// ** Open CV  documentation sucks on ImageData definition leaving out that you need the
-			//    wrkMat,cols, and wrkMat.rows as additional parameters
-		/**
-	 * @type {ImageData}
-	 */
-		ctx.clearRect(0, 0, constraintFromVideoSettings.video.width, 
-						    constraintFromVideoSettings.video.height);	
-		ctx.putImageData(new ImageData (new Uint8ClampedArray(wrkMat.data, wrkMat.cols, wrkMat.rows),
-					wrkMat.cols,wrkMat.rows),20,20);
-		ctx.fillStyle = "red";
-      	ctx.font = "bold 18px Arial";
-      	ctx.fillText("Click Again to Count Pips",10,18);
-
-
-//		cv.imshow(canvasId, wrkMat);
-		wrkMat.delete;canvas.delete;
+		domArray.delete;
 		buildInfo = 'Total of All Dominos ==> ' + totalofAllDominos + '\n' + dominoStr;
 		return;
 	}
-	function processMinEncCirc(roiIn,dominoCounter){ 
-		let xyz = roiIn.clone()
-		cv.cvtColor(xyz, xyz, cv.COLOR_RGBA2GRAY, 0);
-		cv.threshold(xyz,xyz, 160, 254, cv.THRESH_BINARY);
-		let cons = new cv.MatVector();
-		let hier = new cv.Mat();
-		cv.findContours(xyz, cons, hier, cv.RETR_CCOMP,  cv.CHAIN_APPROX_SIMPLE);
-		// we have all the contours for this domino
-		let areaArray = [];
-		for (let i = 1; i < cons.size(); i++) {
-    		let cnt = cons.get(i);
-			let minCirc = cv.minEnclosingCircle(cnt); //returns minCirc.radius and minCirc.center.x minCirc.center.y
-			// tried approxPolyDP but minEnclosingCircle is better 
-			//cv.approxPolyDP(cnt, poly, .01 * cv.arcLength(cnt,true), true);
-			// note python approxPolyDP returns a mat and check the poly with len(poly)
-			// in javascript we get the same thing by checking poly.size.height ( width is always 1)
-			// finding that using cv.matchShapes comparing all contours to the first gives very good results
-			// compared to trying to figure out any other way of reducing false dots.
-			const resultOfMatch = cv.matchShapes(cnt,cons.get(1),1,0)
-			if ( resultOfMatch < 1){
-     			areaArray.push({pt: {x: minCirc.center.x,y: minCirc.center.y} ,size: minCirc.radius});
-
-			}
-			else{
-				
-				console.log('match cnt ' + i + ' to contour 1 is ' + resultOfMatch);
-			}
-			cnt.delete();
-		}
-		xyz.delete(); hier.delete(); cons.delete(); 
-		// once we have all the coordinates check for min max  radius. 
-		const maxSize = Math.round(Math.max.apply(Math,areaArray.map((size) => size.size )));
-		const minSize = Math.round(Math.min.apply(Math,areaArray.map((size) => size.size )));
-		const sum = Math.round(areaArray.reduce((acc,curr) => acc + curr.size,0 ));
-		const avg = Math.round(sum/areaArray.length)
-
-		console.log('min/max/sum/avg  is (' + (dominoCounter+1) +  ') ' + minSize + '/' + maxSize + '/' + sum + '/' + avg);
-		areaArray.forEach( (val,num) => {if ( val.size  > minSize+5 ){
-				areaArray.splice(num,1)
-				console.log('took out '  + num  + '  val size ' + val.size);
-		}});
+	// calculates number of pips on each domino and returns an array of the pips and their radia
+	function processMinEncCirc(matDomArray){ 
+		let domArray = [];
+		console.log('array of dominos = ' + matDomArray.length)
+		matDomArray.forEach((matDom) =>{	
+			let resizeDomino = new cv.Mat();
+			cv.resize(matDom,resizeDomino,new cv.Size(0,0),1.5,1.5,cv.INTER_LINEAR);
+			let wrkDom = resizeDomino.clone();
+			cv.cvtColor(wrkDom, wrkDom, cv.COLOR_RGBA2GRAY, 0);
+			cv.threshold(wrkDom,wrkDom, 160, 255,cv.THRESH_BINARY);
+			let cons = new cv.MatVector();
+			let hier = new cv.Mat();
+			cv.findContours(wrkDom, cons, hier, cv.RETR_LIST,  cv.CHAIN_APPROX_SIMPLE);
+			let areaArray = [];
+			let pipTotal = 0;
 		
-		return areaArray;
+			for (let i = 1; i < cons.size(); i++) {
+    			let cnt = cons.get(i);
+				let minCirc = cv.minEnclosingCircle(cnt);
+				areaArray.push({pt: new cv.Point(minCirc.center.x, minCirc.center.y),size: minCirc.radius});
+				pipTotal+=1;		
+				cnt.delete;
+			}
+			if (areaArray.length > 0){
+				const maxSize = Math.round(Math.max.apply(Math,areaArray.map((size) => size.size )));
+				const minSize = Math.round(Math.min.apply(Math,areaArray.map((size) => size.size )));
+				const sum = Math.round(areaArray.reduce((acc,curr) => acc + curr.size,0 ));
+				const avg = Math.round(sum/areaArray.length);
+				areaArray.forEach( (val,num) => {
+
+						//todo:  splice values   areaArray.splice(num,1)
+						
+						});
+		
+				domArray.push({matDom: resizeDomino,pipTotal: pipTotal,
+					maxSize: maxSize, minSize: minSize, avgSize: avg, ptArray: areaArray});		
+			}
+//			else{
+//				domArray.push({matDom: resizeDomino, pipTotal: 0,
+//					maxSize: 0, minSize: 0, avgSize: 0, ptArray: {pt:{x: 0,y: 0},size: 0}});
+//			}
+	
+			wrkDom.delete; hier.delete; cons.delete; resizeDomino.delete;
+		});
+		console.log('domArray has ' + domArray.length + ' members'	)
+		return domArray;
+	}
+	
+	function showCanvasT(imageDataArr){
+
+		ctxT.clearRect(0, 0,canvasT.width,canvasT.height);
+		let stX = 5;
+		let stY = 20;
+		let newRow = 1;
+		let tmpMat;
+		imageDataArr.forEach((domMat,number) =>{
+				tmpMat = domMat.matDom.clone();
+				domMat.ptArray.forEach(pipArray => {
+					cv.drawMarker(tmpMat,pipArray.pt,clr.Green,cv.MARKER_DIAMOND,2,1,cv.LINE_AA);
+				});
+				ctxT.putImageData(new ImageData(new Uint8ClampedArray(tmpMat.data),tmpMat.size().width,
+				tmpMat.size().height),stX,stY);
+					//ctxT.fillStyle = "red";
+    				//ctxT.font = "bold 8px Arial";
+					//const desc = "Test Contours " + img.rows + " / " + img.cols
+    				//ctxT.fillText(desc ,stX-4,stY-19);
+				stX+=tmpMat.size().width+6;
+				if (newRow > 3){
+					newRow = 1;
+					stX =5;
+					stY = 20+tmpMat.size().height+5;
+
+				}
+				else{newRow+=1}
+			
+		});
+		tmpMat.delete;
 
 	}
 	function updatePlayerTable(){
@@ -319,6 +335,14 @@
     }
 
 </script>
+<div>
+	<video width={constraintFromVideoSettings.video.width} title='Hidden Video' hidden
+	autoplay=true
+	height={constraintFromVideoSettings.video.height} id="videO"> Nothing to See Here 
+	<track kind="captions" /> 
+	</video>
+
+</div>
 
 <!-- svelte-ignore a11y-missing-content -->
 <div>
@@ -345,7 +369,7 @@
 		
 </div>
 <div class="w-full ml-5 lg:ml-2 grid grid-cols-1  md:grid-cols-2 gap-4
-			border-2 border-amber-300 content-normal lg:w-3/4">
+			border-2 border-amber-300 content-normal md:w-3/4">
 
 	<div >
 		<canvas  id={canvasId}   width={constraintFromVideoSettings.video.width} 
@@ -366,12 +390,15 @@
 		</div>
 
 	</div>
-</div>
-<div>
+	<div >
+		<canvas  id={canvasIdW}   width={constraintFromVideoSettings.video.width} 
+			    height={constraintFromVideoSettings.video.height}
+				title="Test Canvas {constraintFromVideoSettings.video.width} by {constraintFromVideoSettings.video.height} FPS {$videoSettings.FPS}
+				 Using {$videoSettings.label}" 
+				 >
+  		</canvas>
 
-	<video width={constraintFromVideoSettings.video.width} title='Hidden Video' hidden
-	height={constraintFromVideoSettings.video.height} id="videO"> Nothing to See Here 
-	<track kind="captions" /> 
-	</video>
+	</div>
+
 
 </div>
