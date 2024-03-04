@@ -53,22 +53,21 @@
   {/each}
   </label>
   <br><br>
-  <div class="w-24 ml-2">
+  <div class="container w-32 ml-2 flex justify-left">
     You chose  {@html roundTableData[roundSelected].icon}
   
   </div>
   </div>
-  <label class="ml-2"> Choose which player to apply points to: <br>   
- 
-  {#each options as option, i}
-
-      <input class="ml-2" type=radio bind:group={selected} name="playerIndex" value={i} >&nbsp;&nbsp;
-        {display_func(option.playerName)}&nbsp;&nbsp;&nbsp;<br/>
-  
-  
-  {/each}
-  <br><br>
+  <br>
+  <label class="ml-2 w-45">Choose which player <br> &nbsp; to apply points to:   
+  <div class="flex justify-left">
+      {#each options as option, i}
+       <input class="ml-2" type=radio bind:group={selected} name="playerIndex" value={i} ><br>
+        &nbsp;{display_func(option.playerName)}&nbsp;&nbsp;&nbsp;<br/>
+     {/each}
+  </div>
   </label>
+
   <label class="ml-2"> Enter Points Here:
     <input class="w-16 bg-indigo-400 px-2 " type=number bind:value={score} id='score'> 
     <button  on:click="{() => saveScore()}" class="px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
