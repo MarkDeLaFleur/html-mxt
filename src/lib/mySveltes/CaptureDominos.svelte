@@ -1,7 +1,7 @@
 <script Lang ts>
 	// @ts-nocheck
 	//  scalar,getbuildinfo,mat
-	import cv, { Size, drawMarker, dumpInputOutputArrayOfArrays, rotatedRectangleIntersection } from '@markdelafleur/opencv'
+	import cv from '@markdelafleur/opencv'
 	import { videoSettings } from '../myFunctions/VideoStore';
 	import {goto} from '$app/navigation'
 	import { playerScore } from '$lib/myFunctions/TableStore';
@@ -12,6 +12,10 @@
 	let clr = {};
 	export let selected=0;
 	let totalofAllDominos = 0;
+	let dispWidth;
+	$:{
+		dispWidth = dispWidth;
+	}
 	let countState = "COUNT DOMINOS";
 	let cl = 0;
 	let buildInfo = '';
@@ -330,7 +334,7 @@
 		
 		});
 		buildInfo = 'Total of All Dominos ==> ' + totalofAllDominos + '\n' + dominoStr;
-		
+		dispWidth = combineImg.reduce((preVal,a) => preVal + a.img.width,0)
 		combineImg.forEach((item,x) =>{
 			ctxT.font = "bold 12px Arial";
 			ctxT.fillStyle="Blue";
@@ -399,7 +403,7 @@
 		</p>	
 	
 	<div class="overflow-visible">
-		<canvas  id={canvasIdW}   width=1000 
+		<canvas  id={canvasIdW}   width=1500
 			    height=100
 				title="Show Dominos Canvas Using {$videoSettings.label}" class="ml-3  
 				  scroll-mr-0 "
