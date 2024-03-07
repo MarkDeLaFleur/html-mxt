@@ -3,9 +3,7 @@
 	//  scalar,getbuildinfo,mat
 	import cv from '@markdelafleur/opencv'
 	import { videoSettings } from '../myFunctions/VideoStore';
-	import {goto} from '$app/navigation'
 	import { playerScore } from '$lib/myFunctions/TableStore';
-	import { navigating } from '$app/stores';
 	export let canvasId="showVid1";
 	export let canvasIdW="showTest";
 	export let roundSelected=0;
@@ -17,7 +15,6 @@
 		dispWidth = dispWidth;
 	}
 	let countState = "COUNT DOMINOS";
-	let cl = 0;
 	let buildInfo = '';
 	let videoInfo = '';
 	/**
@@ -25,8 +22,7 @@
 	 */	
 	 let ctx;
 	 let ctxT;
-
-	 let videO;
+	let videO;
 	let	canvas;
 	let canvasT;
 	let matTest;
@@ -134,22 +130,6 @@
 					//ctx.drawImage(videO,20,20,canvas.width,120,20,20,canvas.width,120);
 					ctx.drawImage(videO,20,20,canvas.width/1.8,canvas.height/1.8,5,20,
 					canvas.width,canvas.height)
-					//ctx.strokeStyle = "white"
-					//ctx.linewidth ="10"
-    				//ctx.strokeRect(25,25,50,25);
-					//ctx.strokeRect(20,20,dominoWidth,dominoWidth/2)
-	/*				ctx.beginPath();
-					ctx.moveTo(25,53);
-					ctx.lineTo(240,53);
-					ctx.moveTo(25,78);
-					ctx.lineTo(240,78);
-					ctx.moveTo(25,105);
-					ctx.lineTo(240,105);					
-					ctx.closePath();
-					ctx.stroke();
-					width of the canvas is x pixels and if we can get 4 dominos across then dividing
-					the width by 4 approximates the domino size to x/4 so let's put a rectangle at
- */
       				ctx.font = "bold 18px Arial";
 					ctx.fillStyle="Green";
       				ctx.fillText("Click to Count Pips",10,18,200);
@@ -411,6 +391,3 @@
 				 >
   		</canvas>
 	</div>	
-	
-
-
