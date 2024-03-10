@@ -1,4 +1,3 @@
-import { dev } from '$app/environment';
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
@@ -8,13 +7,11 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
 	kit: {
 		adapter: adapter(            
-		{pages: 'build',
-		assets: 'build',
-		fallback: null,
-		precompress: false
-	}),
+		{fallback: null,
+		}),
 	},
-	
+	paths:{		base: process.argv.includes('dev') ? '' : process.env.BASE_PATH
+	},
 	preprocess: [
 		vitePreprocess({
 		  postcss: true,
