@@ -25,8 +25,4 @@
   </div>
 </div>
 <SavePoints bind:selected={playerIndex} />
-<CaptureDominos bind:selected={playerIndex}   dominoRound={data.content} />
-
-   
-  
-  
+<CaptureDominos bind:selected={playerIndex}   dominoRound={data.content} />  
