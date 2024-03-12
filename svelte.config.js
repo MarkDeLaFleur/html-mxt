@@ -2,7 +2,7 @@ import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 
-
+const http = 'https://MarkDeLaFleur.github.io/html-mxt/';
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	kit: {
@@ -11,7 +11,7 @@ const config = {
 			strict: false
 		}),
 	},
-	paths:{		base: process.argv.includes('dev') ? '' : 'https://MarkDeLaFleur.github.io/html-mxt/'},
+	paths:{		base: process.argv.includes('dev') ? '' : `${http}`},
 	preprocess: [
 		vitePreprocess({
 		  postcss: true,
