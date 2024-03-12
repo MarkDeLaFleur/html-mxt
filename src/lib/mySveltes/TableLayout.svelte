@@ -2,8 +2,13 @@
     import { onMount } from 'svelte';
     import {roundTableData } from '$lib/myFunctions/IconSvg';
     import {playerScore} from '$lib/myFunctions/TableStore';
-	import { to_number } from 'svelte/internal';
-    $: {playerScore};
+	//import { to_number } from 'svelte/internal';
+    $: {
+        $playerScore.forEach(p =>{
+        console.log(`${p.playerName}, ${p.pScore}`)
+            
+        })
+        };
     let playerColors = ["border bg-orange-500","border bg-pink-300",
                     "border bg-purple-500","border bg-yellow-200",
                     "border bg-blue-400","border bg-red-500",

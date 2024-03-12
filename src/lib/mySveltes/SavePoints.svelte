@@ -10,24 +10,20 @@
   let score = 0;
   for (let x = 0; x< $playerScore.length;x++){
       if( $playerScore[x].playerName.length > 1){
-        options.push({"playerName": $playerScore[x].playerName})
+        options.push({"playerName": $playerScore[x].playerName,"playerNumber":x});
       }
   }
   $:{buttonSelection;
      if (document.getElementById("score") != null){
-         const v = parseInt($playerScore[selected].pScore[roundSelected]);
-          console.log('pScore is ' + (isNaN(v) ? 0 : v ) );
+         const v = parseInt($playerScore[options[selected].playerNumber].pScore[roundSelected]);
+        console.log('pScore is ' + (isNaN(v) ? 0 : v ) );
         document.getElementById("score").value = (isNaN(v) ? 0 : v);
-        console.log('selected ' + selected); 
-        console.log('options playername ' + options[selected].playerName);
-        console.log($playerScore[selected].playerName);
-        console.log('round Selected ' + roundSelected);   ;
-     
-        
+        console.log(`selected player ${selected} ` +
+         `options playername ${options[selected].playerName} ` +
+         `real player number ${options[selected].playerNumber} ` +
+         `round Selected ${roundSelected} ` ); 
   
-     }
-
-    
+     };    
   }
   export function roundIcons(x){
     let domino = ['twelve','eleven','ten','nine','eight','seven',
@@ -36,9 +32,10 @@
    roundSelected = x;
   }
   export function saveScore(){
-    console.log('Save clicked and score was ' + score + ' and domino was ' + buttonSelection +
-    ' and player ' + options[selected].playerName + 'is getting the points!');
-    $playerScore[selected].pScore[roundSelected] = score;
+    console.log(`Save clicked and score was ${score} and domino was ` +
+    `${buttonSelection} and player ${options[selected].playerName}(${options[selected].playerNumber}) ` +
+    `is getting the points!`);
+    $playerScore[options[selected].playerNumber].pScore[roundSelected] = score;
 
   }
 </script>
