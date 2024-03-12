@@ -11,8 +11,7 @@ const config = {
 			strict: false
 		}),
 	},
-	paths:{		base: process.argv.includes('dev') ? '' : process.env.BASE_PATH
-	},
+	paths:{		base: process.argv.includes('dev') ? '' : 'https://MarkDeLaFleur.github.io/html-mxt/'},
 	preprocess: [
 		vitePreprocess({
 		  postcss: true,
