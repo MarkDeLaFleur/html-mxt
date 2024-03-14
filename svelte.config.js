@@ -8,8 +8,9 @@ const config = {
 		{fallback: null,
 			strict: false
 		}),
+		paths:{		base: process.argv.includes('dev') ? '' : '/html-mxt'},
 	},
-	paths:{		base: process.argv.includes('dev') ? '' : '/html-mxt'},
+	
 	preprocess: [
 		vitePreprocess({
 		  postcss: true,
