@@ -9,7 +9,7 @@ const config = {
 			strict: false
 		}),
 	},
-	paths:{		base: process.argv.includes('dev') ? '' : process.env.BASE_PATH},
+	paths:{		base: process.argv.includes('dev') ? '' : '/html-mxt'},
 	preprocess: [
 		vitePreprocess({
 		  postcss: true,
