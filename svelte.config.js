@@ -8,7 +8,7 @@ const config = {
 		{fallback: null,
 			strict: false
 		}),
-		paths:{		base: process.argv.includes('dev') ? '' : '/html-mxt'},
+		paths:{		base: process.env.NODE_ENV === "production" ?  '/html-mxt' : ''},
 	},
 	
 	preprocess: [

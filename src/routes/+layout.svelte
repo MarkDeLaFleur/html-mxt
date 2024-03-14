@@ -5,6 +5,7 @@ import {base} from '$app/paths';
 import { mxTLogo } from "$lib/myFunctions/mxTLogo.js";
 
 let showMenu = false;
+console.log(`what is base value ? ${base}`)
 
 function toggleNavbar() {
   showMenu = !showMenu;
