@@ -9,7 +9,7 @@ const config = {
 		{fallback: null,
 			strict: false
 		}),
-		paths:{		base: process.env.NODE_ENV === "production" ?  '/html-mxt' : '',
+		paths:{		base: process.env.NODE_ENV === "production" ?  process.env.BASE_PATH : '',
 			},
 		
 	},
