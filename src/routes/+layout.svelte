@@ -1,6 +1,7 @@
 <script>
 import "../app.css";
 import { page } from '$app/stores';
+import {base} from '$app/paths';
 import { mxTLogo } from "$lib/myFunctions/mxTLogo.js";
 
 let showMenu = false;
@@ -41,11 +42,11 @@ function toggleNavbar() {
       class="flex-col  space-y-4 md:flex md:space-y-0 md:flex-row md:items-center md:space-x-5 md:mt-1
        {showMenu ? 'flex' : 'hidden'} bg-slate-400 px-5 py-5"
     >
-      <a class=" text-gray-800 hover:text-white" href="/#">Summary</a>
-      <a class="text-gray-800 hover:text-white" href="/Scoring" data-sveltekit-preload-data="tap">Enter Scores</a>
-      <a class="text-gray-800 hover:text-white" href="/newGame" data-sveltekit-preload-data="tap" >New Game</a>
-      <a class="text-gray-800 hover:text-white" href="/Settings">Settings</a>
-      <a class="text-gray-800 hover:text-white" href="/About" data-sveltekit-preload-data="tap">About MxT</a>
+      <a class=" text-gray-800 hover:text-white" href="{base}/#">Summary</a>
+      <a class="text-gray-800 hover:text-white" href="{base}/Scoring" data-sveltekit-preload-data="tap">Enter Scores</a>
+      <a class="text-gray-800 hover:text-white" href="{base}/newGame" data-sveltekit-preload-data="tap" >New Game</a>
+      <a class="text-gray-800 hover:text-white" href="{base}/Settings">Settings</a>
+      <a class="text-gray-800 hover:text-white" href="{base}/About" data-sveltekit-preload-data="tap">About MxT</a>
      
     </div>
   </nav>
