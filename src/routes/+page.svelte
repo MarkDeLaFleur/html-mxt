@@ -7,8 +7,9 @@ import { onMount } from 'svelte';
 onMount(  () => {
   //check and see if any of the player names in the player score table are initialized
   let checkIt = false;
+  console.log(`what is base ? ${base}`);
     $playerScore.forEach(element => {if(element.playerName.length > 0) checkIt= true})
-    if (checkIt != true) {goto(base+'/newGame')};
+    if (checkIt != true) {goto(`${base}/newGame`)};
     }
     );
 </script>

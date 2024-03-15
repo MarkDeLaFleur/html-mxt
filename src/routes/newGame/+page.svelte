@@ -4,6 +4,7 @@ import { playerScore } from '$lib/myFunctions/TableStore';
 import { goto } from '$app/navigation';
 import {base} from '$app/paths';
 import { onMount } from 'svelte';
+console.log(`what is base ? ${base}`);
 //export let display_func = a => a + '   ';
 let numPlayers = [2,3,4,5,6,7,8];
 let playerColors = ["border bg-orange-500","border bg-pink-300",
@@ -61,7 +62,7 @@ function initTable(){
     });
   });
   options=0;
-  goto(base);
+  goto(`${base}/#`);
 }
 function downloadFile() {
   let dataHeader = "Player,12,11,10,9,8,7,6,5,4,3,2,1,Blank\r\n"
