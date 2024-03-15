@@ -1,25 +1,26 @@
 <script>
-    import { onMount } from 'svelte';
+ //   import { onMount } from 'svelte';
     import {roundTableData } from '$lib/myFunctions/IconSvg';
     import {playerScore} from '$lib/myFunctions/TableStore';
 	//import { to_number } from 'svelte/internal';
-    $: {
-        $playerScore.forEach(p =>{
-        console.log(`${p.playerName}, ${p.pScore}`)
+    $: {  $playerScore.forEach(p =>{
+            console.log(`${p.playerName}, ${p.pScore}`)
             
-        })
+            });
         };
     let playerColors = ["border bg-orange-500","border bg-pink-300",
                     "border bg-purple-500","border bg-yellow-200",
                     "border bg-blue-400","border bg-red-500",
                     "border bg-green-400","border bg-yellow-700"];
 
+    /* 
     onMount(async () => $playerScore.forEach((player,ptr) =>{
         //if(player.playerName== "") {
         //    document.getElementById("playRow"+ptr).hidden = true;
         //}
     })  
     )
+    */
     </script>
     <body>
         <p class="font-semibold text-align-bottom md:text-xl ml-5">Score Summary</p>

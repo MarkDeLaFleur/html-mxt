@@ -7,6 +7,8 @@
 	export let canvasId="showVid1";
 	export let canvasIdW="showTest";
 	export let roundSelected=0;
+	export let options = [];
+	export let score = 0;
 	let clr = {};
 	export let selected=0;
 	let totalofAllDominos = 0;
@@ -20,8 +22,8 @@
 	/**
 	 * @type {HTMLVideoElement}
 	 */	
-	 let ctx;
-	 let ctxT;
+	let ctx;
+	let ctxT;
 	let videO;
 	let	canvas;
 	let canvasT;
@@ -260,12 +262,12 @@
 	
 	function showCanvasT(imageDataArr){
 			
+		let dominoStr = '';
+		/*test purposes uncomment
 		const htmlDispDiv = '<div class="flex flex-row ">';
 		const htmlDispVar =  '<div class="basis-1/4 text-end">';
 		const htmlDispFix =  '</div>';
-		let dominoStr = '';
-		/*test purposes uncomment
-        dominoStr += htmlDispDiv + htmlDispVar 'Number' + htmlDispFix;
+		dominoStr += htmlDispDiv + htmlDispVar 'Number' + htmlDispFix;
 		dominoStr += htmlDispVar + 'Count' + htmlDispFix;
 		dominoStr += htmlDispVar + 'Size' + htmlDispFix;
 		dominoStr += htmlDispVar + 'Max Radius' + htmlDispFix;
@@ -313,7 +315,11 @@
 			wrkMat.delete;tmpMat.delete;
 		
 		});
-		buildInfo = 'Total of All Dominos ==> ' + totalofAllDominos + '\n' + dominoStr;
+		score = totalofAllDominos;
+		buildInfo = `Total of All Dominos ==> ${totalofAllDominos} \n ` +
+				`click Save to add pip count to ${$playerScore[options[selected].playerNumber].playerName} `+
+				`score \n ${dominoStr}`;
+
 		dispWidth = combineImg.reduce((preVal,a) => preVal + a.img.width,0)
 		combineImg.forEach((item,x) =>{
 			ctxT.font = "bold 12px Arial";
@@ -325,13 +331,6 @@
 	
 
 	}
-	function updatePlayerTable(){
-        // update and get out
-		//using roundSelected, selected (index) and adding total of all dominos to table.
-		//show it first:
-		$playerScore[selected].pScore[roundSelected]  =   totalofAllDominos ;
-		buildInfo = $playerScore[selected].playerName + " score has been updated to " + totalofAllDominos;
-    }
 
 </script>
 <div>
@@ -347,15 +346,6 @@
 <div>
 	<br>
 	
-	<button
-		type="button" id="UpdatePlayerScore" on:click={() => updatePlayerTable()}
-		class="ml-5 lg:ml-2 px-4 py-2 bg-blue-600 text-white font-medium text-md leading-tight
-    			uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg 
-   			 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
-   			 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">
-		Save Pip Count
-		</button>
-
 		
 </div>
 <div >

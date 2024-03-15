@@ -6,8 +6,7 @@
   export let selected = 0;
   let buttonSelection = 'no button clicked yet!';
   export let roundSelected = 0;
- 
-  let score = 0;
+  export let score = 0;
   for (let x = 0; x< $playerScore.length;x++){
       if( $playerScore[x].playerName.length > 1){
         options.push({"playerName": $playerScore[x].playerName,"playerNumber":x});
@@ -15,7 +14,7 @@
   }
   $:{buttonSelection;
      if (document.getElementById("score") != null){
-         const v = parseInt($playerScore[options[selected].playerNumber].pScore[roundSelected]);
+        const v = parseInt($playerScore[options[selected].playerNumber].pScore[roundSelected]);
         console.log('pScore is ' + (isNaN(v) ? 0 : v ) );
         document.getElementById("score").value = (isNaN(v) ? 0 : v);
         console.log(`selected player ${selected} ` +
