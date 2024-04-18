@@ -6,7 +6,7 @@
 	import { playerScore } from '$lib/myFunctions/TableStore';
 	export let canvasId="showVid1";
 	export let canvasIdW="showTest";
-	export let roundSelected=0;
+	//export let roundSelected=0;
 	export let options = [];
 	export let score = 0;
 	let clr = {};
